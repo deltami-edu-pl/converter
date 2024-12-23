@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check if pdftoppm is installed
-if ! command -v convert &>/dev/null; then
+if ! command -v magick &>/dev/null; then
     echo "Imagemagick (convert) is not installed. Please install it first."
     exit 1
 fi
@@ -25,7 +25,7 @@ for pdf_file in "$dir"/$prefix*\.pdf; do
         filename_noext="${filename%.*}"
         png_output="$dir/$filename_noext.png"
 
-        convert -density 600 -transparent white -colorspace sRGB -limit memory 64MB -limit map 128MB "$pdf_file" "$png_output"
+        magick "$pdf_file" -density 600 -transparent white -colorspace sRGB -limit memory 64MB -limit map 128MB "$png_output"
 		
 		if [ ! -f "$png_output" ] ; then
 			echo "Failed to convert: $pdf_file to $png_output"
