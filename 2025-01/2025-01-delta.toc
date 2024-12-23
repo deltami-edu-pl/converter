@@ -1,0 +1,14 @@
+\babel@toc {polish}{}\relax 
+\contentsline {section}{\poz {O\penalty 10000\ przydziale miejsc na przedmiotach}{Oskar Skibski}}{1}{section.1}%
+\contentsline {section}{\poz {Od mnożenia do dodawania}{Michał Miśkiewicz}}{4}{section.2}%
+\contentsline {section}{\zadania }{6}{section.3}%
+\contentsline {section}{\poz {Papierem na księżyc}{Grzegorz Szymanek}}{7}{section.4}%
+\contentsline {section}{\tjzwspisie {Człowiek ukryty w genomie}}{10}{section.5}%
+\contentsline {section}{\poz {Odwzorowania addytywne i\penalty 10000\ geometria}{Franciszek Hansdorfer}}{11}{section.6}%
+\contentsline {section}{\akts {Aktualności}\hfill \break }{13}{section.7}%
+\contentsline {section}{\poz {Trzecie prawo Keplera i\penalty 10000\ analiza wymiarowa}{Grzegorz Łukaszewicz}}{14}{section.8}%
+\contentsline {section}{\poz {Co nieco o\penalty 10000\ energii}{Ludwik Lehman}}{17}{section.9}%
+\contentsline {section}{\liga }{20}{section.10}%
+\contentsline {section}{\pzn {Nieunikniona kolizja?}}{22}{section.11}%
+\contentsline {section}{\niebow {Niebo w\penalty 10000\ styczniu}}{23}{section.12}%
+\contentsline {section}{\kpo {Dla jakich $n$ istnieje\ldots ?}{Bartłomiej Bzdęga}}{25}{section.13}%

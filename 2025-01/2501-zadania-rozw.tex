@@ -1,0 +1,93 @@
+
+
+\zadanieM{1804}{Dane są trójmiany kwadratowe $f_{1}(x),$ $f_2(x),$ $\ldots,$ $f_{2025}(x)$ z~tymi samymi współczynnikami przy $x^2$ oraz tymi samymi
+ współczynnikami przy $x,$ ale z~różnymi wyrazami wolnymi. Każdy z~tych
+ trójmianów ma dwa pierwiastki rzeczywiste. 
+ Niech $x_i$ będzie jednym z~pierwiastków trójmianu $f_i(x)$. Jakie wartości może przyjmować suma
+ $$f_{2}(x_1) + f_3(x_2) +\ldots+ f_{2025}(x_{2024}) + f_1(x_{2025})?$$}{Odpowiedź: Jedyną możliwą wartością jest $0.$ 
+
+\smallskip
+Niech $i$-ty trójmian ma postać $f_i(x) = ax^2+bx+c_i$ dla $i=1,2,\ldots, 2025.$ Wtedy
+\begin{align*}
+  f_2(x_1)&=ax_1^2+bx_1+c_2 =(ax_1^2+bx_1+c_1)+(c_2-c_1)\\&
+            =c_2-c_1,
+\end{align*}
+gdzie w~ostatniej równości skorzystaliśmy z~tego, że $f_1(x_1) = 0.$ Podobnie
+otrzymujemy równości $f_3(x_2) = c_3 - c_2,$ $\ldots,$ $f_{2025}(x_{2024}) =
+c_{2025}-c_{2024}$ oraz $f_{1}(x_{2025}) = c_{1}-c_{2025}$.
+Dodając otrzymane równości, dostajemy, że
+\begin{multline*}
+f_{2}(x_1) + f_3(x_2) +\ldots+ f_{2025}(x_{2024}) + f_1(x_{2025}) \\
+=(c_2-c_1)+\ldots+(c_{1}-c_{2025}) = 0.
+\end{multline*}}
+
+\zadanieM{1805}{Wyznaczyć wszystkie liczby złożone $n$ takie, że dla dowolnego przedstawienia $n$ na dwa czynniki całkowite dodatnie $n = xy$ liczba $x + y$ jest potęgą dwójki.}{Odpowiedź: $n=15.$ 
+
+\smallskip
+Podstawiając $x = 1,$ $y = n,$ otrzymujemy, że $n = 2^k-1$ dla pewnej liczby
+całkowitej dodatniej $k.$ Niech teraz $n = ab,$ gdzie $a \geq b > 2,$ i~niech $a + b
+= 2^t$ dla pewnej liczby całkowitej dodatniej $t.$ Gdyby $a=b=2^{t-1}$, to
+$ab=2^{2(t-1)}$, a~to jest sprzeczność -- mamy zatem $a>b$. Oczywiście zachodzi $k > t.$ Ponadto
+$$2^k +2^t = ab+a+b+1 = (a+1)(b+1),$$
+$$2^k-2^t = ab-a-b+1 = (a-1)(b-1).$$
+Mnożąc te równości, otrzymujemy, że liczba ${(a-1)(a + 1)(b-1)(b + 1)}$ jest podzielna przez $2^{2t}.$ 
+
+Zauważmy jednak, że dwójka występuje w~pierwszej potędze w~rozkładzie na
+czynniki pierwsze jednej z~liczb ${b-1}$
+lub $b+1,$ a~w~rozkładzie drugiej z~tych liczb w~potędze nie większej niż $t-1$. Tak samo jest
+z~liczbami $a-1$ i~$a+1.$ Zatem podzielność liczby ${(a-1)(a + 1)(b-1)(b + 1)}$
+przez $2^{2t}$ jest możliwa tylko wtedy, gdy $2^{t-1}$ dzieli jedną z~liczb
+$b-1$ i~$b+1$ oraz jedną z~liczb $a-1$ i~$a+1.$ Ponieważ $a<b<2^t,$ więc
+ $b = 2^{t-1}-1$ i~$a = 2^{t-1} + 1.$
+
+Wtedy jednak $k = 2t-2$ i~w~szczególności $2^k-1$ jest podzielne przez $3.$
+Możemy zatem założyć, że w~naszym rozumowaniu wybraliśmy $b = 3.$ Wtedy
+$a = 5,$ zatem $n = 15$ jest jedyną liczbą spełniającą warunki zadania.}
+
+\zadanieM{1806}{Dany jest ($mn$)-kąt foremny. Wśród jego wierzchołków dokładnie $m$ jest pokolorowanych na czerwono, a~$n$ na niebiesko (żaden wierzchołek nie jest pokolorowany dwukrotnie). Udowodnić, że pewien odcinek, którego końce znajdują się w~czerwonych punktach, jest równy pewnemu odcinkowi, którego końce znajdują się w~niebieskich punktach.}{Opiszmy okrąg na ($mn$)-kącie foremnym i~załóżmy, że długość każdego łuku pomiędzy sąsiednimi wierzchołkami jest równa 1. Niech $A_1, A_2, \ldots, A_m$ oznaczają czerwone wierzchołki, a~$B_1, B_2, \ldots, B_n$ wierzchołki niebieskie. Rozważmy $mn$ łuków postaci $A_iB_j,$ które skierowane są „od” $A_i$ „do” $B_j$ w~kierunku przeciwnym do ruchu wskazówek zegara. Każdy taki łuk może mieć długość równą jednej z~liczb $1, 2, \ldots , mn-1.$ Z~zasady szufladkowej Dirichleta wynika, że istnieją dwa różne
+łuki, $A_{i_1} B_{j_1}$ i~$A_{i_2} B_{j_2},$ o~tej samej długości. Łatwo zauważyć,
+że wtedy odcinki $A_{i_1} A_{i_2}$ i~$B_{j_1} B_{j_2}$ mają żądaną własność. }
+
+\zadanieF{1111}{Rozmiary k\k{a}towe tarczy s\l{}onecznej obserwowanej z~powierzchni Ziemi wynosz\k{a} oko\l{}o~0,5\textdegree (przybli\.{z}ony ,,pomiar'' mo\.{z}na wykona\'{c,} np. oceniaj\k{a}c, ile razy szeroko\'{s}\'{c} kciuka wyci\k{a}gni\k{e}tej r\k{e}ki jest wi\k{e}ksza od widzianej \'{s}rednicy tarczy słonecznej). Oszacuj temperatur\k{e} powierzchni S\l{}o\'{n}ca. Przyjmij, \.{z}e \'{s}rednia temperatura powierzchni Ziemi jest bliska 
+0\textcelsius.}{Niech $D$ oznacza \'{s}rednic\k{e} S\l{}o\'{n}ca, $d$ \'{s}rednic\k{e} Ziemi, $T_S$ temperatur\k{e} bezwzgl\k{e}dn\k{a} powierzchni S\l{}o\'{n}ca, a~${T_Z = 273}$~K temperatur\k{e} powierzchni Ziemi (0\textcelsius). S\l{}o\'{n}ce wypromieniowuje energi\k{e} proporcjonalnie do swej powierzchni, $4\pi D^2/4$, i~do  czwartej pot\k{e}gi temperatury, $T_Z^4$, a~Ziemia, w~odleg\l{}o\'{s}ci $R$, absorbuje cz\k{e}\'{s}\'{c} tej energii r\'{o}wn\k{a} stosunkowi powierzchni jej ,,tarczy'', $\pi d^2/4$, do powierzchni sfery o~promieniu $R$ ($4\pi R^2$) i~wypromieniowuje proporcjonalnie do $T_Z^4$ i~całkowitej jej  powierzchni, $4\pi d^2/4$ -- wsp\'{o}\l{}czynnik proporcjonalności jest ten sam, co w~przypadku S\l{}o\'{n}ca. K\k{a}towa \'{s}rednica S\l{}o\'{n}ca r\'{o}wna 0,5\textdegree \ oznacza, \.{z}e $D/R \approx \pi/360$. Otrzymujemy r\'{o}wnanie: 
+\begin{displaymath}
+\left( \pi \frac{d^2}{4}\right)\left(\frac{1}{4\pi R^2}\right) 4\pi \left(\frac{D^2}{4}\right) T_S^4 = 4\pi \left(\frac{d^2}{4}\right) T_Z^4, 
+\end{displaymath}
+sk\k{a}d wynika, \.{z}e
+\begin{displaymath}
+ \left(\frac{T_S}{T_Z}\right)^4 = 16\left(\frac{R^2}{D^2}\right) = 16 \left(\frac{360}{\pi}\right)^2, 
+\end{displaymath}
+czyli 
+\begin{displaymath} 
+ T_S \approx 21,4 T_Z.
+\end{displaymath}
+Po podstawieniu $T_Z = 273$ K otrzymujemy $T_S \approx 5840$~K. Astronomowie przyjmuj\k{a} $T_S = 5772$~K, a~wi\k{e}c nasze przybli\.{z}enie jest nadspodziewanie dobre. Dzi\k{e}ki efektowi cieplarnianemu \'{s}rednia temperatura powierzchni Ziemi jest nieco wy\.{z}sza od przyj\k{e}tej w~rozwi\k{a}zaniu i~wynosi około 14,76\textcelsius.}
+
+\zadanieF{1112}{W~naczyniu o~obj\k{e}to\'{s}ci $V$ znajduje si\k{e} gaz pod 
+ci\'{s}nieniem $p_0$. Dysponujemy pompk\k{a} o~obj\k{e}to\'{s}ci skoku t\l{}oka r\'{o}wnej $v \ll V$. Potrzebujemy zmniejszy\'{c} ci\'{s}nienie w~naczyniu do warto\'{s}ci $p$ bez zmieniania temperatury gazu. Ile ruchów t\l{}oka musimy wykona\'{c} i~z~jak\k{a} dok\l{}adno\'{s}ci\k{a} osi\k{a}gniemy wymagane ci\'{s}nienie?}{ Podczas odpompowywania gazu nale\.{z}y wykonywa\'{c} powolne ruchy t\l{}oka pompy, aby zapewni\'{c} warunki, w~których   gaz będzie podlegał przemianie izotermicznej. Po wykonaniu jednego ruchu t\l{}oka ci\'{s}nienie zmniejszy si\k{e} od $p_i$ do $p_{i+1}$: 
+\begin{displaymath} 
+ p_{i+1} = p_i\left(\frac{V}{V+v}\right).
+\end{displaymath}
+Zmniejszenie ci\'{s}nienia od $p_0$ do $p$ b\k{e}dzie wi\k{e}c wymaga\l{}o 
+\begin{displaymath} 
+ x =  \ln{\frac{p_0}{p}}/\ln{\frac{V}{V+v}}
+\end{displaymath}
+ruch\'{o}w~t\l{}oka. W~og\'{o}lnym przypadku $x$ nie b\k{e}dzie liczb\k{a} ca\l{}kowit\k{a}, ale wypadnie pomi\k{e}dzy dwoma warto\'{s}ciami ca\l{}kowitymi: 
+$n < x < n+1$. Przyjmijmy $x = n +q$ z~${0 < q < 1}$. Mamy w\'{o}wczas: 
+\begin{displaymath} 
+ p = p_n\left(\frac{V}{V+v}\right)^q = p_{n+1}\left(\frac{V}{V+v}\right)^{q-1}.
+\end{displaymath}
+Mo\.{z}emy zako\'{n}czy\'{c} pompowanie z~ci\'{s}nieniem r\'{o}wnym $p_n$ lub $p_{n+1}$. 
+Oszacujmy, jaki pope\l{}nimy b\l{}\k{a}d, przyjmuj\k{a}c ka\.{z}d\k{a} z~tych warto\'{s}ci:
+\begin{align*} 
+ \Delta_{+} &= p_n - p = p_n\left(1 - \left(\frac{V}{V+v}\right)^q\right) = p_n\left(1 - \left(1-\frac{v}{V+v}\right)^q\right)\\& \approx p_n\frac{qv}{V+v}. 
+\end{align*}
+Analogicznie dla $\Delta_{-} = p - p_{n+1}$:
+\begin{displaymath}
+ \Delta_{-} \approx p_n\frac{(1-q)v}{V+v}.
+\end{displaymath}
+Najlepsz\k{a} ocen\k{a} pope\l{}nionego b\l{}\k{e}du b\k{e}dzie wi\k{e}c:
+\begin{displaymath} 
+ \Delta = \frac{\Delta_{+} + \Delta_{-}}{2} = p_{n}\left(\frac{v}{2(V+v)}\right) \approx p\left(\frac{v}{2(V+v)}\right).
+\end{displaymath}
+}

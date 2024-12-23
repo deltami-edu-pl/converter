@@ -1,0 +1,55 @@
+
+\tikzstyle{sArrow}=[-{Stealth[length=2mm]}]
+\scalebox{1.2}{\begin{tikzpicture}[x=4cm, y=4cm, every node/.style={font=\scriptsize}]
+\draw[very thick] (-0.1,0) rectangle ({0.1+ln(4)},0.42);
+%\draw[very thick] (-0.1,0) rectangle ({0.1+ln(4)},0.45);
+\foreach \i in {1,2,3}
+{
+	% główna kreska
+	\draw let \n1={ln(\i)} in
+		(\n1,0) -- ++(0,0.12) node[above] {$\i$};
+	% kreska w połowie
+	\draw let \n1={ln(\i+0.5)} in
+		(\n1,0) -- ++(0,0.11) node[above, scale=0.8] {$\i{,}5$};
+	% dwie dodatkowe kreski
+	\draw let \n1={ln(\i+0.25)} in
+		(\n1,0) -- ++(0,0.05) node[above, scale=0.8] {$\i{,}25$};
+	\draw let \n1={ln(\i+0.75)} in
+		(\n1,0) -- ++(0,0.05) node[above, scale=0.8] {$\i{,}75$};
+}
+% ostatnia kreska
+\draw let \n1={ln(4)} in
+	(\n1,0) -- ++(0,0.12) node[above] {$4$};
+% kreski na potrzeby obliczeń 
+\draw[sArrow, magenta, thick] 
+	(0.75,0.2) node[above] {$e^{3/4} \approx 2{,}117$} -- (0.75,0.02);
+\draw[sArrow, magenta, thick] 
+	(1.00,0.3) node[above] {$e \approx 2{,}718$} -- (1.00,0.02);
+
+% dolna linijka
+\begin{scope}[shift={(0.75,0)}]
+\draw[very thick] (-0.1,0) rectangle ({0.1+ln(4)},-0.33);
+%\draw[very thick] (-0.1,0) rectangle ({0.1+ln(4)},-0.45);
+\foreach \i in {1,2,3}
+{
+	% główna kreska
+	\draw let \n1={ln(\i)} in
+		(\n1,0) -- ++(0,-0.12) node[below] {$\i$};
+	% kreska w połowie
+	\draw let \n1={ln(\i+0.5)} in
+		(\n1,0) -- ++(0,-0.11) node[below, scale=0.8] {$\i{,}5$};
+	% dwie dodatkowe kreski
+	\draw let \n1={ln(\i+0.25)} in
+		(\n1,0) -- ++(0,-0.05) node[below, scale=0.8] {$\i{,}25$};
+	\draw let \n1={ln(\i+0.75)} in
+		(\n1,0) -- ++(0,-0.05) node[below, scale=0.8] {$\i{,}75$};
+}
+% ostatnia kreska
+\draw let \n1={ln(4)} in
+	(\n1,0) -- ++(0,-0.12) node[below] {$4$};
+% kreska na potrzeby obliczeń 
+%\draw[magenta, very thick] (0.25,0) -- ++(0,-0.2) node[below] {$e^{1/4} \approx 1{,}284$};
+\draw[sArrow, magenta, thick] 
+	(0.25,-0.2) node[below] {$e^{1/4} \approx 1{,}284$} -- (0.25,-0.02);
+\end{scope}
+\end{tikzpicture}}
