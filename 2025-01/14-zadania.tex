@@ -1,3 +1,46 @@
+\renewcommand{\Zadania}[1][0pt]{%
+    
+\zadspis
+\phantomsection\label{zadania}\noindent\setbox0=\hbox to70pt{\includegraphics{kot}\hss}%
+\copy0{\Magenta{\LARGE\bf Zadania}}}
+
+\def\zadMat#1{%
+  \textbf{M~#1.} \csuse{zadM-#1}%\\%
+  %Rozwiązanie na str.~\pageref{rozM-#1}%
+}
+\def\zadFiz#1{%
+  \textbf{F~#1.} \csuse{zadF-#1}%\\%
+ % Rozwiązanie na str.~\pageref{rozF-#1}%
+}
+
+\vspace*{-6pt}
+\begin{szeroko}
+\Zadania\hfill
+{\normalsize
+\Magenta{\bf Rozwiązania na str.~\pageref{rozwiazania}}
+}%
+\end{szeroko}
+\vspace*{6pt}
+\begin{dwieszpalty}
+\advance\rightskip by-1.3cm  \redaguje{Przygotował  Dominik BUREK}
+
+\zadMat{1804}
+
+\zadMat{1805}
+
+\zadMat{1806}
+
+\advance\rightskip by1.3cm 
+\advance\leftskip by1.35cm 
+\redaguje{Przygotował Andrzej MAJHOFER}
+
+\zadFiz{1111}
+
+
+
+\looseness1\zadFiz{1112}
+
+\end{dwieszpalty}
 
 
 \zadanieM{1804}{Dane są trójmiany kwadratowe $f_{1}(x),$ $f_2(x),$ $\ldots,$ $f_{2025}(x)$ z~tymi samymi współczynnikami przy $x^2$ oraz tymi samymi
