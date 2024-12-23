@@ -1,0 +1,85 @@
+ 
+\ProvidesPackage{deltami-tikz}[2018/08/16 Deltami-Tikz]
+
+
+\usepackage{iftex}
+\ifluatex
+  \errmessage{Don't use lualatex.  Use plain latex and dvipdf}
+\else
+  %\errmessage{Good. You aren't using pdflatex}
+\fi
+
+
+\def\pngRGBbcolorspace{-colorspace RGB }
+
+\let\pngcolorspace=\empty
+
+
+\RequirePackage[force]{filehook}
+
+\RequirePackage{currfile}
+
+
+%\usetikzlibrary{external}
+%\tikzexternalize % activ
+%\tikzexternaldisable
+%
+%\def\tikzfiguresdir{0-Tikz-figures/}
+%\def\tikzfiguresdirpng{0-Tikz-figures/png/}
+%\immediate\write18{mkdir -p \tikzfiguresdir}
+
+% \tikzset{external/force remake} % otherwise will use external pdf if it exists
+% \tikzset{external/optimize=false} % często bez tej komendy nie działa
+%\tikzset{png export/.style={
+%	external/system call={
+%          mkdir -p \tikzfiguresdir;
+%          mkdir -p \tikzfiguresdirpng;
+%          $(dirname `which texlua`)/pdflatex \tikzexternalcheckshellescape -halt-on-error -interaction=batchmode -jobname "\image" "\texsource";
+%          pdfcrop "\image.pdf" "\image-crop.pdf";
+%          convert -units pixelsperinch -density 150 \pngcolorspace "\image-crop.pdf" "\image.png";
+%          convert -units pixelsperinch -density 300  \pngcolorspace "\image-crop.pdf" "\image-300.png";
+%          convert -units pixelsperinch -density 600  \pngcolorspace "\image-crop.pdf" "\image-600.png";
+%          mv "\image.png" "\tikzfiguresdirpng";
+%          mv "\image-300.png" "\tikzfiguresdirpng";
+%          mv "\image-600.png" "\tikzfiguresdirpng";
+%}}}
+%%$
+%\tikzset{png export}
+%
+%
+%\tikzsetexternalprefix{\tikzfiguresdir} % output the pdf to an existing directory (needs to exist)
+%\tikzsetfigurename{\currfilename-}
+
+
+
+\definecolor{deltaColor}{HTML}{E60046}
+\colorlet{magenta}{deltaColor}
+%\colorlet{magenta}{blue}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% spis treści
+\let\cntskip=\empty%\smallskip
+%\pretocmd{\contentsline}{\par\cntskip}{}{}
+
+\long\def\Xcontentsline#1#2#3#4{%
+\par
+\cntskip
+\begin{tabular}{@{}p{7.5cm}r@{\kern3pt}}%\hline
+#2&  str. \phantom{00}\llap{#3}\\%\hline
+\end{tabular}
+}
+
+
+
+\def\frontcover#1{%
+\setcounter{page}{-1}
+\thispagestyle{empty}
+\vbox to0pt{\vskip-1.02in\hbox to0pt{\hskip-2.75in\includegraphics[width=1.01\paperwidth,height=1.01\paperheight]{../#1}}}
+\setcounter{page}{0}}
+
+\def\backcover#1{%
+\setcounter{page}{-1}
+\thispagestyle{empty}
+\vbox to0pt{\vskip-1.02in\hbox to0pt{\hskip-2.76in\includegraphics[width=1.01\paperwidth,height=1.0\paperheight]{../#1-back}}}}
+
+\endinput
