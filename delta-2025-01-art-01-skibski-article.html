@@ -1,0 +1,184 @@
+<!-- //// START OF ARTICLE //// -->
+<article class="article-input article-from-tex">
+
+<div class="article-input-div"><div class="article-input-main-text"><blockquote class="blockquote-margin" id="blockquote-1">
+<p>Afiliacja: Wydział Matematyki, Informatyki i Mechaniki, Uniwersytet Warszawski</p>
+</blockquote>
+
+<p><span class="span-blockquote-ref" id="span-blockquote-1"></span>
+Kilka miesięcy temu Samorząd Studentów Wydziału Matematyki, Informatyki i Mechaniki Uniwersytetu Warszawskiego zaproponował, aby zmienić sposób, w jaki odbywa się rejestracja studentów na przedmioty.
+Do tej pory, w uproszczeniu, działała ona tak: każdy student wybierał przedmioty, na które chciałby się zapisać; następnie po kolei rozpatrywani byli studenci, w kolejności malejącej średniej ocen, i każdemu przydzielane były miejsca na wszystkich przedmiotach, które wybrali i na które były jeszcze wolne miejsca.
+Studenci nie byli zbytnio zadowoleni z tego systemu, i trudno im się dziwić. Jednym z problemów było to, że student nie wiedział, ile przedmiotów powinien wybrać, bo nie miał pewności, ile z nich dostanie, a ileś zaliczyć musi. Większym problemem było jednak to, że system ten bardzo mocno premiował osoby z wysoką średnią.
+Można argumentować, że student z najwyższą średnią powinien mieć pierwszeństwo rejestracji na pewną liczbę przedmiotów przed studentem ze średnią najniższą.
+Ale czy powinien też mieć pierwszeństwo na wszystkich przedmiotach przed studentem ze średnią tylko odrobinę niższą?
+<span class="span-blockquote-ref" id="span-blockquote-2"></span></p>
+
+<blockquote class="blockquote-margin" id="blockquote-2">
+<p>Podobno zdarzało się nawet, że studenci z wysoką średnią rejestrowali się na jakiś przedmiot ,,dla kogoś”, a potem na papierowych druczkach w Sekcji Studenckiej oddawali mu to miejsce.</p>
+</blockquote>
+
+<p>Pierwszym naturalnym krokiem do uzdrowienia systemu było wprowadzenie limitu na liczbę przedmiotów, jakie może dostać jeden student, oraz zmiana tego, co deklarują studenci – lepiej, aby podawali oni kolejność przedmiotów, na które chcą się zarejestrować, od najbardziej pożądanego do najmniej.
+Trudniejszym problemem jest jednak wyrównanie szans studentów.
+Najrówniej byłoby oczywiście, gdyby w kółko każdemu studentowi przydzielać jeden przedmiot. Ten system, znany na przykład z wyboru drużyn na lekcjach wf, nazywa się <em>Round Robin</em> (lub rzadziej, ale po polsku, <em>algorytmem karuzelowym</em>).
+Jednak czy tak powinna działać rejestracja na przedmioty? Czy ciężko wypracowana średnia nie powinna odgrywać większej roli? Czy dałoby się zrobić tak, aby osoby ze zbliżoną średnią były traktowane tak równo, jak się da, ale większa różnica w średnich przekładała się na lepszą sytuację?</p>
+
+<blockquote class="blockquote-margin" id="blockquote-3">
+<p>W dyskusjach i opracowaniu tej metody uczestniczyło sporo osób: Marcin Engel, Agata Janowska, Piotr Kępczyński, Paulina Kubera, Adam Malinowski, Konrad Mocarski, Jakub Piotrowicz, Barbara Próchniak, Oskar Skibski i Piotr Skowron (kolejność alfabetyczna).</p>
+</blockquote>
+
+<p><span class="span-blockquote-ref" id="span-blockquote-3"></span>
+Pewnie, że się da! W wyniku wielu rozmów i negocjacji powstał algorytm, który ze względu na swoją uderzającą sprawiedliwość nazwany został <em>Robin Hoodem</em>.</p>
+
+<div class="framed">
+<p><span><span style="color: var(--primary-color)"><strong><u>Przydział miejsc na przedmiotach <em>(Robin Hood)</em></u></strong></span></span></p>
+<dl>
+<dt>Krok 1:</dt>
+<dd>
+<p>Każdy student podaje ranking przedmiotów, na jakie chciałby się zapisać.</p>
+</dd>
+<dt>Krok 2:</dt>
+<dd>
+<p>Umieszczamy wszystkich studentów na wspólnej liście i sortujemy malejąco względem średniej ocen.</p>
+</dd>
+<dt>Krok 3:</dt>
+<dd>
+<p>Bierzemy pierwszą osobę z listy i przydzielamy jej przedmiot, na którym zależy jej najbardziej spośród tych, na których są jeszcze wolne miejsca (jeżeli jeszcze nie osiągnęła pewnego z góry ustalonego limitu).</p>
+</dd>
+<dt>Krok 4:</dt>
+<dd>
+<p>Zmniejszamy średnią wybranej osobie o stałą <span class="math inline">\(c = 0{,}5\)</span> i przesuwamy ją odpowiednio w dół na liście.</p>
+</dd>
+<dt>Krok 5:</dt>
+<dd>
+<p>Powtarzamy kroki 3 i 4, aż skończą się nam miejsca na przedmiotach lub nikt nie będzie chciał już żadnego z dostępnych przedmiotów.</p>
+</dd>
+</dl>
+</div>
+
+<p>Ile powinna wynosić stała <span class="math inline">\(c,\)</span> jest kwestią do dyskusji.
+Łatwo zauważyć, że gdyby zmienić ją na <span class="math inline">\(0,\)</span> to uzyskalibyśmy obecny system, a dla <span class="math inline">\(5\)</span> to zwykły Round Robin.</p>
+
+<p>A co ta stała oznacza? Ustalmy dwóch studentów i popatrzmy, jak przeplatają się ich wybory. Jeżeli dwie osoby mają różnicę średnich mniejszą niż <span class="math inline">\(c,\)</span> to są traktowane tak równo, jak się da – będą wybierać na zmianę, zaczynając od tej z wyższą średnią. Jeżeli z kolei ta różnica jest pomiędzy <span class="math inline">\(k \cdot c\)</span> a <span class="math inline">\((k+1) \cdot c,\)</span> to student z wyższą średnią najpierw wybierze <span class="math inline">\(k\)</span> przedmiotów, a potem będą wybierać na zmianę, zaczynając od tego z wyższą średnią.
+Na przykład dla najwyższej średniej <span class="math inline">\(5{,}0\)</span> i najniższej <span class="math inline">\(3{,}1,\)</span> najlepszy student wybierze 4 przedmioty przed najgorszym.</p>
+
+<p>Możemy się spierać, czy metoda jest fajna, czy nie. W szanowanym czasopiśmie, jakim jest <em>Delta</em>, skupimy się jednak na konkretach, czyli zbadamy, jakie ma teoretyczne własności. Ale najpierw ilustracja.<span class="span-blockquote-ref" id="span-blockquote-4"></span></p>
+
+<blockquote class="blockquote-margin" id="blockquote-4">
+<p><img alt="image" src="/media/2025-01-figures/202501_kol01-eps-converted-to.png"/></p>
+</blockquote>
+
+<figure>
+<img src="/media/2025-01-figures/delta-2025-01-art-01-skibski-tikz-figure0.png"/>
+</figure>
+
+<p>Ilustracja prezentuje kolejność wyborów w Robin Hoodzie, a kolejne wiersze odpowiadają przydziałowi miejsc na przedmiotach po 4, 14, 29 i 49 krokach procedury.
+Kolorowe prostokąty symbolizują przydzielane miejsca, a kolor odpowiada kolejności, w której miejsce zostało przyznane – pierwsze miejsca są zielone, a ostatnie czerwone.
+Jak widzimy, studenci z najwyższą średnią (<span class="math inline">\(&gt;4{,}5\)</span>) wybierają po pierwszym przedmiocie, po czym zmniejszamy im średnią o <span class="math inline">\(0{,}5.\)</span> W ten sposób ,,wtasowują się” oni w studentów ze średnią pomiędzy <span class="math inline">\(4{,}0\)</span> a <span class="math inline">\(4{,}5,\)</span> i razem z nimi wybierają po kolejnym przedmiocie.</p>
+
+<p>Aby opowiedzieć o własnościach Robin Hooda, wprowadźmy trochę oznaczeń.
+Załóżmy, że mamy <span class="math inline">\(n\)</span> ponumerowanych studentów.
+Przyjmiemy, że każdy student ma listę rankingową wszystkich przedmiotów, bez remisów. Dla dwóch przedmiotów <span class="math inline">\(a,b\)</span> będziemy pisać <span class="math inline">\(a \succ_i b,\)</span> jeżeli student <span class="math inline">\(i\)</span> woli przedmiot <span class="math inline">\(a\)</span> od <span class="math inline">\(b.\)</span>
+Dla uproszczenia zignorujemy limit przedmiotów, jaki może mieć jeden student: nie zmienia on wiele, a komplikuje analizę. Będziemy więc każdemu studentowi przydzielać jak najwięcej miejsc.</p>
+
+<p>Między studentów będziemy rozdzielać pewien zbiór miejsc na przedmiotach.
+Dla ułatwienia ten zbiór będzie po prostu multizbiorem przedmiotów, czyli ,,zbiorem”, w którym przedmiot pojawia się tyle razy, ile jest na nim miejsc.
+<span class="span-blockquote-ref" id="span-blockquote-5"></span>
+Szukamy pewnego <em>podziału</em> tych miejsc, czyli listy <span class="math inline">\((A_i) = (A_1, \dots, A_n)\)</span> takiej, że <span class="math inline">\(A_1, \dots, A_n\)</span> są zbiorami przedmiotów dla studentów <span class="math inline">\(1,\dots,n\)</span> (nie multizbiorami!), które połączone dadzą multizbiór wszystkich miejsc.</p>
+
+<blockquote class="blockquote-margin" id="blockquote-5">
+<p>Przykładowo dla dwóch przedmiotów <span class="math inline">\(m,p\)</span> (matematyka i polski) możemy mieć multizbiór <span class="math inline">\(O=\{m,m,m,p,p\}\)</span> oznaczający 3 miejsca na matematyce i 2 na polskim.</p>
+</blockquote>
+
+<p><span>Co możemy powiedzieć o preferencjach studenta dla zbiorów przedmiotów?
+Aby uniknąć spekulacji, czy lepiej mieć dwa średnie przedmioty, czy jeden fajny i jeden słaby, będziemy porównywać tylko niektóre zbiory.
+Powiemy, że osobie <span class="math inline">\(i\)</span> podoba się zbiór <span class="math inline">\(A\)</span> co najmniej tak samo jak <span class="math inline">\(B\)</span> (oznaczane <span class="math inline">\(A \succeq_i B\)</span>), jeżeli <span class="math inline">\(|A| \ge |B|\)</span> oraz najbardziej lubiany przedmiot z <span class="math inline">\(A\)</span> jest co najmniej tak lubiany jak ulubiony z <span class="math inline">\(B,\)</span> drugi z <span class="math inline">\(A\)</span> co najmniej tak lubiany jak drugi z <span class="math inline">\(B\)</span> itd.
+<span class="span-blockquote-ref" id="span-blockquote-6"></span>
+Łatwo zauważyć, że <span class="math inline">\(A \succeq_i B\)</span> oraz <span class="math inline">\(B \succeq_i A\)</span> implikuje <span class="math inline">\(A = B.\)</span>
+Będziemy więc pisać <span class="math inline">\(A \succ_i B,\)</span> jeżeli <span class="math inline">\(A \succeq_i B\)</span> i <span class="math inline">\(A \neq B.\)</span></span></p>
+
+<blockquote class="blockquote-margin" id="blockquote-6">
+<p>Formalnie, <span class="math inline">\(A \succeq_i B,\)</span> jeżeli <span class="math inline">\(|A| \ge |B|\)</span> i możemy tak uporządkować przedmioty <span class="math inline">\(A = \{a_1, \dots, a_h\}\)</span> i <span class="math inline">\(B = \{b_1, \dots, b_{\ell}\},\)</span> aby zachodziło <span class="math inline">\(a_j=b_j\)</span> lub <span class="math inline">\(a_j \succ_i b_j\)</span> dla każdego <span class="math inline">\(j \in \{1,\dots,{\ell}\}.\)</span></p>
+</blockquote>
+
+<p>Jedną z podstawowych własności dobrego podziału jest to, że nie da się go łatwo poprawić, to znaczy tak pozmieniać, aby nikt na tym nie stracił, a ktoś zyskał.</p>
+
+<p>Podział <span class="math inline">\((A_i)\)</span> jest <em><span style="color: var(--primary-color)"> optymalny w sensie Pareto</span></em>, jeżeli nie istnieje podział <span class="math inline">\((B_i)\)</span> taki, że <span class="math inline">\(B_i \succeq_i A_i\)</span> dla każdego studenta <span class="math inline">\(i\)</span> oraz <span class="math inline">\(B_i \succ_i A_i\)</span> dla przynajmniej jednego studenta.</p>
+
+<p>Czy podział uzyskany przez Robin Hooda jest w tym sensie optymalny? Tak. Można powiedzieć nawet więcej – dowolny podział uzyskany przez kolejne przydzielanie studentom miejsc na ich ulubionych dostępnych przedmiotach jest optymalny, niezależnie od kolejności, w jakiej będzie się te osoby wybierać.
+Aby to zobaczyć, wystarczy po kolei rozpatrywać przyznane miejsca. Czy student wybierający jako pierwszy może preferować podział, w którym nie ma przedmiotu, który dostał w pierwszej kolejce? Oczywiście nie. A spośród takich podziałów, czy student, który wybiera jako drugi, może preferować podział bez przedmiotu, który dostał w drugiej kolejce? Nie – jeżeli nie jest to jego ulubiony przedmiot, to znaczy, że na ulubionym było tylko jedno miejsce, którego nie może dostać, nie krzywdząc w ten sposób pierwszego studenta. I tak dalej.</p>
+
+<p>Nazwijmy taki algorytm przydziału Drunk Robinem
+<span class="span-blockquote-ref" id="span-blockquote-7"></span>
+(definicja na marginesie).
+Okazuje się, że wszystkie optymalne podziały da się nim uzyskać!</p>
+
+<blockquote class="blockquote-margin" id="blockquote-7">
+<p><span><span style="color: var(--primary-color)">Drunk Robin:</span></span> Wybieramy dowolnego studenta i przydzielamy mu jego ulubiony dostępny przedmiot. Powtarzamy, dopóki są jeszcze jakieś miejsca.</p>
+</blockquote>
+
+<div class="theorem*">
+<p><strong>Twierdzenie 1</strong>. <em>Podział jest optymalny w sensie Pareto wtedy i tylko wtedy, gdy da się go uzyskać algorytmem Drunk Robin.</em></p>
+</div>
+
+<div class="proof">
+<p><em>Proof.</em> Uzasadniliśmy już, że Drunk Robin daje tylko podziały optymalne. Załóżmy, że mamy podział optymalny i rozpatrzmy graf, w którym wierzchołkami są studenci, a skierowana krawędź <span class="math inline">\((i,j)\)</span> istnieje, jeżeli <span class="math inline">\(j\)</span> posiada jakiś przedmiot, który <span class="math inline">\(i\)</span> woli od wszystkich swoich przedmiotów.
+Gdyby ten graf miał cykl, to podział nie byłby optymalny – każdy student mógłby dostać bardziej lubiany przedmiot w zamian za któryś mniej lubiany.
+<span class="span-blockquote-ref" id="span-blockquote-8"></span>
+Skoro graf nie ma cyklu, to musi istnieć wierzchołek bez krawędzi wychodzących, czyli który nikomu nie zazdrości żadnego przedmiotu.
+Możemy mu zatem pozwolić wybierać jako pierwszemu. Następnie kasując jego ulubiony przedmiot z jego zbioru oraz jedno miejsce ze zbioru dostępnych miejsc, dostaniemy mniejszy podział, który też jest optymalny: gdyby nie był i istniałby lepszy podział, po dodaniu skasowanego przedmiotu dostalibyśmy podział lepszy niż oryginalny, przecząc jego optymalności.
+Postępując dla niego i kolejnych mniejszych podziałów analogicznie, otrzymamy kolejność, w której każdy student wybiera ulubiony dostępny przedmiot. ◻</p><blockquote class="blockquote-margin" id="blockquote-8">
+<p>Jeżeli w grafie wszystkie wierzchołki mają krawędzie wychodzące, to zawsze znajdziemy w nim cykl, podążając uparcie za strzałkami wychodzącymi – studentów (na świecie) mamy skończoną liczbę, więc w końcu ktoś się powtórzy.</p>
+</blockquote>
+</div>
+
+<p>Podziały uzyskane z Drunk Robina mogą być jednak bardzo niesprawiedliwe.
+W jaki sposób możemy opisać fakt, że podział jest sprawiedliwy? Nie możemy wymagać, aby wszyscy dostali miejsce na ulubionym przedmiocie. Moglibyśmy jednak chcieć, aby każda osoba miała zbiór nie więcej niż o jeden przedmiot gorszy niż każda inna.
+O tym właśnie mówi następująca właściwość:</p>
+
+<p>Podział <span class="math inline">\((A_i)\)</span> jest <em><span style="color: var(--primary-color)"> wolny od zazdrości z dokładnością do jednego przedmiotu (EF1)</span></em>, jeżeli dla dowolnych dwóch studentów <span class="math inline">\(i,j\)</span> zachodzi <span class="math inline">\(A_j = \emptyset\)</span> albo istnieje przedmiot <span class="math inline">\(p \in A_j,\)</span> taki że <span class="math inline">\(A_i \succeq_i A_j \setminus \{p\}.\)</span></p>
+
+<blockquote class="blockquote-margin" id="blockquote-9">
+<p><span><span style="color: var(--primary-color)"> Round Robin:</span></span> Układamy studentów w listę. Bierzemy pierwszego, przydzielamy mu jego ulubiony dostępny przedmiot i przesuwamy go na koniec listy. Powtarzamy, dopóki są jeszcze jakieś miejsca.</p>
+</blockquote>
+
+<p><span class="span-blockquote-ref" id="span-blockquote-9"></span>
+Łatwo zobaczyć, że podziały uzyskane Round Robinem spełniają tę własność:
+pierwszy przedmiot wybrany przez studenta <span class="math inline">\(i\)</span> jest dla niego lepszy lub taki sam jak drugi wybrany przez studenta <span class="math inline">\(j,\)</span> drugi wybrany przez <span class="math inline">\(i\)</span> jest lepszy lub taki sam jak trzeci wybrany przez <span class="math inline">\(j\)</span> itd.
+<span class="span-blockquote-ref" id="span-blockquote-10"></span>
+Co ciekawe, istnieją jednak podziały optymalne w sensie Pareto, które spełniają EF1, a nie da się ich uzyskać algorytmem Round Robin.
+Przykład znajduje się na marginesie.</p>
+
+<blockquote class="blockquote-margin" id="blockquote-10">
+<p>Rozważmy 2 studentów, zbiór miejsc <span class="math inline">\(\{a,b,c,d\}\)</span> (na każdym przedmiocie jedno miejsce), podział <span class="math inline">\(A_1 = \{a,b\},\)</span> <span class="math inline">\(A_2 = \{c,d\}\)</span> i preferencje:
+<span class="math inline">\(a \succ_1 b \succ_1 c \succ_1 d\)</span> oraz
+<span class="math inline">\(b \succ_2 c \succ_2 d \succ_2 a.\)</span>
+Podział ten jest optymalny w sensie Pareto i spełnia EF1, ale nie da się go uzyskać algorytmem Round Robin.</p>
+</blockquote>
+
+<p>A czy podziały uzyskane Robin Hoodem spełniają EF1?
+Nie, ale to dobrze – chcemy przecież, aby wyższa średnia przełożyła się na znacząco lepszy zbiór przedmiotów.
+Niech <span class="math inline">\(p_i\)</span> będzie pewnym priorytetem, czyli u nas średnią studenta <span class="math inline">\(i.\)</span>
+<span class="span-blockquote-ref" id="span-blockquote-11"></span>
+Możemy zdefiniować następujący wariant własności EF1:</p>
+
+<blockquote class="blockquote-margin" id="blockquote-11">
+<p>Dla modelu, w którym nie ma limitu przedmiotów, jakie może mieć jeden student, definicja Robin Hooda wygląda tak: Wybieramy studenta z najwyższą średnią, przydzielamy mu jego ulubiony dostępny przedmiot i zmniejszamy mu średnią o <span class="math inline">\(c=0{,}5.\)</span> Powtarzamy, dopóki są jeszcze jakieś miejsca.</p>
+</blockquote>
+
+<p>Podział <span class="math inline">\((A_i)\)</span> jest <em><span style="color: var(--primary-color)"> wolny od zazdrości z dokładnością do jednego przedmiotu, uwzględniając priorytety (EF1-<span class="math inline">\(p\)</span>),</span></em> jeżeli dla dowolnych dwóch studentów <span class="math inline">\(i,j\)</span> zachodzi:</p>
+
+<ul>
+<li><p>jeżeli <span class="math inline">\((p_j-p_i)/c \in [\ell,\ell+1)\)</span> dla <span class="math inline">\(\ell \in \mathbb{N},\)</span> to istnieje <span class="math inline">\(P \subseteq A_j,\)</span> <span class="math inline">\(|P| \le \ell+1\)</span> taki, że <span class="math inline">\(A_i \succeq_i A_j \setminus P,\)</span></p></li>
+<li><p>jeżeli <span class="math inline">\((p_j-p_i)/c \in (\ell,\ell+1]\)</span> dla <span class="math inline">\(\ell \in \mathbb{N},\)</span> to
+istnieje <span class="math inline">\(P \subseteq A_j,\)</span> <span class="math inline">\(|P| \le \ell\)</span> taki, że <span class="math inline">\(A_j \setminus P \succeq_j A_i.\)</span></p></li>
+</ul>
+
+<p>Łatwo sprawdzić, że gdy priorytety są równe, własność ta sprowadza się do EF1.
+Przy priorytetach spełnialność wynika z kolejności, w jakiej studenci wybierają przedmioty: dla <span class="math inline">\((p_j-p_i)/c \in [\ell,\ell+1)\)</span> student <span class="math inline">\(j\)</span> wybiera <span class="math inline">\(\ell\)</span> lub <span class="math inline">\(\ell+1\)</span> przedmiotów przed studentem <span class="math inline">\(i,\)</span> więc po wyrzuceniu <span class="math inline">\(\ell+1\)</span> ulubionych przedmiotów studentowi <span class="math inline">\(j\)</span> student <span class="math inline">\(i\)</span> będzie wolał swój zbiór.</p>
+
+<p>Nasz algorytm zastosowaliśmy do przydziału miejsc na przedmioty, ale można go też stosować w codziennym życiu, np. do podziału czekoladek z bombonierki. Starszym Czytelnikom sugerujemy przyjąć za priorytet wiek, tylko ile powinno wynosić <span class="math inline">\(c\)</span>? Nie będziemy osądzać, jeżeli zostaniecie przy <span class="math inline">\(c=0{,}5.\)</span></p>
+
+</div><div class="article-input-margin" id="footnotes" role="doc-endnotes">
+
+</div></div></article>
+<!-- //// END OF ARTICLE //// -->

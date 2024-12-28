@@ -1,0 +1,86 @@
+<!-- //// START OF ARTICLE //// -->
+<article class="article-input article-from-tex">
+
+<div class="article-input-div"><div class="article-input-main-text"><p>﻿
+= [line width=.75pt]</p>
+
+<p><span>Uniwersytet im. A. Mickiewicza w Poznaniu</span></p>
+
+<blockquote class="blockquote-margin" id="blockquote-1">
+<p> </p>
+<p><strong>Wskazówki do zadań</strong></p>
+<ol>
+<li><p>Każde dwa sąsiednie boki są prostopadłe, więc <span class="math inline">\(n\ge 4\)</span> musi być parzyste.</p></li>
+<li><p>Liczba <span class="math inline">\(1+2+\ldots+2n=n(2n+1)\)</span> musi być parzysta, więc liczba <span class="math inline">\(n\)</span> również.</p></li>
+<li><p>Liczba krawędzi takiego wielościanu jest równa <span class="math inline">\(\frac 32n,\)</span> więc <span class="math inline">\(n\)</span> musi być parzyste. Dla <span class="math inline">\(n=4\)</span> mamy czworościan foremny, a dla parzystych <span class="math inline">\(n&gt;4\)</span> można skleić podstawami dwa przystające prawidłowe ostrosłupy <span class="math inline">\((n/2)\)</span>-kątne.</p></li>
+<li><p>Zauważmy, że analogiczna konstrukcja na płaszczyźnie jest wykonalna dla każdego nieparzystego <span class="math inline">\(n.\)</span> Jeśli <span class="math inline">\(n=4k+1,\)</span> to jako środkową warstwę sześcianu bierzemy konstrukcję z płaszczyzny, a dodatkowo z góry i z dołu dokładamy prostopadłościany <span class="math inline">\(n\times n\times 2k.\)</span> W przypadku <span class="math inline">\(n=4k+3\)</span> kolorujemy sześciany jednostkowe sześcianu <span class="math inline">\(n\times n\times n\)</span> w czarno-białą szachownicę. Niech środkowy sześcianik będzie czarny – wśród pozostałych jest wtedy więcej białych niż czarnych, z czego można wywnioskować, że konstrukcja jest niewykonalna.</p></li>
+<li><p>Niech <span class="math inline">\(s_k=x_1+x_2+\ldots+x_k.\)</span> Po podniesieniu danej w zadaniu równości obustronnie do kwadratu, zsumowaniu stronami dla <span class="math inline">\(k=1,2,\ldots,n\)</span> i prostych przekształceniach otrzymamy <span class="math inline">\(2s_n+n+1 = (x_n+1)^2,\)</span> więc <span class="math inline">\(s_n=0 \iff |x_n+1|=\sqrt{n+1}.\)</span> Wnioskujemy stąd, że <span class="math inline">\(n=m^2-1\)</span> dla pewnego naturalnego <span class="math inline">\(m.\)</span> Osiągalności dowodzimy indukcyjnie, rozważając wszystkie możliwe wartości <span class="math inline">\(x_n.\)</span></p></li>
+<li><p>Liczba <span class="math inline">\(\frac 12n^2(n+1)\)</span> musi być kwadratem, więc <span class="math inline">\(n=2k^2-1\)</span> dla pewnej
+liczby całkowitej <span class="math inline">\(k,\)</span> a stąd bok kwadratu ma długość <span class="math inline">\(kn.\)</span> W celu wykonania konstrukcji można ułożyć <span class="math inline">\(k^2\)</span> kwadratów <span class="math inline">\(n\times n.\)</span></p></li>
+<li><p>Znana jest mi konstrukcja dla <span class="math inline">\(n=1,2,3,4\)</span> i nic więcej.</p></li>
+</ol>
+</blockquote>
+
+<p><span class="span-blockquote-ref" id="span-blockquote-1"></span>
+Zajmiemy się tu zadaniami, w których należy wyznaczyć wszystkie liczby naturalne
+<span class="math inline">\(n,\)</span> dla których istnieje pewien zadany obiekt. Trzeba pamiętać, że rozwiązanie takiego
+zadania składa się z dwóch części:</p>
+
+<ul>
+<li><p>w przypadku tych <span class="math inline">\(n,\)</span> dla których dany obiekt istnieje, wystarczy podać jego konstrukcję albo (co się zdarza w trudniejszych zadaniach) udowodnić jego istnienie metodami pośrednimi, takimi jak na przykład zasada szufladkowa;</p></li>
+<li><p>dla tych <span class="math inline">\(n,\)</span> dla których nie istnieje dany obiekt, trzeba przeprowadzić dowód jego nieistnienia, najczęściej metodą nie wprost – przez założenie istnienia i doprowadzenie do sprzeczności.</p></li>
+</ul>
+
+<p>Zwykle jedna z tych dwu części jest łatwiejsza. Pozwala to postawić odpowiednią hipotezę, co często ułatwia rozwiązanie trudniejszej części, ponieważ wiemy już, co chcemy wykazać.</p>
+
+<p>﻿
+Jako przykład rozwiążemy następujące zadanie z VII Wielkopolskiej Ligi Matematycznej.</p>
+
+<p>﻿
+<strong>Przykład.</strong> Nazwijmy <em>grubym</em> prostokąt o bokach <span class="math inline">\(x\)</span> i <span class="math inline">\(y\)</span> spełniających warunek <span class="math inline">\(\frac12x &lt; y&lt;2x.\)</span> Wyznaczyć wszystkie liczby naturalne <span class="math inline">\(n,\)</span> dla których z kafelków o wymiarach <span class="math inline">\(1\times1, 1\times2, \ldots, 1\times n\)</span> można ułożyć gruby prostokąt (każdy z kafelków musi być użyty dokładnie jeden raz).</p>
+
+<p>﻿
+<em>Rozwiązanie.</em> Pole takiego prostokąta jest równe <span class="math inline">\(\frac12n(n+1),\)</span> dodatkowo jeden z boków ma długość co najmniej <span class="math inline">\(n.\)</span> W takim razie drugi bok ma długość co najwyżej <span class="math inline">\(\lfloor\frac12(n+1)\rfloor,\)</span> co jest równe <span class="math inline">\(\frac12n\)</span> dla <span class="math inline">\(n\)</span> parzystych. Ale wówczas otrzymany prostokąt nie jest gruby. Udowodniliśmy zatem, że dla parzystych <span class="math inline">\(n\)</span> taki prostokąt nie istnieje.</p>
+
+<p>﻿</p>
+
+<div class="minipage">
+<div class="minipage">
+<p>W przypadku nieparzystych <span class="math inline">\(n\)</span> możemy skonstruować gruby prostokąt, tak jak na rysunku obok.</p>
+</div>
+<p><img alt="image" src="/media/2025-01-figures/delta-2025-01-art-13-bzdega-tikz-figure1.png"/></p>
+</div>
+
+<p>﻿
+Widoczny tu motyw parzystości często pojawia się w tego typu zadaniach.</p>
+
+<p><strong>Zadania</strong></p>
+
+<ol>
+<li><p>Wyznaczyć wszystkie liczby naturalne <span class="math inline">\(n\ge4,\)</span> dla których istnieje <span class="math inline">\(n\)</span>-kąt, którego każdy kąt wewętrzny ma <span class="math inline">\(90^\circ\)</span> lub <span class="math inline">\(270^\circ.\)</span></p></li>
+<li><p>Dla jakich liczb całkowitych dodatnich <span class="math inline">\(n\)</span> zbiór <span class="math inline">\(\{1,2,3,\ldots,2n\}\)</span> można rozbić na dwa rozłączne <span class="math inline">\(n\)</span>-elementowe podzbiory o jednakowych sumach?</p></li>
+<li><p>Wyznaczyć wszystkie liczby naturalne <span class="math inline">\(n,\)</span> dla których istnieje <span class="math inline">\(n\)</span>-ścian wypukły, którego wszystkie ściany są przystającymi trójkątami.</p></li>
+<li><p>Niech <span class="math inline">\(n\)</span> będzie liczbą nieparzystą. Z <span class="math inline">\(\frac{n^3-1}2\)</span> niebieskich
+prostopadłościanów o wymiarach <span class="math inline">\(1\times1\times2\)</span> i jednego zielonego o wymiarach
+<span class="math inline">\(1\times1\times1\)</span> chcemy zbudować sześcian o krawędzi <span class="math inline">\(n,\)</span> ale środek powstałego
+sześcianu ma leżeć w środku zielonego klocka. Wyznaczyć wszystkie <span class="math inline">\(n,\)</span> dla
+których jest to możliwe.</p></li>
+<li><p>Znaleźć wszystkie całkowite dodatnie <span class="math inline">\(n,\)</span> dla
+których istnieje ciąg <span class="math inline">\((x_0,x_1,\ldots,x_n)\)</span> o następujących własnościach:
+<span class="math inline">\(x_0=0,\)</span> <span class="math inline">\(x_1+x_2+\ldots+x_n=0\)</span> oraz <span class="math inline">\(|x_k|=|x_{k-1}+1|\)</span> dla każdego
+<span class="math inline">\(k=1,2,\ldots,n.\)</span> (LII OM, zmodyfikowane)</p></li>
+<li><p>Wyznaczyć wszystkie dodatnie liczby całkowite <span class="math inline">\(n\)</span> o następującej własności: z <span class="math inline">\(n\)</span> prostokątów o wymiarach <span class="math inline">\(1\times n, 2\times n, \ldots, n\times n\)</span> można ułożyć kwadrat. (LXXV OM)
+﻿</p></li>
+</ol>
+
+<p>﻿
+<strong>Problem otwarty</strong></p>
+
+<ol>
+<li><p><span>Na płaszczyźnie znaduje się <span class="math inline">\(n\)</span> punktów czerwonych, <span class="math inline">\(n\)</span> zielonych i <span class="math inline">\(n\)</span> niebieskich.</span> Każda prosta przechodzi albo przez co najwyżej jeden z tych punktów, albo przez dwa punkty jednakowego koloru, albo przez trzy punkty różnych kolorów. Wyznaczyć wszystkie możliwe wartości <span class="math inline">\(n.\)</span> (Problem autorski, częściowe rozwiązanie w Matematycznym Kalendarzu Adwentowym 2021).</p></li>
+</ol>
+
+</div><div class="article-input-margin" id="footnotes" role="doc-endnotes">
+
+</div></div></article>
+<!-- //// END OF ARTICLE //// -->
