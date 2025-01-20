@@ -1,0 +1,52 @@
+ 
+\makeatletter
+\def\@oddhead{\hbox to\hsize{\kern-7.5cm\rlap{\color{magenta}{\vrule height.9cm depth-1mm width22.5cm}}\kern2cm{\textcolor{white}{\LARGE\raise3mm\hbox{\textsf{\textbf{Rozwiązania zadań ze strony \pageref{zadania}}}}}\hfill}\hfill\kern-3cm}}\makeatother
+
+\phantomsection\label{rozwiazania}
+\begin{dwieszpalty}\fontsize{9.5}{11.5}\selectfont
+\renewcommand{\rozFiz}[2][0]{\noindent\phantomsection\label{rozF-#2}%%
+  \readdim{#1}%
+  % \marg[\tmp@dimen]
+  {\leavevmode\kotek\quad %
+      \textbf{Rozwiązanie zadania F~#2.}\\
+      \csuse{rozF-#2}%
+   %
+\par\bigskip
+  }%
+}
+
+\renewcommand{\rozMat}[2][0]{\noindent\phantomsection\label{rozM-#2}%
+  \readdim{#1}%%
+  %\marg[\tmp@dimen]
+  {%\readdim{#1}%
+    \noindent\kotek\quad%
+      \textbf{Rozwiązanie zadania M~#2.}\\
+      \csuse{rozM-#2}%
+    %
+   \par\bigskip
+  }%
+}
+
+\small
+\rozMat{1807}
+
+%\vfill\eject
+\bigskip\bigskip\rozMat{1808}
+
+\bigskip\bigskip\rozMat{1809}
+
+ 
+\rozFiz{1113}
+
+\rozFiz{1114}
+
+
+
+
+
+\end{dwieszpalty}\vskip-20pt plus20pt
+\hspace*{-5.5cm}{\includegraphics{art/202502_kol24}}\vskip-10pt
+\eject
+
+\makeatletter
+\def\@oddhead{\hfill}\makeatother

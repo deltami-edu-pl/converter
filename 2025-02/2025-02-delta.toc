@@ -1,0 +1,12 @@
+\babel@toc {polish}{}\relax 
+\contentsline {section}{\poz {Jak przesłać bezpiecznie pierścionek zaręczynowy?}{Piotr Chrząstowski-Wachtel}}{1}{section.1}%
+\contentsline {section}{\poz {Do powierzchni obrotowych i\penalty 10000\ jeszcze\penalty 10000\ dalej}{Michał Miśkiewicz}}{3}{section.2}%
+\contentsline {section}{\poz {Obliczenia pól i\penalty 10000\ objętości – trzy\penalty 10000\ metody\penalty 10000\ geometryczne}{Vazgen Bagdasaryan, Grzegorz\penalty 10000\ Łukaszewicz}}{6}{section.3}%
+\contentsline {section}{\tjzwspisie {Inteligentna metoda na cukier}}{10}{section.4}%
+\contentsline {section}{\poz {Symulowanie XVII-wiecznego pola walki}{Marcin Waniek}}{12}{section.5}%
+\contentsline {section}{\poz {O\penalty 10000\ przedwiecznej inflacji}{Mateusz Kulejewski}}{14}{section.6}%
+\contentsline {section}{\zadania }{16}{section.7}%
+\contentsline {section}{\liga }{17}{section.8}%
+\contentsline {section}{\pzn {Malin\penalty 10000\ 1 -- co nowego u\penalty 10000\ spiralnej galaktyki gigantki?}}{22}{section.9}%
+\contentsline {section}{\niebow {Niebo w\penalty 10000\ lutym}}{23}{section.10}%
+\contentsline {section}{\kpo {{Symetria środkowa}}{Bartłomiej Bzdęga}}{25}{section.11}%

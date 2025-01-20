@@ -1,0 +1,86 @@
+
+
+\spis{Symulowanie XVII-wiecznego pola walki}
+{Marcin Waniek}
+
+\wtyt{Symulowanie XVII-wiecznego pola walki}
+\waut{Marcin WANIEK*}\aafil{Wydział Matematyki, Informatyki i~Mechaniki, Uniwersytet Warszawski}
+
+Na początku XVII wieku Rzeczpospolita Obojga Narodów oraz Królestwo Szwecji toczyły zaciekłą wojnę o~Inflanty. W~maju Anno Domini 1601 wojska polskie pod dowództwem hetmana wielkiego litewskiego Krzysztofa ,,Pioruna'' Radziwiłła rozpoczęły oblężenie miasta Kokenhausen (dzisiejsze Koknese na Łotwie) okupowanego przez Szwedów. 23 czerwca armia szwedzka pod dowództwem Carla Carlssona Gyllenhielma, nieślubnego syna króla Szwecji, zbliżyła się do Kokenhausen. Polski dowódca postanowił przyjąć bitwę w~polu.
+\marg{\vspace{-0cm}W~dniu bitwy twierdza Kokenhausen była wciąż utrzymywana przez polską załogę. Była to więc polska twierdza, oblegana przez szwedzką załogę miasta, obleganą przez polską armię, atakowaną przez szwedzką armię!}
+Naprzeciw około pięciu tysięcy Szwedów stanęły nieco ponad trzy tysiące wojsk polsko-litewskich. 
+%(choć, jak to zwykle bywa w przypadku bitew z tego okresu, szacunki z różnych źródeł bywają bardzo rozbieżne). 
+Pomimo tej dysproporcji sił, bitwa zakończyła się spektakularnym zwycięstwem sił Rzeczpospolitej, które straciły niecałe dwie setki żołnierzy, podczas gdy Szwedów poległo około dwóch tysięcy.
+
+Jedną z~wymienianych przez historyków przyczyn tak dotkliwej porażki wojsk szwedzkich jest to, że składały się one głównie z~rajtarów.
+\marg{\vspace{-0cm}Henryk Wisner, \textit{Kircholm 1605,} Wydawnictwo Ministerstwa Obrony Narodowej (1987).}
+Byli to jeźdźcy, których główną bronią była para pistoletów, %a~taktyka, którą się posługiwali, była karakolu.
+a~taktyką był karakol. Taktyka ta polegała na tym, że oddział rajtarii podjeżdżał do przeciwnika w~szyku składającym się z~kilku szeregów. Pierwszy szereg oddawał strzał w~kierunku wroga z~obu pistoletów, a~następnie przemieszczał się na tyły formacji, przeładowując broń. Jego miejsce zajmował kolejny szereg, z~gotową do użycia bronią.
+\marg{\vspace{-0cm}Ówczesna piechota posługiwała się bardzo podobną taktyką, zwaną kontrmarszem.}
+Taktyka ta została zaprojektowana do zwalczania piechoty, jednocześnie jednak zupełnie nie sprawdzała się w~starciach z~jazdą walczącą przy użyciu broni białej, a~to głównie z~takich wojsk składały się siły polsko-litewskie.
+
+\looseness-1{\spaceskip.33em minus.1emZanim zakłopotani zerkniecie na okładkę, żeby upewnić się, że to faktycznie \emph{Delta} -- uspokajam, już docieramy do nauk ścisłych.  Czy jesteśmy w~stanie w~jakiś sposób zastosować metody informatyczne, aby przetestować hipotezę historyków, że stosowanie karakolu w~istotny sposób wpłynęło na wynik bitwy? Spróbujemy posłużyć się symulacją wieloagentową, czyli procesem, w~którym duża liczba inteligentnych agentów wchodzi ze sobą w~interakcje. Obdarzmy każdy oddział \textit{taktyką} -- algorytmem koordynującym działania całego regimentu, który na podstawie obserwacji środowiska wybiera rozkaz dla żołnierzy. Każdego żołnierza zaś obdarzmy \textit{zachowaniem} -- algorytmem kierującym jego poczynaniami na polu bitwy, który na podstawie obserwacji środowiska i~rozkazu otrzymanego od taktyki wybiera akcję wykonywaną przez wojaka.}
+
+\marginpar{
+\vspace{-3cm}
+\footnotesize
+\begin{tikzpicture}
+    \node [draw, text width=6em, text centered] (takt) {Taktyka};
+    \node [draw, text width=6em, text centered] (zach) [below of=takt] {Zachowanie};
+    \node (ltakt) [left=6em of takt]{};
+    \node (lzach) [left=6em of zach]{};
+    \node (bot) [below of=zach]{};
+    \path[->] (ltakt) edge node [above] {Obserwacja} (takt);
+    \path[->] (lzach) edge node [above] {Obserwacja} (zach);
+    \path[->] (takt) edge node [right] {Rozkaz} (zach);
+    \path[->] (zach) edge node [right] {Akcja} (bot);
+\end{tikzpicture}
+}
+
+Zastanówmy się teraz, jak w~ramach tego schematu odtworzyć sposób działania rajtarów. Duży ciężar będzie tu spoczywał na taktyce. Przydziela ona każdemu żołnierzowi miejsce w~formacji i~nakazuje przesunięcie się całej formacji w~kierunku najbliższego oddziału wroga. Po znalezieniu się w~zasięgu ataku, daje ona rozkaz strzału, a~następnie modyfikuje formację, przesuwając pierwszy szereg na koniec i~dając rozkaz zajęcia nowych pozycji, cały czas starając się zachować stałą odległość od przeciwnika. Zachowanie rajtara jest z~kolei bardzo proste i~polega na bezpośrednim wykonywaniu poleceń otrzymanych od taktyki. Żołnierz oddaje strzał tylko, gdy otrzyma taki rozkaz i~znajduje się w~pierwszym szeregu formacji, zaś przeładowuje broń, kiedy to tylko możliwe.
+
+Opracowawszy sposób walki rajtarów, możemy zacząć budować symulację (dla uproszczenia nie opisujemy tu konstrukcji algorytmów pozostałych rodzajów wojsk, np. polskiej jazdy). Szczęśliwie w~literaturze znajdziemy dosyć dokładny opis liczby i~rozmieszczenia żołnierzy obu sił na początku bitwy. Rozstawiamy zatem naszych symulowanych wojaków. Czy to już wszystko? Nie, teraz czeka nas proces kalibracji, czyli dopasowania liczbowych parametrów symulacji (a~więc np. prędkości poruszania się wszystkich oddziałów, szybkości przeładowania broni itp.) tak, aby faktycznie odtwarzała ona historyczny rezultat bitwy. Ponownie, pominiemy tu szczegóły techniczne tego procesu. Po jego zakończeniu otrzymujemy gotowy model, który możemy wykorzystać w~naszych historycznych eksperymentach. Rezultaty symulacji znaleźć możecie w~tabeli na górze następnej strony.%poniżej.
+\marg[-40]{Więcej informacji (w~tym na temat mechaniki ucieczki) znaleźć można w~pracy:  Marcin Waniek, \emph{Petro: a~multi-agent model of historical warfare,} ,,Intelligent Agent Technologies'' (2014).\bigskip}
+
+\begin{center}\def\arraystretch{1.1}
+\begin{tabular}{l l l}
+\hline
+& Rzeczpospolita & Szwecja\vrule height12pt width0pt depth5pt \\
+\hline
+Liczebność przed bitwą & 3324 & 5070\vrule height12pt width0pt  \\
+Liczebność po bitwie & 3100 & 0 \\
+Uciekło z~pola bitwy & 130 & 2518 \\
+Zginęło w~czasie bitwy & 94 & 2552\vrule  width0pt depth5pt \\
+\hline
+Straty szacowane przez historyków & ok. 100--200 & ok. 2000\vrule height12pt width0pt depth5pt  \\
+\hline
+\end{tabular}
+\end{center}\smallskip
+
+W~jaki sposób możemy użyć tego modelu do przetestowania hipotezy, że stosowanie karakolu istotnie przyczyniło się do szwedzkiej porażki? Możemy na przykład podmienić tę taktykę na bardziej dopasowaną do starcia z~polską jazdą. Przykładem może być sposób walki jeźdźców tatarskich. Posługiwali się oni przede wszystkim łukami refleksyjnymi. W~miarę możliwości unikali walki wręcz, chętnie stosując taktykę szybkiego ataku i~pozorowanej ucieczki. W~czasie odwrotu kontynuowali ostrzał przeciwnika, poruszając się w~szyku przypominającym półksiężyc.
+
+Jak możemy odtworzyć sposób walki Tatarów w~ramach naszego systemu? Tym razem taktyka będzie bardzo prosta, wydaje ona po prostu rozkaz ataku na najbliższy oddział przeciwnika. Najważniejsze decyzje podejmowane są na poziomie zachowania pojedynczego żołnierza.
+Każdy żołnierz ma określoną odległość $d$, uważaną przez niego za bezpieczną. Otrzymawszy rozkaz ataku, jeździec reaguje w~sposób uzależniony od obserwacji najbliższego otoczenia. Jeżeli w~odległości $d$ od niego znajdują się żołnierze wroga, jeździec ucieka od nich z~maksymalną prędkością. Jeżeli w~zasięgu ataku nie ma żadnego wrogiego żołnierza, porusza się w~stronę najbliższego wroga należącego do oddziału wskazanego jako cel w~otrzymanym rozkazie. Niezależnie od ruchu żołnierz  oddaje strzał w~kierunku najbliższego wroga znajdującego się w~zasięgu.
+Ilustracje na marginesie przedstawiają przykładowe starcie między Tatarami (zielone trójkąty) a~jazdą walczącą wręcz (czerwone trójkąty).
+
+\marginpar{\includegraphics[width=120px]{tatars-example-vertical.png}}
+
+Odtworzywszy taktykę jeźdźców tatarskich, możemy jej teraz użyć, aby przetestować kontrfaktyczny scenariusz bitwy. W~tym celu taktykę i~zachowanie oddziałów rajtarii biorących udział w~bitwie podmieniamy na taktykę i~zachowanie jeźdźców tatarskich. Wszystkie inne parametry symulacji zostają zachowane. W~szczególności niezmienione pozostają początkowe rozstawienie obu armii oraz statystyki liczbowe żołnierzy rajtarii (takie jak np. ich prędkość). Następnie uruchamiamy symulację\dots\ i~co ukazuje się naszym oczom? Poniósłszy ciężkie straty, armia polska zostaje zmuszona do wycofania się, przerywając jednocześnie oblężenie Kokenhausen. Wojska szwedzkie również odnoszą duże straty, jednak w~skali strategicznej byłyby one dla nich o~wiele mniej dotkliwe niż dla wiecznie cierpiącej na niedobór żołnierzy Rzeczypospolitej. Rezultaty symulacji alternatywnego scenariusza znaleźć możecie w~tabeli poniżej.
+
+\begin{center}\def\arraystretch{1.1}
+\begin{tabular}{l l l}
+\hline
+& Rzeczpospolita & Szwecja\vrule height12pt depth5pt width0pt \\
+\hline
+Liczebność przed bitwą & 3324 & 5070\vrule height12pt width0pt \\
+Liczebność po bitwie & 0 & 2250 \\
+Uciekło z~pola bitwy & 2007 & 1647 \\
+Zginęło w~czasie bitwy & 1317 & 1173\vrule  depth5pt width0pt \\
+\hline
+\end{tabular}
+\end{center}\smallskip
+
+Czy możemy zupełnie bezpośrednio interpretować wyniki tego eksperymentu i~z~całą stanowczością stwierdzić, że rajtarzy wojujący ,,po tatarsku'' rozbiliby polską armię? Oczywiście nie, do rezultatów wszelkiego rodzaju symulacji należy podchodzić z~odpowiednią dozą sceptycyzmu. Przeładowywanie XVII-wiecznych pistoletów podczas chaotycznej pozorowanej ucieczki wymagałoby nielichej dozy ekwilibrystyki. Możemy jedynie uznać, że wynik naszego eksperymentu stanowią jedną z~wielu wskazówek, że przypuszczenia historyków mogą być prawdziwe, i~stosowana przez rajtarów taktyka karakolu przyczyniła się do szwedzkiej porażki.
+
+\eject
+\normalsize

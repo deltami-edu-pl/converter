@@ -1,0 +1,34 @@
+\tikzset{sP/.pic={
+	\fill (0,0) circle (0.08);
+}}
+
+\tikzstyle{sArrow}=[-{Stealth[length=2mm]}]
+\begin{tikzpicture}%[x=15mm, y=15mm]
+\def\sAngle{40}
+\path
+	coordinate (O) at (0,0)
+	coordinate (P) at (0:2)
+	coordinate (Q) at (\sAngle:2)
+	coordinate (Qb) at ($(O)!(Q)!(P)$);
+%\path let \p1=(Q) in 
+%	coordinate (Qb) at (\x1,0);
+\draw (0:2) arc (0:180:2);
+\draw 	(O) -- node[midway, sloped, above] {$1$} (Q)
+		(O) -- node[midway, below] {$\cos \alpha$} (Qb) -- (P); 
+\draw[sArrow] (P) -- (0:2.8) node[below] {$x$};
+\draw %[dashed] 
+	(Qb) -- node[midway, sloped, above] {$\sin \alpha$} (Q);
+% oznaczenie kątów
+%\pic [draw, angle radius=4mm] {angle=Q--Qb--O};	% NIE DZIAŁA! (coś nie tak z pakietem)
+\draw[shift={(Qb)}, scale=0.15] (-1,0) -- (-1,1) -- (0,1);
+\pic [draw, angle radius=8mm] {angle=P--O--Q};
+\node at (.5,.18){$\alpha$};
+% oznaczenie łuku i jego długości
+\draw[magenta, very thick] (0:2) arc (0:\sAngle:2);
+\draw[sArrow] (\sAngle/2:2.2) arc (\sAngle/2:\sAngle:2.2);
+\draw[sArrow] (\sAngle/2:2.2) arc (\sAngle/2:0:2.2);
+\node at (\sAngle/2:2.4) {$\alpha$};
+% punkt O, a tak naprawdę P
+\draw (P) pic {sP} node[below=.1] {$O$};
+%\fill (P) node[below=1.5] {$O$} circle (0.08);
+\end{tikzpicture}

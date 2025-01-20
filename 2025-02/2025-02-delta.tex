@@ -1,0 +1,116 @@
+\documentclass[leqno,10pt]{article}
+
+\usepackage[hoffset={.2cm},voffset={1.7cm},papersize={216mm,301mm}]{geometry}
+ 
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
+\usetikzlibrary{arrows,calc, arrows.meta}
+\usepackage{tikz}
+\usepackage{tkz-euclide}
+
+%\usepackage{tabu}
+\usepackage{overpic}
+\def\nr{02}
+\usepackage{delta}
+ 
+\usepackage{epigraph}
+
+
+\definecolorset{cmyk}{}{}{magenta, 0 .81 .93 0}
+\definecolorset{cmyk}{}{}{blue,1 .1 0 .1}
+
+\usepackage[linkbordercolor = {green},linktocpage]{hyperref}
+\usepackage{lmodern}
+
+\usepackage{tcolorbox}
+\usepackage{numprint}
+
+\newtheorem{stw}{Stwierdzenie}
+\newtheorem*{theorem*}{Twierdzenie}
+\newtheorem*{lemma*}{Lemat}
+\newtheorem{lem}{Lemat}
+\theoremstyle{definition}
+\newtheorem*{df*}{Definicja}
+\newtheorem{theorem}{Twierdzenie}
+\newtheorem{exercise}[theorem]{Ćwiczenie}
+\newtheorem{corollary}[theorem]{Wniosek}
+
+\makeatletter
+\let\pagelabel\ltx@label
+\makeatother
+\usepackage{alphabeta}
+\makeatletter
+\renewcommand\verbatim@font{\normalfont\fontencoding{T1}\ttfamily}
+\makeatother
+
+\def\styt#1{\Magenta{\bf#1}}                                       
+
+
+\usetikzlibrary{
+  decorations.pathreplacing,
+  shapes.geometric,
+}
+
+\usetikzlibrary{angles, quotes, arrows.meta, decorations.markings}
+
+\usetikzlibrary{graphs}
+ \usetikzlibrary{patterns}
+\usetikzlibrary{patterns.meta}
+ \usetikzlibrary{calc, through, patterns, angles}
+ \usetikzlibrary{snakes}
+ 
+\newcounter{rys}[section]
+\setcounter{rys}{1}
+\newcounter{konstrukcja}[section]
+\newenvironment{konstrukcja}
+{
+\refstepcounter{konstrukcja}
+\par \emph{Konstrukcja~\thekonstrukcja.}\rmfamily
+}
+{
+}
+
+\DeclareSymbolFont{extraup}{U}{zavm}{m}{n}
+\DeclareMathSymbol{\varheartsuit}{\mathalpha}{extraup}{86}
+\DeclareMathSymbol{\vardiamondsuit}{\mathalpha}{extraup}{87}
+ 
+%DO WYDRUKU CZARNEGO
+%\long\def\Magenta#1{{\color{black}#1}}
+
+\includeonly{
+00-spis,
+01-chrzastowski,
+%02-miskiewicz,
+03-lukaszewicz,
+04-tjz,
+06-waniek,
+05-kulejewski,
+%07-aktualnosci,
+08-ligi,
+09-pzn,
+%10-niebo,
+11-rozwiazania,
+12-bzdega,
+}
+
+%\includeonly{03-lukaszewicz}
+
+\begin{document}
+\frontcover{delta-cover-2025-02}
+\input{2502-zadania-rozw}
+ 
+\include{00-spis}
+\include{01-chrzastowski}
+%\include{02-miskiewicz}
+\include{03-lukaszewicz}
+\include{04-tjz}
+\include{06-waniek}
+\include{05-kulejewski}
+%\include{07-aktualnosci}
+\include{08-ligi}
+\include{09-pzn}
+%\include{10-niebo}
+\include{11-rozwiazania}
+\include{12-bzdega}
+\backcover{delta-cover-2025-02}
+\end{document}}

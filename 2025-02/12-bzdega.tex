@@ -1,0 +1,93 @@
+\normalsize
+
+\newcommand{\com}{\operatorname{com}}
+% \setcounter{page}{25}
+% \normalsize\setcounter{equation}0\setcounter{page}{25}
+\baselineskip11.5pt plus.2pt minus.3pt
+%\fontsize{10.5}{13}\selectfont
+%\advance\parskip by-1pt
+%\small
+\kpospis{{Symetria środkowa}}
+{Bartłomiej Bzdęga}
+
+
+
+\wtyt{\scalebox{-1}[-1]{Symetria środkowa}}
+
+\waut{Bartłomiej BZDĘGA}
+{\hfill\scriptsize\rm Uniwersytet im. A. Mickiewicza w~Poznaniu}
+
+%TU SIĘ ZACZYNA MARGINES, CZYLI LOGO, A POTEM WSKAZÓWKI
+\marg[-55]
+{\centerline{\setbox0=\hbox{\includegraphics[width=3.8cm]{kmo_logo_krzywe}}\copy0\lower.5pt\llap{%
+      \begin{tikzpicture}
+        \draw[magenta,line width=3pt] (0,0) circle (1.835);
+        \draw[magenta,line width=1pt] (0,0) circle (1.73);
+        \draw[magenta,line width=.6pt] (0,0) circle (1.27);
+        \draw[magenta,line width=1.3pt] (0,0) circle (1.19);
+      \end{tikzpicture}%
+    }\raise53pt\llap{\hbox to\wd0{\hss\Large\textbf{\textsf{\textcolor{white}{74}}}\hss}}}
+
+\vskip13.3cm
+
+\medskip
+
+
+%----WSKAZÓWKI----
+\vskip1cm
+
+  \rotatebox{180}
+{\vrule~\vbox{\advance\baselineskip by.3pt\textbf{Wskazówki do zadań}
+    
+   \begin{enumerate}[format=\Magenta,itemsep=0pt,leftmargin=0pt,itemindent=12pt,labelwidth=6pt,labelsep=6pt,itemsep=2pt]
+ \item Te proste są obrazami prostych $CM$, $DM$, $AM$, $DM$ w~symetrii względem środka równoległoboku, więc ich punkt wspólny jest obrazem $M$.
+ \item Rozważyć symetrię środkową względem środka danego okręgu -- obrazem prostej~$A_1P_1$ będzie prosta prostopadła do~$BC$, przechodząca przez~$A_2$, \dots\vskip3pt
+   
+\textbf{Ciekawostka.} Jeśli $P_1$ jest środkiem okręgu opisanego na trójkącie, to $P_2$ jest jego ortocentrum, a~okrąg z~zadania -- okręgiem dziewięciu punktów.
+\item Udowodnić, że punkt symetryczny do~$B$ względem $A$ leży jednocześnie na~$\omega_2$ i~$\omega_3$.
+\item Niech $K$ będzie środkiem równoległoboku $PQRS$. Obrazem prostej~$p$ w~symetrii $\mathcal{S}_K$ jest symetralna odcinka~$CD$. Analogicznie jest z~pozostałymi prostymi z~zadania.
+\end{enumerate}
+}}}%
+% ARTYKUŁ
+Na razie pozostajemy na płaszczyźnie -- o~symetrii środkowej w~trzech wymiarach napiszę w~innym odcinku.\par
+﻿
+\emph{Symetria środkowa} na płaszczyźnie $\Pi$, względem pewnego punktu $K$, jest przekształceniem geometrycznym $\mathcal{S}_K:\Pi\to\Pi$ o~następującej własności: jeśli $Y=\mathcal{S}_K(X)$, to $\overrightarrow{KY} = \overrightarrow{XK}$. Inaczej mówiąc, punkt $K$ jest środkiem odcinka $XY$ (również tego zdegenerowanego do punktu).\par
+﻿
+\vspace*{\parskip}
+\begin{dwieszpalty}
+Dwukrotne złożenie tej samej symetrii środkowej jest identycznością na całej płaszczyźnie, więc przekształcenie to jest \emph{inwolucją}. W~szczególności wynika z~tego, że symetria środkowa jest bijekcją.\par
+﻿
+Mówimy, że figura $\mathcal{F}$ ma \emph{środek symetrii} $K$ (lub że jest \emph{środkowosymetryczna}), jeśli spełnia następujący warunek: jeżeli $X\in\mathcal{F}$, to $\mathcal{S}_K(X)\in\mathcal{F}$. Inaczej -- punkty figury $\mathcal{F}$ można podzielić na rozłączne każda z~każdą pary $(X,Y)$, o~tej własności, że punkt $K$ jest zawsze środkiem odcinka $XY$. Przykładami figur środkowosymetrycznych są: odcinek, prosta, pas (część płaszczyzny pomiędzy parą prostych równoległych), okrąg i~parzystokąt foremny.\par
+﻿
+\textbf{Twierdzenie.} Niech $\mathcal{F}_1$ i~$\mathcal{F}_2$ będą figurami ze środkami symetrii, odpowiednio, $K_1$ i~$K_2$ (jeśli środków symetrii jest więcej, to ustalamy dowolnie jeden z~nich). Jeśli zachodzi co najmniej jeden z~warunków:
+
+{(1) } $K_1=K_2 \quad \text{ lub }$\\
+{(2) } $\mathcal{F}_2 \text{ jest obrazem } \mathcal{F}_1 \text{ w przesunięciu o~} \overrightarrow{K_1K_2},$
+
+to figury $\mathcal{F}_1\cup \mathcal{F}_2$ oraz $\mathcal{F}_1\cap \mathcal{F}_2$ (o~ile jest niepusta) mają środek symetrii, który jest środkiem odcinka $K_1K_2$.\par
+﻿
+\emph{Dowód (1).} Niech $K_1=K_2=K$. Niech $X\in \mathcal{F}_1\cup \mathcal{F}_2$ oraz $Y=\mathcal{S}_K(X)$. Z~definicji figury środkowosymetrycznej mamy $Y\in F_1$ lub $Y\in F_2$, więc $Y\in\mathcal{F}_1\cup \mathcal{F}_2$. Przypadek~,,$\cap$'' jest analogiczny.
+
+\emph{Dowód (2).} Przeprowadzimy dowód dla części wspólnej; w~przypadku sumy jest podobnie. Niech ${X\in \mathcal{F}_1\cap\mathcal{F}_2}$ oraz $Y=\mathcal{S}_K(X)$, przy czym $K$ jest środkiem odcinka~$K_1K_2$. Połóżmy $Y_1=\mathcal{S}_{K_1}(X)$ oraz $Y_2=\mathcal{S}_{K_2}(X)$. Odcinek $KK_2$ jest linią środkową w~trójkącie $XYY_2$, więc $\overrightarrow{YY_2} = 2\overrightarrow{KK_2} = \overrightarrow{K_1K_2}$. Wiemy, że $Y_2\in\mathcal{F}_2$, a~więc z~poprzedniej równości wynika, że $Y\in\mathcal{F}_1$, bo $\mathcal{F}_2$ jest translacją $\mathcal{F}_1$ o~$\overrightarrow{K_1K_2}$. Analogicznie dowodzimy, że $Y\in\mathcal{F}_2$.\par
+﻿
+Za pomocą tego twierdzenia można uzasadnić, że środek symetrii mają: równoległobok (część wspólna dwóch pasów o~wspólnym środku), część wspólna lub suma dwóch kół o~jednakowym promieniu, dowolna para prostych\dots\par
+﻿
+
+Jako przykład rozwiążemy zadanie pochodzące z~bieżącej Olimpiady Matematycznej.\par
+﻿
+\textbf{Zadanie.} Okręgi $o_1$, $o_2$ o~równych promieniach przecinają się w~punktach $A$, $B$. Punkty $C$, $D$, $E$, $F$ leżą w~tej kolejności na jednej prostej, przy czym $C$ i~$E$ leżą na $o_1$, a $D$ i~$F$ -- na $o_2$. Symetralne odcinków $CD$ i~$EF$ przecinają prostą $AB$, odpowiednio, w~punktach~$X$ i~$Y$. Dowieść, że $|AX| = |BY|$.\par
+﻿
+\emph{Rozwiązanie.} Oznaczmy środek odcinka $AB$ przez $K$. Niech $\ell_1$ będzie prostą $CD$, a $\ell_2$ prostą środkowosymetryczną do $\ell$ względem punktu $K$. Z~twierdzenia wynika, że punkt $K$ jest środkiem symetrii figury $\ell_1\cup\ell_2\cup o_1\cup o_2$. Punkty $C'$, $D'$, $E'$, $F'$, w~których prosta $\ell'$ przecina dane okręgi, są obrazami punktów, odpowiednio, $C$, $D$, $E$, $F$ w~symetrii $S_K$. Czworokąt $EFC'D'$ jest trapezem równoramiennym (dlaczego?), więc symetralna odcinka $C'D'$ i~symetralna odcinka $EF$ to ta sama prosta. Jej obrazem w $S_K$ jest symetralna odcinka $CD$, z~czego wynika teza. \par\end{dwieszpalty}
+﻿
+\textbf{Zadania}
+\begin{enumerate}[widest=1,itemsep=0pt]
+\item Dany jest równoległobok $ABCD$ oraz punkt $M$ różny od jego wierzchołków. Przez punkty $A$, $B$, $C$, $D$ poprowadzono proste równoległe do, odpowiednio, $CM$, $DM$, $AM$, $BM$. Udowodnić, że te cztery proste przecinają się w~jednym punkcie.
+\item Pewien okrąg przecina boki $BC$, $CA$, $AB$ trójkąta $ABC$ w~punktach, odpowiednio, $A_1$ i~$A_2$, $B_1$ i~$B_2$, $C_1$ i~$C_2$. Załóżmy, że istnieje punkt $P_1$, którego rzutami prostokątnymi na proste $BC$, $CA$, $AB$ są $A_1$, $B_1$, $C_1$. Wykazać, że istnieje analogiczny punkt $P_2$ dla $A_2$, $B_2$, $C_2$.
+\item Okręgi $\omega_1$ i~$\omega_2$, o~równych promieniach, są styczne w~punkcie $A$. Okrąg~$\omega_3$, o~środku $O\in\omega_1$, jest styczny wewnętrznie do okręgu $\omega_1$ w~punkcie~$B$. Udowodnić, że prosta $AB$ przechodzi przez jeden z~punktów przecięcia okręgów $\omega_2$ i~$\omega_3$.
+\item Czworokąt $ABCD$ wpisany jest w~okrąg. Punkty $P$, $Q$, $R$, $S$ są środkami odcinków, odpowiednio, $AB$, $BC$, $CD$, $DA$. Prosta $p$ przechodzi przez punkt $P$ i~jest prostopadła do $CD$; analogicznie definiujemy proste $q$, $r$, $s$. Udowodnić, że te cztery proste przecinają się w~jednym punkcie.
+
+\end{enumerate}
+
+
+
+\eject
