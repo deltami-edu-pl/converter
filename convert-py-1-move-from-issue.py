@@ -8,7 +8,7 @@ used_names = []
 def remove_comments(content):
     content = re.sub(r'(?<=[^\\])%.*', '%', content)
     content = re.sub(r'\n([ \t]*%\n)*','\n', content) 
-    content = re.sub(r'(?<=\~)\%\n','', content, re.DOTALL)
+    content = re.sub(r'(?<=\~)\%\n', '', content, flags=re.DOTALL)
     
     return content
 
@@ -40,11 +40,11 @@ if len(sys.argv) < 4:
     print("Usage: python xxxxx.py <main_file> <filename> <filename_new> <figures_folder>")
     exit(1)
 
-main_file = sys.argv[1]
-filename = sys.argv[2]
-filename_new = sys.argv[3]
-figures_folder = sys.argv[4]
-filename_noext = re.sub(r'\.[a-z]+$', '', filename)
+main_file = sys.argv[1] # 2025-01-delta.text
+filename = sys.argv[2] # 01-art-01.tex
+filename_new = sys.argv[3] # delta-01-art-01.tex
+figures_folder = sys.argv[4] # 2025-figures
+filename_noext = re.sub(r'\.[a-z]+$', '', filename) # 01-art-01
 
 try:
     # START OF MERGING

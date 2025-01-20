@@ -61,8 +61,8 @@ def main():
     content = re.sub(r'\\input\s+[^\\]+\\', '\\\\',content)
 
     # podstawienie '\def{\rysa} w miejsce pojawienia aby byla dobra kolejnosc
-    matches  = re.findall(r'(\\def(\\rys[^\{]*)\{(\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})\})',content,re.DOTALL)
-    matches2 = re.findall(r'(\\def(\\rys[^\{]*)\{(\\scalebox\{[^\}]*\}\{\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})\}\})',content,re.DOTALL)
+    matches  = re.findall(r'(\\def(\\rys[^\{]*)\{(\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})\})',content, flags=re.DOTALL)
+    matches2 = re.findall(r'(\\def(\\rys[^\{]*)\{(\\scalebox\{[^\}]*\}\{\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})\}\})',content, flags=re.DOTALL)
     if len(matches+matches2) > 0:
         print("- podmieniam komendy \\def\\rysx")
     
@@ -70,6 +70,12 @@ def main():
         content = content.replace(match[0],'')
         content = content.replace(match[1], match[2])
         
+    # zamiana \ref na \eqref i usunięcie okalających nawiasów
+    content = re.sub(r"\(\\ref\{([a-zA-Z0-9_]+)\}\)", r"\\eqref{\1}", content, flags=re.DOTALL)
+
+    # zamiana \leqno(1) na \tag{1}
+    content = re.sub(r"\\leqno\(([^)]+)\)", r"\\tag{\1}", content, flags=re.DOTALL)    
+
     # specjalne formuly dla pliku z zadaniami
     if re.findall(r'\\zadanieM', content):
         newcommands = "\\theoremstyle{definition}\\newtheorem{exercise}{Zadanie}\n\\newtheorem{answer}{Rozwiązanie}\n\n"
@@ -104,7 +110,7 @@ def main():
 
         # zamiana tikzpicture na includegraphics
         i=0
-        matches = re.findall(r'(\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})', content, re.DOTALL)
+        matches = re.findall(r'(\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})', content, flags=re.DOTALL)
         for match in matches:
             content = replace_tikz(content, match, figures_folder+"/"+filename_noext+"-"+FILENAME_ADD_TIKZ+"-figure"+str(i))
             i=i+1
@@ -160,7 +166,7 @@ def main():
 def remove_comments(content):
     content = re.sub(r'(?<=[^\\])%.*', '%', content)
     content = re.sub(r'\n([ \t]*%\n)*','\n', content) 
-    content = re.sub(r'(?<=\~)\%\n','', content, re.DOTALL)
+    content = re.sub(r'(?<=\~)\%\n','', content, flags=re.DOTALL)
     
     return content
     
@@ -228,8 +234,8 @@ def replace_tikz(content, match, imagepath_noext):
 
 def replace_algorithms(content, filename_noext, figures_folder):
     i=1
-    algorithms = re.findall(r'(\\begin\{algorithm\}.*?\\end\{algorithm\})', content, re.DOTALL)
-    algorithms2 = re.findall(r'(\\begin\{algorithmic\}.*?\\end\{algorithmic\})', content, re.DOTALL)
+    algorithms = re.findall(r'(\\begin\{algorithm\}.*?\\end\{algorithm\})', content, flags=re.DOTALL)
+    algorithms2 = re.findall(r'(\\begin\{algorithmic\}.*?\\end\{algorithmic\})', content, flags=re.DOTALL)
     for algorithm in algorithms + algorithms2:
         algorithm_file = figures_folder+"/"+filename_noext+'-algorithm-'+str(i)+'.png'
         content = content.replace(algorithm, '\\includegraphics{'+algorithm_file+'}')
@@ -244,11 +250,11 @@ def prepare_pandoc(content):
     # dodaje komende, bo w ten sposob moge zmienic \marg{ na \myquote{ i nie musz szukac konca nawiasu aby wstawic \end{quote}
     content = re.sub(r'\\begin\{document\}', '\\\\newcommand{\\\\myquote}[1]{\\\\footnote{\\\\begin{quote}#1\\\\end{quote}}}\n\n\\\\begin{document}', content)
     
-    matches  = re.findall(r'(\\rlap\{(\$\\Delta[^\$]*\$)\}\\href\{([^\}]+)\}\{[^\}]+\})', content, re.DOTALL)
+    matches  = re.findall(r'(\\rlap\{(\$\\Delta[^\$]*\$)\}\\href\{([^\}]+)\}\{[^\}]+\})', content, flags=re.DOTALL)
     for match in matches:
         content = content.replace(match[0], "\\href{"+match[2]+"}{"+match[1]+"}")
     
-    matches  = re.findall(r'(\\href\{([^\}]+)\}\{[^\}]+\}\\llap\{(\$\\Delta[^\$]*\$)\})', content, re.DOTALL)
+    matches  = re.findall(r'(\\href\{([^\}]+)\}\{[^\}]+\}\\llap\{(\$\\Delta[^\$]*\$)\})', content, flags=re.DOTALL)
     for match in matches:
         content = content.replace(match[0], "\\href{"+match[1]+"}{"+match[2]+"}")
     
@@ -315,12 +321,13 @@ def prepare_pandoc(content):
             content = re.sub(r'(\\begin\{'+key+r'\*?\}(\s*\[[^\]]*\])?)', r'\1{\\em', content)
             content = re.sub(r'(\\end\{'+key+r'\*?\})', r'}\1', content)
     
-    content = re.sub(r'\\spis\{[^\}]*\}\s*\{[^\}]*\}','', content, re.DOTALL)
-    content = re.sub(r'\\kpospis\{[^\}]*\}\s*\{[^\}]*\}','', content, re.DOTALL)
-    content = re.sub(r'\\tikzstyle\{[^\}]*\}=\[[^\]\[]*\[[^\]]*\][^\]]*\]','', content, re.DOTALL)
-    content = re.sub(r'\\tikzstyle\{[^\}]*\}=\[[^\]]*\]','', content, re.DOTALL)
+    content = re.sub(r'\\spis\{[^\}]*\}\s*\{[^\}]*\}','', content, flags=re.DOTALL)
+    content = re.sub(r'\\kpospis\{[^\}]*\}\s*\{[^\}]*\}','', content, flags=re.DOTALL)
+    content = re.sub(r'\\tikzstyle\{[^\}]*\}=\[[^\]\[]*\[[^\]]*\][^\]]*\]','', content, flags=re.DOTALL)
+    content = re.sub(r'\\tikzstyle\{[^\}]*\}=\[[^\]]*\]','', content, flags=re.DOTALL)
     content = re.sub(r'\\aafil(\[[^\]]*\])?\{', '\\\\marg{Afiliacja: ', content)
-    content = re.sub(r'\\resizebox\{[^\}]*\}\{[^\}]*\}','', content, re.DOTALL)
+    content = re.sub(r'\\resizebox\{[^\}]*\}\{[^\}]*\}','', content, flags=re.DOTALL)
+    content = re.sub(r'(\\color\{[a-zA-Z0-9]+\})([^{]*?)(?=})', r'\1{\2}', content)
     content = re.sub(r'\\color\{magenta\}', '\\\\textcolor{deltaColor}', content)
     content = re.sub(r'\\Magenta\s?\{', '\\\\textcolor{deltaColor}{ ', content)
     content = re.sub(r'\\llap', '', content)
@@ -403,7 +410,7 @@ def prepare_pandoc(content):
     content = re.sub(r'\\vfill', '', content)  
     content = re.sub(r'\\eject', '', content)  
     content = re.sub(r'\\null', '', content)  
-    content = re.sub(r'\\endinput.*', '\\\\end{document}', content, re.DOTALL)
+    content = re.sub(r'\\endinput.*', '\\\\end{document}', content, flags=re.DOTALL)
     content = re.sub(r'\\everypar=\{[^\}]*\}', '', content)
     content = re.sub(r'(?<!\$)(\\eqref\{[^\}]+\})', r'$\1$', content)
     content = re.sub(r'\\scriptsize', '', content)
@@ -412,7 +419,7 @@ def prepare_pandoc(content):
     content = re.sub(r'=\\newline=', r'=', content)
 
     i=1
-    matches = re.findall(r'(\\begin\{equation\}(.*?\\label.*?\\end\{equation\}))', content, re.DOTALL)
+    matches = re.findall(r'(\\begin\{equation\}(.*?\\label.*?\\end\{equation\}))', content, flags=re.DOTALL)
     for match in matches:
         if not "\\tag" in match[0]:
             content = content.replace(match[0], "\\begin{equation}\\tag{"+str(i)+"}"+match[1])
@@ -428,12 +435,12 @@ def prepare_pandoc(content):
         newtext = "\\includegraphics[width="+str(int(float(match[1])*TEXTWIDTH*(1.5)))+"pt]"
         content = content.replace(match[0], newtext)
 
-    matches = re.findall(r'(\$\$\s*\{*\s*(\\includegraphics(\[[^\]]*\])?\{([^\}]*)\})\s*\}*\s*\$\$)', content, re.DOTALL)
+    matches = re.findall(r'(\$\$\s*\{*\s*(\\includegraphics(\[[^\]]*\])?\{([^\}]*)\})\s*\}*\s*\$\$)', content, flags=re.DOTALL)
     for match in matches:
         content = content.replace(match[0], "\\begin{center}"+match[1]+"\\end{center}")
 
     # tikz
-    content = re.sub(r'\\usetikzlibrary(\[[^\]]*\])?\{[^\}]*\}','', content, re.DOTALL)
+    content = re.sub(r'\\usetikzlibrary(\[[^\]]*\])?\{[^\}]*\}','', content, flags=re.DOTALL)
     
     # algpseudocode
     content = re.sub(r'\\usepackage\[[^\]]*\]\{algpseudocode\}', '', content)  
@@ -455,22 +462,22 @@ def prepare_pandoc(content):
     content = re.sub(r'\\wtyt\{', '\\\\'+'title{', content)
         
     # autor
-    author_match = re.match(r'^.*(\\waut\{(\s*\\color\{black\}\s*)?([^\}]*)\}).*$', content, re.DOTALL)
+    author_match = re.match(r'^.*(\\waut\{(\s*\\color\{black\}\s*)?([^\}]*)\}).*$', content, flags=re.DOTALL)
     if author_match is not None:
         author = author_match.group(3)
         content = content.replace(author_match.group(1), '')
         content = content.replace("\\begin{document}", "\\begin{document}\\author{"+author+"}")
     else:
         if content.find("\\waut") == -1:
-            author_matches = re.findall(r'(\\rightline{\s*\\large\s*\{\}\s*\\textit\{([^\}]*)\}\s*(\{\})*\s*\})', content, re.DOTALL)
+            author_matches = re.findall(r'(\\rightline{\s*\\large\s*\{\}\s*\\textit\{([^\}]*)\}\s*(\{\})*\s*\})', content, flags=re.DOTALL)
             if len(author_matches) == 0:
-                author_matches = re.findall(r'(\\rightline{\s*\\large\s*\\textit\{([^\}]*)\}\s*(\{\})*[\s\%]*\})', content, re.DOTALL)
+                author_matches = re.findall(r'(\\rightline{\s*\\large\s*\\textit\{([^\}]*)\}\s*(\{\})*[\s\%]*\})', content, flags=re.DOTALL)
             if len(author_matches) == 0:
-                author_matches = re.findall(r'(\\rightline{\s*\\large\s*\\it\s*([^\\]*)\s*(\\ )*[\\a-z]*\(\{[a-z\.\@\\\s]*\}\s*\)\s*\})', content, re.DOTALL)
+                author_matches = re.findall(r'(\\rightline{\s*\\large\s*\\it\s*([^\\]*)\s*(\\ )*[\\a-z]*\(\{[a-z\.\@\\\s]*\}\s*\)\s*\})', content, flags=re.DOTALL)
             if len(author_matches) == 0:
-                author_matches = re.findall(r'(\\rightline{\s*\\large\s*\\it\s*([^\}]*)\s*(\{\})*[\s\%]*\})', content, re.DOTALL)
+                author_matches = re.findall(r'(\\rightline{\s*\\large\s*\\it\s*([^\}]*)\s*(\{\})*[\s\%]*\})', content, flags=re.DOTALL)
             if len(author_matches) == 0:
-                author_matches = re.findall(r'(\\rightline{\s*\\textit\{\s*([^\}]*)\s*\}\})', content, re.DOTALL)
+                author_matches = re.findall(r'(\\rightline{\s*\\textit\{\s*([^\}]*)\s*\}\})', content, flags=re.DOTALL)
             for author_match in author_matches:
                 author = author_match[1]
                 content = content.replace(author_match[0], '\\waut{'+author+'}')
@@ -480,7 +487,7 @@ def prepare_pandoc(content):
     # affil weird
     content = content.replace("{\\scriptsize\\rm Uniwersytet im. A. Mickiewicza w~Poznaniu}", "\\myquote{Uniwersytet im. A. Mickiewicza w~Poznaniu}")
     
-    affil_matches = re.findall(r'(\\rightline\{\s*\\scriptsize\s*([^\}]*)\s*\})', content, re.DOTALL)
+    affil_matches = re.findall(r'(\\rightline\{\s*\\scriptsize\s*([^\}]*)\s*\})', content, flags=re.DOTALL)
     if len(affil_matches) > 0:
         for affil_match in affil_matches:
             affil = affil_match[1]
@@ -488,7 +495,7 @@ def prepare_pandoc(content):
             content = content.replace(affil_match[0], '')
             content = content.replace("\\begin{document}", "\\begin{document}\\myquote{"+affil+"}")
     else:
-        affil_matches = re.findall(r'(\{\s*\\scriptsize\s\\rightline\{([^\}]*)\}\s*\\rightline\{([^\}]*)\}\s*\\rightline\{([^\}]*)\}(\s*\\par)?\s*\})', content, re.DOTALL)
+        affil_matches = re.findall(r'(\{\s*\\scriptsize\s\\rightline\{([^\}]*)\}\s*\\rightline\{([^\}]*)\}\s*\\rightline\{([^\}]*)\}(\s*\\par)?\s*\})', content, flags=re.DOTALL)
         if len(affil_matches) > 0:
             for affil_match in affil_matches:
                 affil = affil_match[1]+"\\\\"+affil_match[2]+"\\\\"+affil_match[3]
@@ -496,7 +503,7 @@ def prepare_pandoc(content):
                 content = content.replace(affil_match[0], '')
                 content = content.replace("\\begin{document}", "\\begin{document}\\myquote{"+affil+"}")
         else:
-            affil_matches = re.findall(r'(\{\s*\\scriptsize\s\\rightline\{([^\}]*)\}\s*\\rightline\{([^\}]*)\}(\s*\\par)?\s*\})', content, re.DOTALL)
+            affil_matches = re.findall(r'(\{\s*\\scriptsize\s\\rightline\{([^\}]*)\}\s*\\rightline\{([^\}]*)\}(\s*\\par)?\s*\})', content, flags=re.DOTALL)
             if len(affil_matches) > 0:
                 for affil_match in affil_matches:
                     affil = affil_match[1]+"\\\\"+affil_match[2]
@@ -504,7 +511,7 @@ def prepare_pandoc(content):
                     content = content.replace(affil_match[0], '')
                     content = content.replace("\\begin{document}", "\\begin{document}\\myquote{"+affil+"}")
             else:
-                affil_matches = re.findall(r'(\{\s*\\scriptsize\s\\rightline\{([^\}]*)\}(\s*\\par)?\s*\})', content, re.DOTALL)
+                affil_matches = re.findall(r'(\{\s*\\scriptsize\s\\rightline\{([^\}]*)\}(\s*\\par)?\s*\})', content, flags=re.DOTALL)
                 for affil_match in affil_matches:
                     affil = affil_match[1]
                     print("AFFIL: "+affil)
@@ -578,10 +585,10 @@ def correct_html(html_content):
     html_content = html_content.replace("deltaColor", "var(--primary-color)")
     html_content = html_content.replace("#"+COLOR, "var(--primary-color)")
 
-    html_content = re.sub(r'<div class="answer">\s*\n?\s*<p>\s*<strong>Rozwiązanie(\s+[0-9]+)?</strong>\. ', '<!-- EXERCISE MIDDLE--> <header class="answer"><a href="javascript:void(0)">Rozwiązanie</a></header><div class="answer-content">\n', html_content, re.DOTALL)
+    html_content = re.sub(r'<div class="answer">\s*\n?\s*<p>\s*<strong>Rozwiązanie(\s+[0-9]+)?</strong>\. ', '<!-- EXERCISE MIDDLE--> <header class="answer"><a href="javascript:void(0)">Rozwiązanie</a></header><div class="answer-content">\n', html_content, flags=re.DOTALL)
 
-    html_content = re.sub(r'<div class="exercise">\s?<p><strong>Zadanie(\s*[0-9]+)?</strong>.\s*<span>(M\s+[0-9]+)\.</span>', r'<div class="exercise"><!-- EXERCISE BEGIN -->\n<header class="exercise">Zadanie \2</header><p>', html_content, re.DOTALL)
-    html_content = re.sub(r'<div class="exercise">\s?<p><strong>Zadanie(\s*[0-9]+)?</strong>.\s*<span>(F\s+[0-9]+)\.</span>', r'<div class="exercise"><!-- EXERCISE BEGIN -->\n<header class="exercise">Zadanie \2</header><p>', html_content, re.DOTALL)
+    html_content = re.sub(r'<div class="exercise">\s?<p><strong>Zadanie(\s*[0-9]+)?</strong>.\s*<span>(M\s+[0-9]+)\.</span>', r'<div class="exercise"><!-- EXERCISE BEGIN -->\n<header class="exercise">Zadanie \2</header><p>', html_content, flags=re.DOTALL)
+    html_content = re.sub(r'<div class="exercise">\s?<p><strong>Zadanie(\s*[0-9]+)?</strong>.\s*<span>(F\s+[0-9]+)\.</span>', r'<div class="exercise"><!-- EXERCISE BEGIN -->\n<header class="exercise">Zadanie \2</header><p>', html_content, flags=re.DOTALL)
     
     if re.findall('<header class="exercise">Zadanie M', html_content):
         autor1 = "XXX"
@@ -595,8 +602,8 @@ def correct_html(html_content):
                     autor2 = a[1]
                     html_content = html_content.replace(a[0], '')
         
-        html_content = re.sub(r'(<div class="exercise"><header class="exercise">Zadanie M)', r'<p><span><em>Przygotował '+autor1+r'</em></span></p>\1', html_content, 1, re.DOTALL)
-        html_content = re.sub(r'(<div class="exercise"><header class="exercise">Zadanie F)', r'<hr /><p><span><em>Przygotował '+autor2+r'</em></span></p>\1', html_content, 1, re.DOTALL)
+        html_content = re.sub(r'(<div class="exercise"><header class="exercise">Zadanie M)', r'<p><span><em>Przygotował '+autor1+r'</em></span></p>\1', html_content, 1, flags=re.DOTALL)
+        html_content = re.sub(r'(<div class="exercise"><header class="exercise">Zadanie F)', r'<hr /><p><span><em>Przygotował '+autor2+r'</em></span></p>\1', html_content, 1, flags=re.DOTALL)
         
     soup = BeautifulSoup(html_content, 'html.parser')
     title = ""
@@ -615,7 +622,7 @@ def correct_html(html_content):
     for header_tag in soup.find_all("header", {"id": "title-block-header"}):
         header_tag.extract()
 
-    for footnotes in soup.find_all("aside", {"id": "footnotes"}):
+    for footnotes in soup.find_all("section", {"id": "footnotes"}):
         for li_tag in footnotes.find_all("li"):
             if li_tag.has_attr('id'):
                 match = re.match(r'^fn([0-9]+)$', li_tag['id'])
