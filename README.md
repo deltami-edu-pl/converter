@@ -4,7 +4,7 @@
 
 STEP 0: ŹRÓDŁA 
 0.1 Skopiować do katalogu 2025-01 źródła Delty (zawartość katalogu z plikami TeX, np. 2025-01-delta.tex; ostatnio nazywał się druk)
-0.2 Przenazwać plik z zadaniami (np. 2412-zadania-rozw.tex) na 20-zadania.tex, dodać do jego początku fragment w którym są wywoływane (czyli końcówkę któregoś z początkowych plików TeX z komendami \zadMat itp) 
+0.2 Przenazwać plik z zadaniami (np. 2412-zadania-rozw.tex) na 20-zadania.tex, dodać do jego początku fragment w którym są wywoływane (czyli końcówkę któregoś z początkowych plików TeX z komendami \zadMat itp) - tego już nie trzeba - to robi b1_prepare_zadania.py
 
 STEP 1: STWORZENIE OSOBNYCH PLIKÓW TEX 
 1.1 Wpisać do config.py wersję wydania (np. 2025-01)
