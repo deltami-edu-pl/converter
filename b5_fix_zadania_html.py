@@ -9,6 +9,14 @@ def clean_html(html_content):
     html_content = html_content.strip()
     return html_content
 
+def get_content_without_li(li_element):
+    # Get the content without the li tags
+    content = ''
+    for child in li_element.children:
+        if child.name is not None:  # Skip text nodes
+            content += str(child)
+    return clean_html(content)
+
 def process_exercises(input_file):
     # Read the HTML file
     with open(input_file, 'r', encoding='utf-8') as f:
@@ -33,29 +41,41 @@ def process_exercises(input_file):
     
     # Process each pair of items
     for hint, problem in zip(hints_list.find_all('li'), problems_list.find_all('li')):
-        # Clean the content
-        hint_content = clean_html(str(hint))
-        problem_content = clean_html(str(problem))
+        # Get the content without the li tags
+        problem_content = get_content_without_li(problem)
+        hint_content = get_content_without_li(hint)
         
         # Create exercise element
         exercise = f"""<!-- EXERCISE BEGIN -->
-<div class="exercise">
-  {problem_content}
-  <header class="answer">
-    <a href="javascript:void(0)">Wskazówka</a>
-  </header>
-  <div class="answer-content">
-    {hint_content}
-  </div>
-</div>
-<!-- EXERCISE END   -->"""
+<li>
+    <div class="exercise">
+        {problem_content}
+        <header class="answer">
+            <a href="javascript:void(0)">Wskazówka</a>
+        </header>
+        <div class="answer-content">
+            {hint_content}
+        </div>
+    </div>
+</li>
+<!-- EXERCISE END -->"""
         
         exercises.append(exercise)
+    
+    # Remove the first list (hints)
+    lists[0].decompose()
+    
+    # Create new ol tag with exercises
+    new_ol = soup.new_tag('ol')
+    new_ol.append(BeautifulSoup('\n\n'.join(exercises), 'html.parser'))
+    
+    # Replace the second list with new ol containing exercises
+    lists[1].replace_with(new_ol)
     
     # Write the output
     output_file = input_file.replace('.html', '-exercises.html')
     with open(output_file, 'w', encoding='utf-8') as f:
-        f.write('\n\n'.join(exercises))
+        f.write(str(soup))
     
     print(f"Created {output_file} with {len(exercises)} exercises")
 
