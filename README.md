@@ -13,7 +13,7 @@ STEP 1: STWORZENIE OSOBNYCH PLIKÓW TEX
 ## GŁÓWNA ROBOTA ##
 
 STEP 2: PLIKI TEX -> HTML
-2.0 (opcjonalnie) Odpalić ./convert-2-html.sh 2025-01 (uruchamia poniższą komendę dla wszystkich plików)
+2.0 (opcjonalnie) Odpalić ./convert-2-html.py (uruchamia poniższą komendę dla wszystkich plików)
 
 2.1 Odpalić python convert-py-2-html.py 2025-01-figures delta-2025-01-art-XX-cos.tex
 2.2 Obejrzeć delta-2025-01-art-XX-cos.html
@@ -76,7 +76,7 @@ W wyniku jego działania powinien dla każdego artykułu powstać plik delta-202
 
 Wykorzystuje skrypty convert-py-0-pdf2png.sh i convert-py-1-move-from-issue.py
 
-> convert-2-html.sh
+> convert-2-html.py
 
 W idealnym świecie konwertuje pliki TeX artykułów na HTML. O nim niżej. 
 W wyniku jego działania powinien dla każdego artykułu powstać plik delta-2025-01-art-XX-something.html
