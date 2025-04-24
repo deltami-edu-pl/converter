@@ -7,7 +7,8 @@ STEP 0: ŹRÓDŁA
 0.2 Przenazwać plik z zadaniami (np. 2412-zadania-rozw.tex) na 20-zadania.tex, dodać do jego początku fragment w którym są wywoływane (czyli końcówkę któregoś z początkowych plików TeX z komendami \zadMat itp) 
 
 STEP 1: STWORZENIE OSOBNYCH PLIKÓW TEX 
-1.1 Odpalić ./convert-1-move-from-issue.sh 2025-01
+1.1 Wpisać do config.py wersję wydania (np. 2025-01)
+1.1 Odpalić python convert-1-move-from-issue.py
 
 ## GŁÓWNA ROBOTA ##
 
@@ -25,11 +26,18 @@ STEP 3: POPRAWKI W HTMLACH
 3.2 Poprawić HTMLe, w szczególności przerobić tekst na zadania z rozwijanymi odpowiedziami.
 Przy Bzdędze wkleić:
 
-<!-- EXERCISE BEGIN --> <div class="exercise">
-*** tu treść zadania ***
-<!-- EXERCISE MIDDLE--> <header class="answer"><a href="javascript:void(0)">Wskazówka</a></header><div class="answer-content"> 
-*** tu wskazówka ***
-<!-- EXERCISE END   --> </div></div>
+<!-- EXERCISE BEGIN -->
+<div class="exercise">
+  *** tu treść zadania ***
+  <!-- EXERCISE MIDDLE-->
+  <header class="answer">
+    <a href="javascript:void(0)">Wskazówka</a>
+  </header>
+  <div class="answer-content"> 
+  *** tu wskazówka ***
+  <!-- EXERCISE END   -->
+  </div>
+</div>
 
 Dla Ligi (jeżeli jest omówienie zadań) powinno być:
 
