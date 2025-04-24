@@ -1,0 +1,43 @@
+# 🧱 Ogólne ustawienia
+defaultIndent: '  '  # dwie spacje jako wcięcie
+preserveTrailingWhitespace: 0
+removeTrailingWhitespace: 1
+
+# 📚 Wcięcia wewnątrz środowisk
+indentPreamble: 1
+indentAfterHeadings: 1
+indentRules:
+  section: 1
+  subsection: 1
+  subsubsection: 1
+  paragraph: 1
+
+# 📐 Wyrównywanie w środowiskach typu tabular
+lookForAlignDelims:
+  tabular:
+    delims: ["&"]
+    alignDoubleBackSlash: 1
+    spacesBeforeDoubleBackSlash: 1
+    spacesBeforeAmpersand: 1
+    spacesAfterAmpersand: 1
+
+# ✂️ Zasady łamania linii po nagłówkach
+modifyLineBreaks:
+  afterHeading: 1
+  afterSection: 1
+  afterSubsection: 1
+  afterSubsubsection: 1
+  afterParagraph: 1
+  afterItem: 1
+
+# 🧼 Usuwanie zbędnych pustych linii
+removeParagraphLineBreaksInsideEnvironments:
+  itemize: 1
+  enumerate: 1
+  tabular: 1
+
+# ✨ Pozostałe
+noAdditionalIndent:
+  - center
+  - flushleft
+  - flushright

@@ -7,13 +7,15 @@ import shutil
 import subprocess
 from pathlib import Path
 from config import VERSION, PATH_SOURCE, PATH_FIGURES, PATH_DELTA_TEX
-from b1_prepare_figures import prepare_figures
+from b1_prepare_zadania import prepare_zadania
+from b2_format_tex_files import format_tex_files
+from b3_prepare_figures import prepare_figures
 
 
 def main():
-    # Create figures directory if it doesn't exist
-    if not PATH_FIGURES.exists():
-        prepare_figures()
+    prepare_zadania()
+    format_tex_files()
+    prepare_figures()
 
     print()
     print(f"### convert-1-move-from-issue")

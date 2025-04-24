@@ -7,10 +7,14 @@ from config import VERSION, PATH_SOURCE, PATH_FIGURES
 
 def prepare_figures():
     print()
-    print(f"### prepare figures")
-    if not PATH_FIGURES.exists():
-        print(f"# Creating directory {PATH_FIGURES}")
-        PATH_FIGURES.mkdir(parents=True)
+    print(f"### prepare_figures")
+    if PATH_FIGURES.exists():
+        print(f"# Directory {PATH_FIGURES} already exists")
+        print("### prepare_figures done")
+        print()
+        return
+    print(f"# Creating directory {PATH_FIGURES}")
+    PATH_FIGURES.mkdir(parents=True)
 
     # Copy images from various folders
     source_folders = ["art", "ilustracje", "rys", "stale"]
@@ -53,5 +57,9 @@ def prepare_figures():
 
     files_count = copied_files_count + converted_files_count
     print(f"# Moved {files_count} files to {PATH_FIGURES}")
-    print("### prepare figures done")
+    print("### prepare_figures done")
     print()
+
+
+if __name__ == "__main__":
+    prepare_figures()
