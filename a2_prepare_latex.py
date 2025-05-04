@@ -3,9 +3,9 @@ from pathlib import Path
 from config import PATH_SOURCE
 
 
-def format_tex_files():
+def prepare_latex():
     print()
-    print(f"### format_tex_files")
+    print(f"### prepare_latex")
 
     tex_files = list(PATH_SOURCE.rglob("*.tex"))
 
@@ -30,9 +30,9 @@ def format_tex_files():
     for aux_file in PATH_SOURCE.rglob("*.aux"):
         aux_file.unlink()
 
-    print("### format_tex_files done")
+    print("### prepare_latex done")
     print()
 
 
 if __name__ == "__main__":
-    format_tex_files()
+    prepare_latex()

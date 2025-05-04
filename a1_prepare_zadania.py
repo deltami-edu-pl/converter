@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import re
 from pathlib import Path
 from config import PATH_SOURCE
@@ -46,7 +48,7 @@ def prepare_zadania():
             zadmat_content = content[split_index:]
             # Save the remaining content back to the original file
             file.write_text(content[:split_index], encoding="utf-8")
-            print(f"Extracted \\def\\zadMat block from {file.name}")
+            print(f"# Extracted \\def\\zadMat block from {file.name}")
             break
 
     if zadmat_content is None:
