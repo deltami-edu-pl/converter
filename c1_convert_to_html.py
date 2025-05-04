@@ -10,27 +10,45 @@ from bs4 import Comment
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
 import subprocess
+from config import VERSION
+from pathlib import Path
 
 FILENAME_ADD_TIKZ = "tikz"
 FILENAME_ADD_PANDOC = "pandoc"
-FILENAME_ADD_PANDOC_AFTER = "pandoc"
 
 NEWPAGE = 'convert.html'
 
 TEXTWIDTH = 356 # 356 pt - szerokosc strony (\textwidth) w formacie Delty; uzywane aby poprawiac szerokosc obrazkow
 COLOR = 'FF0088'
 
+def get_next_file():
+    current_dir = Path(".")
+
+    # --- Search for matching files ---
+    files = sorted(
+        [
+            file
+            for file in current_dir.iterdir()
+            if file.is_file()
+            and file.suffix == ".tex"
+            and not file.name.endswith("-pandoc.tex")
+            and not file.name.endswith("-tikz.tex")
+        ]
+    )
+
+    return str(files[0])
+
 ##############################################
 ############ MAIN FUNCTION ###################
 ##############################################
 
-def main():
-    if len(sys.argv) < 3:
-        print("Za mało parametrów: python xxxxx.py <figures_folder> <filename>")
-        sys.exit(1)
+def convert_to_html():
+    # if len(sys.argv) < 3:
+    #     print("Za mało parametrów: python xxxxx.py <figures_folder> <filename>")
+    #     sys.exit(1)
 
-    figures_folder = sys.argv[1]
-    filename = sys.argv[2]
+    figures_folder = f"{VERSION}-figures"
+    filename = get_next_file()
 
     if figures_folder[-1] == "/": 
         figures_folder = figures_folder[:-1]
@@ -70,6 +88,8 @@ def main():
         content = content.replace(match[0],'')
         content = content.replace(match[1], match[2])
         
+    content = re.sub(r"\\allowbreak", "", content, flags=re.DOTALL)
+
     # zamiana \ref na \eqref i usunięcie okalających nawiasów
     content = re.sub(r"\(\\ref\{([a-zA-Z0-9_]+)\}\)", r"\\eqref{\1}", content, flags=re.DOTALL)
 
@@ -91,9 +111,10 @@ def main():
     # dodanie \usetkzobjc{all}, bo czesto sie nie kompiluje bez oraz ustawienie eksportowania obrazkow
     if len(re.findall(r'\\begin\{tikzpicture\}', content)) > 0:
         print("- TikZ: ustawiam eksportowanie obrazkow do katalogu "+figures_folder)
-        content = re.sub(r'\\usepackage\{tkz-euclide\}', '\\\\usepackage{tkz-euclide}\n\\\\usetkzobj{all}',content)
+        # content = re.sub(r'\\usepackage\{tkz-euclide\}', '\\\\usepackage{tkz-euclide}\n\\\\usetkzobj{all}',content)
         content = re.sub(r'\\usepackage\{tikz\}', '\\\\usepackage{tikz}\n\\\\usetikzlibrary{external}\n\\\\tikzexternalize[shell escape=-enable-write18, prefix='+figures_folder+'/]\n\\\\tikzset{external/force remake}\n\\\\tikzset{/pgf/images/external info}\n\\\\tikzexternalize',content)
 
+    # TU SIĘ ZAPISUJE TIKZ
     filename_tikz = filename_noext+"-"+FILENAME_ADD_TIKZ+".tex"
     with open(filename_tikz, 'w') as file:
         file.write(content)
@@ -124,11 +145,12 @@ def main():
     content = replace_algorithms(content, filename_noext, figures_folder)
     content = prepare_pandoc(content)
 
+    # TU SIĘ ZAPISUJE PANDOC
     filename_pandoc = filename_noext+"-"+FILENAME_ADD_PANDOC+".tex"
     with open(filename_pandoc, 'w') as file:
         file.write(content)
 
-    filename_pandoc_after = filename_noext+"-"+FILENAME_ADD_PANDOC_AFTER+".html"
+    filename_pandoc_after = filename_noext+"-"+FILENAME_ADD_PANDOC+".html"
     pandoc_call_string = "pandoc --wrap=preserve "+filename_pandoc+" -t html -V lang=pl --mathjax -s -o "+filename_pandoc_after+" --citeproc"
     print("- Pandoc: " + pandoc_call_string)
     result = subprocess.run(pandoc_call_string, shell=True, check=False, capture_output=True)
@@ -136,7 +158,7 @@ def main():
         print("! Pandoc: error: pandoc zwrócił błąd")
         print(result.stderr)
 
-    filename_pandoc_after = filename_noext+"-"+FILENAME_ADD_PANDOC_AFTER+".html"
+    filename_pandoc_after = filename_noext+"-"+FILENAME_ADD_PANDOC+".html"
 
     if not os.path.isfile(filename_pandoc_after):
         print(f"! Pandoc: plik "+filename_pandoc_after+" nie istnieje")
@@ -157,6 +179,10 @@ def main():
         file.write(html_final_content.encode('utf-8'))
 
     print(f"- SUKCES! plik "+html_filename+" stworzony!")
+
+    # USUWAM WSZYSTKIE PLIKI TYMCZASOWE
+    # os.remove(filename_pandoc_after)
+
 
 ##############################################
 ############ OTHER FUNCTIONS #################
@@ -213,7 +239,7 @@ def replace_tikz(content, match, imagepath_noext):
     
     widthtext = ""
     if os.path.isfile(imagepdf_file):
-        convert_call_string = "convert -density 600 -transparent white -colorspace sRGB -limit memory 64MB -limit map 128MP \""+imagepdf_file+"\" \""+image_file+"\""
+        convert_call_string = "magick -density 600 \""+imagepdf_file+"\" -transparent white -colorspace sRGB -limit memory 64MB -limit map 128MP \""+image_file+"\""
         result = subprocess.run(convert_call_string, shell=True, check=False, capture_output=True)
         if result.stderr:
             print("-- ! error: TikZ: konwersja nieudana " + str(result.stderr))
@@ -290,7 +316,12 @@ def prepare_pandoc(content):
     if re.findall(r'\\def\\pp\(\#\#1\) \{\&\#\#1\&\}', content):
         content = re.sub(r'\\def\\pp\(\#\#1\) \{\&\#\#1\&\}', '', content)
         content = re.sub(r'\\pp\(([^\)]*)\)', r'& \1 &', content)
-    
+
+    # usunięcie \textsc
+    content = re.sub(r'\\textsc','', content)
+    # zamiana \mathbbm na \mathbb
+    content = content.replace('\\mathbbm','\\mathbb')
+
     # usuniecie vspace, newpage
     content = re.sub(r'\\smallskip','', content)
     content = re.sub(r'\\medskip','', content)
@@ -450,7 +481,7 @@ def prepare_pandoc(content):
     content = re.sub(r'\\begin\{szeroko\}', '', content)
     content = re.sub(r'\\end\{szeroko\}', '', content)
     content = re.sub(r'\\redaguje', '', content)
-    content = re.sub(r'\\Zadania', '', content)
+    # content = re.sub(r'\\Zadania', '', content)
 
     content = re.sub(r'\\marg\s*\{', '\\\\myquote{', content)
     content = re.sub(r'\\marg\[[^\]]*\]\s*\{', '\\\\myquote{', content)
@@ -458,7 +489,7 @@ def prepare_pandoc(content):
 
     # tytuły
     if content.find("\\wtyt") == -1:
-        content = re.sub(r'\\mtyt', '\\\\wtyt', content, 1)
+        content = re.sub(r'\\mtyt', '\\\\wtyt', content, count=1)
     content = re.sub(r'\\wtyt\{', '\\\\'+'title{', content)
         
     # autor
@@ -658,16 +689,17 @@ def correct_html(html_content):
         for blockquote in footnotes.find_all("blockquote"):
             if blockquote.has_attr('id'):
                 span = soup.find("span", {"id": "span-"+blockquote['id']})
-                p = span.find_parent("p")
-                if p is not None:
-                    if span.previous_sibling is None:
-                        p.insert_before(blockquote)
+                if span is not None:
+                    p = span.find_parent("p")
+                    if p is not None:
+                        if span.previous_sibling is None:
+                            p.insert_before(blockquote)
+                        else:
+                            while(p.next_sibling is not None and p.next_sibling.name == "blockquote"): 
+                                p = p.next_sibling
+                            p.insert_after(blockquote)
                     else:
-                        while(p.next_sibling is not None and p.next_sibling.name == "blockquote"): 
-                            p = p.next_sibling
-                        p.insert_after(blockquote)
-                else:
-                    span.insert_after(blockquote)
+                        span.insert_after(blockquote)
 
     for span_tag in soup.find_all("span"):
         if span_tag.string == ",":
@@ -711,5 +743,5 @@ def correct_html(html_content):
     return newsoup
 
 if __name__ == '__main__':
-    main()
+    convert_to_html()
     

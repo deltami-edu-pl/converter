@@ -4,9 +4,9 @@ import subprocess
 from config import VERSION
 
 
-def sync_figures():
+def sync():
     print()
-    print(f"### sync_figures")
+    print(f"### sync")
 
     figures = VERSION + "-figures"
 
@@ -22,11 +22,11 @@ def sync_figures():
 
     try:
         subprocess.run(command, check=True)
-        print(f"### sync_figures done")
+        print(f"### sync done")
         print()
     except subprocess.CalledProcessError as e:
         print(f"ERROR: {e}")
 
 
 if __name__ == "__main__":
-    sync_figures()
+    sync()

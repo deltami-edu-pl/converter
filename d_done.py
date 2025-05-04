@@ -4,9 +4,9 @@ import shutil
 from config import PATH_DONE, PATH_ROOT
 
 
-def move_to_done():
+def done():
     print()
-    print(f"### move_to_done")
+    print(f"### done")
 
     PATH_DONE.mkdir(parents=True, exist_ok=True)
 
@@ -20,9 +20,9 @@ def move_to_done():
             shutil.move(str(related_file), target)
             print(f"# Moved {related_file.name}")
 
-    print(f"### move_to_done done")
+    print(f"### done done")
     print()
 
 
 if __name__ == "__main__":
-    move_to_done()
+    done()

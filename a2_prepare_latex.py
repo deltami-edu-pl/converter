@@ -7,7 +7,7 @@ def prepare_latex():
     print()
     print(f"### prepare_latex")
 
-    tex_files = list(PATH_SOURCE.rglob("*.tex"))
+    tex_files = sorted(list(PATH_SOURCE.rglob("*.tex")))
 
     print(f"# Found {len(tex_files)} .tex files to format")
 

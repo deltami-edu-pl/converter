@@ -9,9 +9,9 @@ replacing references to <folder>-figures with /media/<folder>-figures.
 """
 
 
-def cut_out_article():
+def convert_to_article():
     print()
-    print(f"### cut_out_article")
+    print(f"### convert_to_article")
 
     cwd = Path(".")
     start = "<!-- //// START OF ARTICLE //// -->"
@@ -19,7 +19,12 @@ def cut_out_article():
 
     for file in cwd.glob("*.html"):
         # Skip unwanted files
-        if file.name.endswith("-pandoc.html") or file.name.endswith("-article.html"):
+        if (
+            file.name.endswith("-pandoc.html")
+            or file.name.endswith("-article.html")
+            or file.name.endswith("convert.html")
+            or file.name.endswith("template.html")
+        ):
             continue
 
         pattern = re.compile(re.escape(start) + r"(.*?)" + re.escape(end), re.DOTALL)
@@ -37,9 +42,9 @@ def cut_out_article():
         else:
             print(f"ERROR: No article block found in {file.name}")
 
-    print("### cut_out_article done")
+    print("### convert_to_article done")
     print()
 
 
 if __name__ == "__main__":
-    cut_out_article()
+    convert_to_article()
