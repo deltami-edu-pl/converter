@@ -1,0 +1,123 @@
+\documentclass[leqno,10pt]{article}
+
+\usepackage[hoffset={.2cm},voffset={1.7cm},papersize={216mm,301mm}]{geometry}
+ 
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
+\usetikzlibrary{arrows,calc}
+\usepackage{tikz}
+\usepackage{tkz-euclide}
+
+\def\nr{06}
+\usepackage{delta}
+
+
+\definecolorset{cmyk}{}{}{magenta, 0 1 0 0}%%03
+\definecolorset{cmyk}{}{}{magenta, 1 0 .56 .31}%%04
+\definecolorset{cmyk}{}{}{magenta, 0 1 .56 .18} %Delta 5
+\definecolorset{cmyk}{}{}{magenta, 0 1 1 .41} %Delta 5/2025
+\definecolorset{cmyk}{}{}{magenta, 0 .65 1 0} %Delta 6
+
+\usepackage[linkbordercolor = {green},linktocpage]{hyperref}
+\usepackage{lmodern}
+
+\usepackage[most]{tcolorbox}
+\usepackage{numprint}
+\usepackage{xskak}
+
+\newtheorem{tw}{Twierdzenie}
+\newtheorem*{obs}{Obserwacja}
+\theoremstyle{definition}
+\newtheorem*{defi}{Definicja}
+\newtheorem{zad}{Zadanie}
+
+\makeatletter
+\let\pagelabel\ltx@label
+\makeatother
+\usepackage{alphabeta}
+\makeatletter
+\renewcommand\verbatim@font{\normalfont\fontencoding{T1}\ttfamily}
+\makeatother
+
+\def\styt#1{\Magenta{\bf#1}}                                       
+
+\tcbset{on line, 
+        boxsep=0pt, left=2pt,right=2pt,top=1pt,bottom=1pt,
+        colframe=white,colback=magenta!20,  
+        highlight math style={enhanced}
+        }
+\usetikzlibrary{
+  decorations.pathreplacing,
+  shapes.geometric,
+}
+
+\usetikzlibrary{angles, quotes, arrows.meta, decorations.markings}
+
+\usetikzlibrary{graphs}
+ \usetikzlibrary{patterns}
+\usetikzlibrary{patterns.meta}
+ \usetikzlibrary{calc, through, patterns, angles}
+ \usetikzlibrary{snakes}
+\usetikzlibrary{math}
+ 
+\newcounter{rys}[section]
+\setcounter{rys}{1}
+\newcounter{konstrukcja}[section]
+\newenvironment{konstrukcja}
+{
+\refstepcounter{konstrukcja}
+\par \emph{Konstrukcja~\thekonstrukcja.}\rmfamily
+}
+{
+}
+
+\DeclareSymbolFont{extraup}{U}{zavm}{m}{n}
+\DeclareMathSymbol{\varheartsuit}{\mathalpha}{extraup}{86}
+\DeclareMathSymbol{\vardiamondsuit}{\mathalpha}{extraup}{87}
+ 
+%DO WYDRUKU CZARNEGO
+%\long\def\Magenta#1{{\color{black}#1}}
+
+\includeonly{
+00-spis,
+01-ratajczyk,
+02-chudek,
+03-pytlak-skalba,
+04-mrozek,
+05-kaczmarczyk-szufa,
+%06-kat-o,
+07-aktualnosci,
+08-zalipska,
+%09-tjz,
+10-bielinski,
+11-ligi,
+12-pzn,
+13-niebo,
+14-rozwiazania,
+15-bzdega,
+}
+
+%\includeonly{10-ligi}
+
+\begin{document}
+%\frontcover{delta-cover-2025-\nr}
+\input{2506-zadania-rozw}
+ 
+\include{00-spis}
+\include{01-ratajczyk}
+\include{02-chudek}
+\include{03-pytlak-skalba}
+\include{04-mrozek}
+\include{05-kaczmarczyk-szufa}
+%\include{06-kat-o}
+\include{07-aktualnosci}
+\include{08-zalipska}
+%\include{09-tjz}
+\include{10-bielinski}
+\include{11-ligi}
+\include{12-pzn}
+\include{13-niebo}
+\include{14-rozwiazania}
+\include{15-bzdega}
+%\backcover{delta-cover-2025-\nr}
+\end{document}

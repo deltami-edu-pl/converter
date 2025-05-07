@@ -1,0 +1,56 @@
+ 
+\makeatletter
+\def\@oddhead{\vbox to0pt{\vskip26pt\hbox to\hsize{\kern-7.5cm\rlap{\color{magenta}{\vrule height.9cm depth-1mm width22.5cm}}\kern2cm{\textcolor{white}{\LARGE\raise3mm\hbox{\textsf{\textbf{Rozwiązania zadań ze strony \pageref{zadania}}}}}\hfill}\hfill\kern-3cm}\vss}}\makeatother
+
+\vspace*{30pt}
+\phantomsection\label{rozwiazania}
+\begin{dwieszpalty}\fontsize{9.5}{11.5}\selectfont
+\renewcommand{\rozFiz}[2][0]{\noindent\phantomsection\label{rozF-#2}%%
+  \readdim{#1}%
+  % \marg[\tmp@dimen]
+  {\leavevmode\kotek\quad %
+      \textbf{Rozwiązanie zadania F~#2.}\\
+      \csuse{rozF-#2}%
+   %
+\par\bigskip
+  }%
+}
+
+\renewcommand{\rozMat}[2][0]{\noindent\phantomsection\label{rozM-#2}%
+  \readdim{#1}%%
+  %\marg[\tmp@dimen]
+  {%\readdim{#1}%
+    \noindent\kotek\quad%
+      \textbf{Rozwiązanie zadania M~#2.}\\
+      \csuse{rozM-#2}%
+    %
+   \par\bigskip
+  }%
+}
+
+\small%\fontsize{9}{10.9}\selectfont
+
+\rozFiz{1121}
+
+\rozFiz{1122}
+
+\rozMat{1819}
+
+
+
+\rozMat{1820}
+
+\rozMat{1821}
+
+\goodbreak
+ 
+
+
+\eject
+
+
+\end{dwieszpalty}
+
+
+\makeatletter
+\def\@oddhead{\hfill}\makeatother

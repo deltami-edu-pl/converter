@@ -1,0 +1,105 @@
+
+
+\mdspis{Trójkąty, kwadraty, sześciany}
+{Paweł Rafał Bieliński}
+
+\maladelta
+
+\vskip20pt plus20pt 
+\madetyt{Trójkąty, kwadraty, sześciany}
+
+%\waut{Paweł Rafał BIELIŃSKI*}\aafil{Nauczyciel, Warszawa}
+
+Przedstawimy w~tym artykule prosty dowód znanej od starożytności tożsamości arytmetycznej, którą -- niezupełnie poprawnie, o~czym dalej -- nazywać będziemy twierdzeniem Nikomacha. Dla naturalnych $n\geq 1$ mamy
+\begin{equation*} 1^3+2^3+3^3+\ldots +n^3=(1+2+3+\ldots +n)^2. \label{N}\tag{N}
+\end{equation*}
+W~rzeczywistości Nikomachos z~Gerazy (I--II w. n.e.) sformułował w~swoim \emph{Wprowadzeniu do arytmetyki} nieco inną obserwację, mianowicie że:\marg{Tekst napisany na podstawie prezentacji wygłoszonej w~ramach \href{https://deltami.edu.pl/50-lecie/}{Maratonu Wykładowego} \emph{Delty} w~grudniu 2023 roku.}
+\begin{itemize}
+\item najmniejsza naturalna liczba nieparzysta jest równa sześcianowi liczby 1; 
+
+\item suma kolejnych dwóch liczb nieparzystych ($3+5$) jest równa sześcianowi kolejnej liczby naturalnej ($2^3$);
+
+\item suma kolejnych trzech ($7+9+11$) -- sześcianowi kolejnej ($3^3$);
+
+\item i~tak dalej. \marg{W~pewnym sensie interesujące jest dopiero to ,,i~tak dalej''.}
+\end{itemize}
+Nie jest to może całkowicie oczywiste, ale wzór \eqref{N} jest istotnie wnioskiem z~tej obserwacji. Wspaniałym ćwiczeniem dla Czytelnika będzie znalezienie odniesień między taką właśnie ścieżką rozumowania a~dowodem przedstawionym poniżej.
+
+Jest oczywiste, że tego typu równość można wykazać za pomocą metody indukcji, z~wykorzystaniem odrobiny niezbyt trudnych przekształceń. To także pozostawimy jako ćwiczenie dla Czytelnika. Sami zaś przedstawimy dowód oparty na najdoskonalszej metodzie: prezentacji serii dostatecznie sugestywnych diagramów. A~więc do dzieła! 
+
+\styt{Trójkąty i~kwadraty}
+
+Nie darmo zwykło się nazywać sumę $T(n)=1+2+3+\ldots +n$ \emph{n-tą liczbą trójkątną}. Sens tego określenia przedstawia pierwszy z~naszych diagramów.\vspace*{6pt}
+
+\centerline{\includegraphics[scale=.3]{delta_dobry_trojkat.png}}\vspace*{-3pt}
+
+\marg[-50]{Ćwiczenie. Za pomocą diagramu po prawej uzasadnij, że $T(2n)=4T(n)-n =3T(n)+T(n-1)$.}%
+Patrząc od góry, każde piętro liczy o~jedno kółko więcej od poprzedniego, zatem łączna liczba kółek na diagramie o $n$ piętrach jest rzeczywiście równa $T(n)$. Odkrycie związku z~trójkątem pozostawimy jako kolejne już ćwiczenie dla Czytelnika.
+
+A~co by było, gdybyśmy układali kółka w~szerszą piramidkę, taką jak na drugim diagramie?\vspace*{-3pt}
+
+\centerline{\includegraphics[scale=.3]{delta_szeroki_trojkat.png}}
+\vspace*{-3pt}
+
+Powiedzmy, że tego typu diagram o $n$ piętrach składa się z $K(n)$ kółek. Ponieważ każde kolejne piętro zawiera o~dwa kółka więcej, liczba $K(n)$ jest sumą $n$ początkowych liczb nieparzystych, czyli wynosi $K(n)=1+3+5+\ldots +(2n-1)$. Z~drugiej strony, grupując kółka kolumnami, zamiast wierszami, widzimy, że $K(n)=1+2+3+\ldots +(n-1)+n+(n-1)+(n-2)+\ldots +2+1$. 
+\vspace*{6pt}
+
+\centerline{\includegraphics[scale=.3]{delta_piony.png}}
+
+Pitagorejczycy zwali takie liczby \emph{kolistymi}, bo składniki tej sumy niejako zawracają po osiągnięciu maksymalnej wartości $n$. Ta nowa postać sugeruje jednak coś jeszcze: jeśliby $n$ początkowych składników zebrać w~jedną grupę, a~pozostałe $n-1$ -- w~drugą, otrzymamy sumę dwóch kolejnych liczb trójkątnych, $T(n)$ oraz $T(n-1)$.\vspace*{-6pt}
+
+\centerline{\includegraphics[scale=.3]{delta_dwa_trojkaty.png}}\vspace*{-3pt}
+
+Wyobraźmy sobie teraz, że jeden z~tych dwóch trójkątów chwytamy i~przestawiamy na drugą stronę diagramu.
+\vspace*{6pt}
+
+\centerline{\includegraphics[scale=.3]{delta_kwadrat.png}}
+
+\vspace*{-3pt}
+Okazało się, że wszystkie kółka ustawiły się w~kwadrat $n\times n$. Liczba kółek w~naszym diagramie okazała się więc -- paradoksalnie -- liczbą kwadratową! Skoro zaś jest to zarazem liczba kolista, otrzymaliśmy rozwiązanie słynnego starożytnego problemu kwadratury koła! (Tak naprawdę -- to oczywiście nie).
+
+Owocem tej pilnej obserwacji kilku diagramów i~kolorowania ich na różne sposoby są dwa stwierdzenia, które już niedługo okażą się niesłychanie przydatne.
+\begin{enumerate}
+\item Suma $n$ początkowych liczb nieparzystych jest równa $n^2$.
+
+\item Suma dwóch kolejnych liczb trójkątnych, $n$-tej i $(n-1)$-szej, jest równa liczbie kwadratowej $n^2$.
+\end{enumerate}
+Tak uzbrojeni możemy przystąpić do właściwego dowodu wzoru \eqref{N}.
+
+\styt{Piramida liczb}
+
+Korzystając z~poprzednich obserwacji, będziemy analizować własności pewnego specjalnie skonstruowanego diagramu.
+
+\centerline{\includegraphics[scale=.48]{delta_diagramsam.png}}
+
+\marg[-20]{Ponownie dokonaliśmy kwadratury koła, niestety znowu nie dokonując przy tym przełomu w~matematyce.} Przypomina on pierwszą z~przedstawionych w~tym artykule ilustracji -- tę, która wyjaśniała pojęcie liczby trójkątnej. \marg{Wyjątkowo używamy tutaj określenia ,,ilość'' zamiast ,,liczba'', żeby uniknąć słów ,,liczba liczb'' -- one nie tylko brzmią niezręcznie, ale też mogą prowadzić do nieporozumień.} Jednak tutaj w~tworzące tę piramidę kształty wpisane są kolejne liczby nieparzyste. Ich ilość jest przy tym liczbą trójkątną, o~numerze równym liczbie pięter diagramu. Ponieważ są to początkowe liczby nieparzyste, ich suma jest -- zgodnie z~pierwszą obserwacją wieńczącą pierwszą część artykułu -- kwadratem ich ilości, czyli wynosi~$T(n)^2$. Jest to prawa strona równości w~twierdzeniu Nikomacha, więc niewykluczone, że jesteśmy na tropie.
+
+Pokażemy teraz, że suma liczb w $n$-tym wierszu tego diagramu jest równa~$n^3$. W~tym celu skorzystamy z~faktu, że $\textit{suma}=\textit{średnia} \cdot \textit{ilość}$. Jasne jest, że $n$-ty wiersz składa się z $n$ liczb. Co więcej, tworzą one postęp arytmetyczny (o~różnicy~2), więc ich średnia jest po prostu środkową spośród nich. No, prawie. Jeśli danych liczb jest parzyście wiele, to środkowej wśród nich nie znajdziemy. Szukaną średnią jest wtedy średnia środkowych dwóch. Wygląda więc na to, że warto zaprosić do diagramu liczby parzyste -- co za szczęście, że zostawiliśmy w~nim tak szerokie luki!
+
+\centerline{\includegraphics[scale=.48]{delta_diagramwidmo.png}}
+
+\marg[-60]{Ćwiczenie. Z~pomocą diagramu po prawej uzasadnij, że $T(2T(n))=2T(n)^2+T(n)$.}
+Zwróćmy uwagę, że szukana średnia w~obu opisanych powyżej przypadkach znajduje się na lewo od środka (uzupełnionego) wiersza, tj. w~kolumnie z~jedynką na szczycie. Na rysunku są to kolejne kwadraty; nie wiemy jeszcze jednak, czy mają jakiś powód, by nimi być, czy jest to jedynie zwykły zbieg okoliczności. Dylemat ten możemy rozstrzygnąć, kolorując pola diagramu na nowo.
+
+\centerline{\includegraphics[scale=.48]{delta_diagramsrodek.png}}
+
+Kolorem szarym zamalowano wszystkie liczby większe od szukanej. Wystarczy pokazać, że tych nie-szarych pól jest $n^2$. Ale jeśli zbierzemy je w~dwie grupy -- jedną na lewo, drugą na prawo od środka -- widzimy, że ich ilość jest równa sumie dwóch kolejnych liczb trójkątnych. Ale, zgodnie z~drugą obserwacją z~końca pierwszej części, suma $T(n)+T(n-1)$ jest równa $n^2$.
+
+\vspace*{\parskip}
+
+\begin{dwieszpalty}
+\styt{Epilog}
+
+Podsumujmy nasze dotychczasowe dokonania.
+
+\centerline{\includegraphics[scale=.48]{delta_diagramfin.png}}
+
+Pokazaliśmy, że powyższy diagram -- piramida o $n$ piętrach, z~polami numerowanymi liczbami nieparzystymi -- zawiera liczby o~sumie $T(n)^2$; tymczasem każde $k$-te piętro zawiera $k$ liczb, których średnia wynosi $k^2$. Zatem, sumując numery pól piętrami, otrzymujemy żądaną tożsamość:
+$$ 1^3+2^3+\ldots +n^3=(1+2+3+\ldots +n)^2 .$$
+Warto w~tym miejscu wspomnieć, że obecny rok jest szczególną okazją, by mówić o~tym twierdzeniu. Istotnie, na przełomie grudnia i~stycznia trudno było nie natknąć się na informację, że $$ 1^3+2^3+3^3+\ldots +9^3=2025=(1+2+3+\ldots +9)^2.$$
+Niestety mało kto wspominał przy tym, że te dwa przedstawienia liczby 2025 są, w~prezentowanym tutaj sensie, równoważne; można właściwie traktować je jako duplikat\dots\
+a~także jako doskonały pretekst do opowiedzenia o~pięknym starożytnym twierdzeniu. Kolejna taka okazja nie trafi się nam przez tysiąc lat!
+\medskip
+
+\rightline{{\large\it Paweł Rafał BIELIŃSKI}\quad{\scriptsize Nauczyciel, Warszawa}}
+\end{dwieszpalty}

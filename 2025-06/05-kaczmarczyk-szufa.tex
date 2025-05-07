@@ -1,0 +1,181 @@
+
+
+\newcommand{\marked}[1]{#1}
+\newcommand{\textmarked}[1]{#1}
+
+%
+%
+\spis{Dwie tury, STV i~głosowanie strategiczne}
+{Andrzej Kaczmarczyk,  Stanisław Szufa}
+%
+\wtyt{Dwie tury, STV i~głosowanie strategiczne}
+\waut{Andrzej KACZMARCZYK* i~Stanisław SZUFA**}\marg{\setbox0=\hbox{**\kern1.2pt}\hangindent\wd0
+\noindent\phantom{*}*\kern1.2ptDepartment of Computer Science,
+The~University~of~Chicago 
+\llap{**\kern1.2pt}Wydział~Informatyki,  Akademia~Górniczo-Hutnicza im.~Stanisława Staszica w~Krakowie\bigskip}
+%
+%
+
+Wybory prezydenckie w~Polsce zwykle rozstrzygają się dopiero w~II turze.
+%
+Dochodzi do niej, gdy
+w~I~turze żaden z~kandydatów nie zdobył ponad 50\%~ważnych głosów\marg{Choć ważność głosu to zagadnienie bardzo istotne, nie będziemy się na nim skupiać. Załóżmy, że wszystkie głosy, o~których mówimy, są ważne.\bigskip}.
+Dla przypomnienia, II tura to kolejne głosowanie, w~którym o~zwycięstwo walczą
+dwaj kandydaci z największym poparciem %, którzyzdobyli największe poparcie
+w~I~turze.
+Głosowanie dwuturowe jest względnie komfortowe dla wyborców.
+Mogą oni przenieść swoje poparcie na innego kandydata w~II turze, na przykład gdy ich faworyt odpadł już w~I~turze.
+Intuicyjnie więc rozsądny\marg{,,Rozsądny'' nie jest tu kontrastem dla ,,lekkomyślny''. Traktujemy słowo ,,rozsądny'' technicznie, jako maksymalizujący szansę zwycięstwa ulubionego kandydata.} wyborca powinien poprzeć w~I~turze swojego ulubionego kandydata.
+Ale czy aby na pewno?
+Zademonstrujemy,
+że intuicja tutaj zawodzi. Są bowiem sytuacje, w~których lepiej poprzeć
+nieco mniej lubianego kandydata i~zagwarantować mu zwycięstwo, niż zagłosować na swojego faworyta i~musieć pogodzić się ze
+zwycięstwem bardzo nielubianego kandydata.
+%
+
+
+Rozważmy $63$ wyborców i~pięciu kandydatów \textmarked{$A$}, \textmarked{$B$}, \textmarked{$C$}, \textmarked{$D$} i~\textmarked{$E$}. W~przykładzie poniżej preferencje wyborców względem kandydatów podane są (czytając od lewej) od ulubionego kandydata. 
+$$\jot0pt\begin{aligned}
+  21\text{ wyborców}:& \quad %A \succ \lmarkelem{\marked{C}}{1} \succ \marked{E} \succ \rmarkelem{\marked{D}}{1} \succ B \highlight{L1-C}{R1-D}\\
+  A \succ \tcbhighmath{C \succ E \succ D} \succ B\\
+  19\text{ wyborców}:& \quad %B \succ \lmarkelem{\marked{C}}{2} \succ \marked{D} \succ \rmarkelem{\marked{E}}{2} \succ A \highlight{L2-C}{R2-E}\\
+  B \succ \tcbhighmath{C \succ D \succ E} \succ A\\
+  11\text{ wyborców}:& \quad %\lmarkelem{\marked{C}}{3} \succ \marked{E} \succ \rmarkelem{\marked{D}}{3} \succ B \succ A \highlight{L3-C}{R3-D}\\
+  \tcbhighmath{C \succ E \succ D} \succ B \succ A\\
+  7\text{ wyborców}:& \quad %\lmarkelem{\marked{D}}{4} \succ \marked{C} \succ \rmarkelem{\marked{E}}{4} \succ B \succ A \highlight{L4-D}{R4-E}\\
+  \tcbhighmath{D \succ C \succ E} \succ B \succ A\\
+  5\text{ wyborców}:& \quad %\lmarkelem{\marked{E}}{5} \succ \marked{C} \succ \rmarkelem{\marked{D}}{5} \succ A \succ B \highlight{L5-E}{R5-D}
+        \tcbhighmath{E \succ C \succ D} \succ A \succ B 
+\end{aligned}$$
+Zauważmy, że gdyby wszyscy wyborcy oddali głos na ulubionego dostępnego w~danej turze kandydata,
+to w~II turze $B$ pokonałby $A$ stosunkiem głosów $37$ do~$26$.
+
+Przyjrzyjmy się jednak bliżej grupie $12$ wyborców przedstawionych jako ostatni w~powyższym zestawieniu. 
+Po chwili refleksji zauważamy, że byliby oni dużo bardziej zadowoleni z~wyboru kandydata \textmarked{$C$}.
+Rzeczywiście każdy taki wyborca uważa \textmarked{$C$} za swojego drugiego w~kolejności ulubionego kandydata.
+Czy mogli oddać swoje głosy w~inny sposób, tak by zagwarantować kandydatowi~\textmarked{$C$} zwycięstwo? Zdecydowanie tak!
+Zauważając, że ich ulubieni kandydaci \textmarked{$E$} oraz~\textmarked{$D$} są niezbyt popularni (popatrzmy, jak często wyprzedza
+ich \textmarked{$C$}), wyborcy mogli oddać głos na~\textmarked{$C$}.\marg{Przykład udał nam się nawet lepiej niż się spodziewaliśmy! Poprzedni zwycięzca~$B$ nawet nie dostał się do~II~tury!}
+Wtedy kandydat~\textmarked{$C$} z~$42$~głosami w~II~turze pokonałby kandydata $A$.
+
+Skupmy się teraz na wyróżnionych kandydatach \textmarked{$C$}, \textmarked{$D$} oraz \textmarked{$E$}.
+Tworzą oni spójny blok w~preferencjach każdego z~wyborców. Jak możemy to zinterpretować?
+Kandydaci ci są na tyle podobni, że zawsze występują blisko siebie w~preferencjach wyborców, a~zarazem na tyle wyjątkowi,
+że każdy inny kandydat jest albo bardziej preferowany od całej trójki, albo mniej preferowany od całej trójki.
+Dodatkowo, skoro kandydaci zawsze występują blisko siebie w~preferencjach wyborców, intuicyjnie każdy wyborca będzie
+,,podobnie'' zadowolony z~dowolnego z~tych kandydatów. Właśnie dlatego naukowcy, opisując takich kandydatów,
+używają określenia \emph{klony}. W~praktyce (i~w~przybliżeniu) możemy myśleć o~klonach jako\marg{Klony mogą pochodzić na przykład z~opcji politycznych powstałych na skutek rozpadu jednej partii.} o~kandydatach o~bardzo zbliżonych poglądach lub
+z~podobnych opcji politycznych.
+
+Nasz przykład pokazał, że wybory dwuturowe czasem premiują
+\emph{głosowanie strategiczne}, czyli takie, w~którym wyborcom 
+bardziej opłaca się zagłosować niezgodnie z~własnymi preferencjami,
+aby zwiększyć szansę na bardziej satysfakcjonujący wynik.
+%
+%
+%
+%
+W~naszym przykładzie u~podstaw tego problemu leży podatność dwuturowej reguły wyborczej na \emph{klonowanie} kandydatów.
+W~szczególnym przypadku możemy tę własność opisać tak: Wyobraźmy sobie, że klonujemy wygrywającego kandydata i~pozwalamy każdemu wyborcy doprecyzować, czy wolą kandydata oryginalnego, czy sklonowanego. Jeśli reguła jest podatna na klonowanie, to może się zdarzyć, że w~tak powstałych nowych wyborach nie wygra ani poprzednio wygrywający kandydat, ani jego klon.
+%
+%
+%
+%
+%
+%
+%
+%
+
+Czy istnieje
+racjonalna reguła, która nie jest podatna na klonowanie kandydatów?
+Tak,\marg{W~szczególnym przypadku jednego zwycięzcy obok STV używane są też
+nazwy {\em Instant-Runoff Voting}, {\em Ranked Choice Voting} czy {\em Alternative Vote}.} mechanika reguły STV (\emph{Single Transferrable Vote}, czyli pojedynczy głos przechodni) broni przed
+zaobserwowaną sytuacją! W~przeciwieństwie do tradycyjnego głosowania dwuturowego,
+które na każdym etapie wymaga od wyborców zaznaczenia tylko najbardziej
+popieranego kandydata, reguła STV oczekuje uszeregowania wszystkich kandydatów.
+Choć jest to trudniejsze od postawienia pojedynczego krzyżyka, to
+%
+%
+\marg{Gdyby zastosować STV, zniknęłaby też potrzeba organizowania II tury wyborów.}%
+taki sposób głosowania automatycznie umożliwia przechodzenie poparcia na kolejnego ulubionego kandydata w~przypadku,
+gdy pierwszy nie może zwyciężyć ze względu na zbyt niskie poparcie. 
+
+Jak więc działa mechanizm reguły STV przy wyborze jednego zwycięzcy?
+%
+%
+%
+%
+%
+%
+Jest on podzielony na etapy, \marg{Liczba głosów potrzebna do zwycięstwa
+nosi nazwę progu i~można go ustalić na kilka sposobów. My wybraliśmy ten najpopularniejszy (prawdopodobnie) i~zastosowaliśmy go do szczególnego przypadku wyboru jednego zwycięzcy.} a~w~każdym z~nich najpierw sprawdzamy, czy
+jest taki kandydat, który zdobywa ponad połowę wszystkich głosów.
+%
+W~przypadku, gdy taki kandydat istnieje, to jest on zwycięzcą.
+W~przeciwnym razie kandydat o~najniższym poparciu jest usuwany
+z~grona kandydatów. Z~kolei głos każdego wyborcy, który popierał
+usuniętego kandydata, przechodzi na kolejnego niewyeliminowanego
+kandydata zgodnie z~listą preferencji wyborcy.
+Następnie STV zaczyna następny etap i~znów szuka kandydata,
+który zdobywa ponad połowę głosów,\marg{Uwaga! W~trakcie działania reguły mogą zdarzyć się remisy. W~takiej sytuacji zakładamy, że istnieje jakiś sposób ich rozstrzygania.}
+%
+kontynuując swoje działanie do momentu wyłonienia zwycięzcy.
+Ostatecznie musi do tego dojść, gdyż w~najgorszym razie pozostanie
+jedynie dwóch rozważanych kandydatów.
+
+Przyjrzyjmy się zatem, jak zadziała STV na naszym przykładzie.
+%
+%
+Na początku żaden z~kandydatów nie osiąga co najmniej $32$ głosów, więc reguła eliminuje najmniej popieranego
+kandydata, \textmarked{$E$}. Głosy jego wyborców przechodzą na kandydata \textmarked{$C$}.
+Dalej żaden z~kandydatów nie osiąga wymaganego poparcia, co powoduje usunięcie kandydata \textmarked{$D$} i~przejście jego głosów
+również na kandydata \textmarked{$C$}. Teraz \textmarked{$C$} ma $23$ głosy. Do rozstrzygnięcia prowadzi wyeliminowanie następnego
+najsłabszego kandydata, $B$, którego wyborcy przenoszą swoje poparcie na kandydata \textmarked{$C$}, a~ten z~$42$ głosami  zostaje zwycięzcą.
+
+Jak pokazaliśmy, reguła STV doprowadziła kandydata \marked{$C$} do zwycięstwa, pozwalając wyborcom
+głosować całkowicie szczerze.\marg{Reguła STV ma też inne atuty, takie jak łatwość dostosowania jej do wyborów z~wieloma zwycięzcami w~sposób zapewniający proporcjonalną reprezentację wyborców.} Intuicyjnie jest to zasługa faktu, że sam mechanizm reguły naturalnie przenosi poparcie wyborców,
+których ulubiony kandydat jest eliminowany.
+%
+Wyborca efektywnie wyraża
+swój głos w~formie ,,jeśli nie kandydat $X$, to $Y$, a~jeśli nie $Y$, to $Z$'', zamiast wskazania tylko $X$.
+Wiąże się to jednak z~kosztem wynikającym z~potrzeby uszeregowania kandydatów.
+Choć w~małych wyborach uszeregowanie kilku kandydatów nie wydaje się trudnym zadaniem, to kiedy mowa
+o~kilkudziesięciu kandydatach, łatwo o~pomyłkę, która może unieważnić głos.
+Dodatkowo samo uświadomienie sobie własnych preferencji może być bardzo trudne.
+
+Należy zaznaczyć, że reguła STV z~powodzeniem stosowana jest w~praktyce. Przykładowo zgodnie z~nią wybierany jest prezydent Irlandii,
+reprezentanci izby niższej australijskiego parlamentu czy przedstawiciele samorządów lokalnych w~Szkocji. W~przywołanym przykładzie Australii STV wybiera po jednym kandydacie w~każdym okręgu. W~Szkocji, w~zależności od okręgu, wybieranych jest od jednego do pięciu kandydatów.
+
+Uczulamy jednak na wyciąganie zbyt pochopnych wniosków.
+Reguła STV\marg{Wszystkie rozsądne reguły wyborcze mają swoje ciemne strony. Mówią o~tym twierdzenia Arrowa i~Gibbarda--Satterthwaite'a, z~którymi zaznajomienie się polecamy Czytelnikom Zainteresowanym.}  ma również swoje ciemne strony.
+Jedna z~nich jest szczególnie kontrowersyjna.
+Polega ona na tym, że może się zdarzyć, że wygrywający kandydat~$X$ przegra wybory w~sytuacji, gdy wyborcy postanowią przesunąć go wyżej na swojej liście preferencji.
+To znaczy, że wyborca chcący bardziej wesprzeć $X$ działa na jego niekorzyść. Spójrzmy na przykład poniżej, w~którym reguła STV wybiera kandydata $X$, po drodze eliminując $Y$.
+\begin{align*}
+10\text{ wyborców}:& \quad X \succ Y \succ Z\\
+9\text{ wyborców}:& \quad Y \succ X \succ Z\\
+8\text{ wyborców}:& \quad Z \succ Y \succ X\\
+2\text{ wyborców}:& \quad Z \succ X \succ Y
+\end{align*}
+Gdyby jednak dwóch ostatnich wyborców postanowiło, że
+przesuną $X$ wyżej na swoich listach preferencji,
+to kandydat $X$ przegrałby na rzecz $Y$!
+To~ważna obserwacja, ponieważ prowadzi ona czasem
+do sporów sądowych o~konstytucyjność reguł wyborczych
+podatnych na opisaną anomalię. W~Niemczech odpowiedni
+sąd uznał ją za przesłankę wystarczającą 
+do uznania rozpatrywanej przez niego reguły za niekonstytucyjną
+i~zakazał jej stosowania.
+Przeciwnicy tego punktu widzenia argumentują, że w~praktyce ten problem jest pomijalny: wydaje się występować rzadko oraz nie wpływa ani na zachowania wyborców, ani na zachowania kandydatów -- czego nie można powiedzieć o~problemie klonów. 
+
+Czytelnikom Zainteresowanym dalszym pogłębieniem tematyki głosowania 
+strategicznego polecamy poniższe publikacje:
+\begin{enumerate}
+    \item Doron, G. i~Kronick, R.: ``Single Transferrable Vote: An Example of a~Perverse Social Choice Function'', \emph{American Journal of Political Science}. 1977, T. 31, nr 2, s. 303--311.
+    \item Taylor, A. D. ``{Social Choice and the Mathematics of Manipulation}'',  Cambridge University Press, Cambridge 2005.
+\end{enumerate}
+
+\vfill
+\input 06-kat-o
+
+\eject

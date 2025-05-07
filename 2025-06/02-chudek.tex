@@ -1,0 +1,113 @@
+\advance\baselineskip by-.2pt
+\spis{Zagadkowe balony}
+{Agnieszka Chudek}
+
+\wtyt{Zagadkowe balony}
+
+
+\waut{Agnieszka CHUDEK} 
+
+
+
+Zacznijmy od obiecanej zagadki. Dwa identyczne balony nadmuchujemy do różnych rozmiarów i~łączymy ze sobą za pomocą zaworka, który można otwierać i~zamykać (zrobionego np. z~dwóch korków od butelki z~wodą dla dzieci). Co~się stanie, gdy otworzymy zaworek i~pozwolimy, aby powietrze swobodnie przepływało między balonami? Czy powietrze przepłynie z~mniejszego balonu do większego? Czy może na odwrót? A~może nic się nie stanie? A~może, jak to zwykle bywa, jedyną słuszną odpowiedzią jest: „To zależy”?
+\marg{\includegraphics[width=0.9\linewidth]{balony1}}%
+\marg{\includegraphics[width=0.9\linewidth]{balony2}}%
+\marg{\includegraphics[width=0.9\linewidth]{balony3}}%
+\marg{Przykładowe sytuacje po otworzeniu zaworka}%
+Podczas prezentowania tej zagadki w~dniu obchodów 50-lecia \textit{Delty} znaczna część publiczności optowała za wariantem, że duży balon napełni mały, aż ich rozmiary się wyrównają. Faktycznie, w~pierwszej chwili wydaje się to dość intuicyjne rozumowanie. Jednak po otwarciu zaworu stało się zupełnie odwrotnie. Mniejszy balon napompował większy, a~sam skurczył się do niewielkich rozmiarów. Hm… czyżby fizyka po raz kolejny udowodniła prawdziwość \textit{efektu św. Mateusza}, polegającego na ubożeniu biednych i bogaceniu się bogatych? Być może, jednak my przyjrzyjmy się temu zjawisku z~różnych stron i~spróbujmy wyjaśnić je, odwołując się do praw fizyki. 
+
+\looseness-1{\spaceskip.3em minus.1em
+\styt{Powierzchnie.} 
+Nadmuchując balon, rozciągamy go, a~więc zwiększamy jego całkowitą powierzchnię, a~do tego potrzebna jest energia. Żeby rozciągnąć gumę bardziej, potrzeba więcej energii -- oczywiste. 
+Policzmy zatem całkowitą powierzchnię balonów w~kilku przypadkach. 
+Załóżmy, że balony są idealnie sferyczne i~mały ma objętość 1 l, a~duży 3 l. Posługując się wzorami na objętość kuli ($V=\frac{4}{3}\pi r^3$) i~pole sfery ($S=4\pi r^2$), możemy obliczyć, że ich powierzchnie będą wynosiły, odpowiednio, 484~cm$^{2}$  i~1006~cm$^{2}$ (w~przybliżeniu), co w~sumie daje 1490 cm$^{2}$.
+ Gdyby po odblokowaniu przepływu balony wyrównały rozmiary, wówczas ich objętości łącznie wynosiłyby 2 l, a~całkowita powierzchnia około 1535~cm$^{2}$, czyli więcej niż na początku.
+ \marg{W~ogólności możemy rozważyć balony o~promieniach $a$ i $b$ i~zadanie minimalizacji sumy ich powierzchni. Problem ten sprowadza się do minimalizacji funkcji $a^2+b^2$, przy ustalonej wartości objętości, czyli warunku $a^3+b^3=V=\rm const$. Aby to zadanie rozwiązać, wystarczy przekonać się, że zachodzi nierówność $(a^2+b^2)^3\geq(a^3+b^3)^2$ oraz że równość zachodzi tylko wtedy, gdy jedna z~liczb $a$, $b$ jest zerowa. Właśnie wtedy osiągane jest minimum powierzchni.}Taka sytuacja nie może zajść bez dostarczenia dodatkowej energii. A~co w~przypadku przepływu całości powietrza do dużego balonu?
+ Wtedy na końcu mamy objętości 4 l i~0 l, a~całkowita powierzchnia wynosi 1219 cm$^{2}$, czyli mniej niż na początku, zatem przepływ powietrza w~tę stronę jest możliwy. Taka argumentacja może posłużyć jako wstępne wyjaśnienie, ale pójdźmy jednak krok dalej. Wszak podstawienie konkretnych wartości i~założenie o~idealnej sferyczności balonów nie mówią nic o~uniwersalności zjawiska.}
+
+\styt{Ciśnienie.} 
+Wiadomo, że przepływ powietrza między balonami odbywa się z~powodu różnicy ciśnień wewnątrz nich. Zatem jakie ciśnienie panuje wewnątrz balonu i~od czego ono zależy? Wiemy, że ciśnienie powietrza w~napompowanym balonie jest większe niż ciśnienie atmosferyczne, a~konkretny kształt zawdzięcza on elastycznej gumie, z~której jest zrobiony i~która także wywiera ciśnienie na powietrze wewnątrz. 
+W~kontekście opisania zależności między ciśnieniem wewnątrz balonu a~jego rozmiarem (promieniem) przydatne jest odwołanie się do prawa Laplace’a~($\Delta p = \frac{4T}{r}$), \marg{O~równaniu Laplace'a więcej pisał Michał Miśkiewicz w~artykule ,,Bańka jaka jest, każdy widzi'', \href{https://www.deltami.edu.pl/2019/07/banka-jaka-jest-kazdy-widzi/}{$\Delta^7\sb{19}$}.}które wiąże różnicę ciśnień między wnętrzem a~otoczeniem $\Delta p$, z~napięciem powierzchniowym gumy $T$ i~promieniem balonu~$r$. Z~interpretacji tego wzoru wynika, że im większy jest promień balonu~$ r$, tym mniejsza różnica ciśnień jest potrzebna do jego utrzymania w~stanie równowagi. Jest to dość intuicyjne dla każdego, kto choć raz dmuchał balon. W~końcu najtrudniej jest zrobić ten pierwszy dmuch, a~potem każdy następny jest coraz łatwiejszy. Problem w~tym, że powyższe rozumowanie jest prawdziwe dla stałego napięcia powierzchniowego balonu, które w~rzeczywistości stałe nie jest.
+\marg{}
+
+\styt{Guma.} No właśnie. Czy prawdą jest, że każdy następny dmuch jest coraz łatwiejszy?
+ Przecież nie możemy dmuchać balonu w~nieskończoność i~w~końcu po kilku dmuchach dochodzimy do momentu, gdy znowu jest trudniej i~zaczynamy balansować na granicy pęknięcia. Żeby zrozumieć, dlaczego tak jest, przyjrzyjmy się gumie, z~której zrobiony jest balon. Gumowy lateks to polimer, czyli struktura składająca się z~długich łańcuchów połączonych ze sobą w~wielu miejscach na swojej długości. To właśnie ta struktura odpowiada za sprężyste zachowanie materiału. Gdy materiał nie jest naprężony, łańcuchy polimeru są zwinięte i~splątane wokół siebie w~losowy sposób. Gdy rozciągamy gumę, łańcuchy prostują się i~ustawiają w~linii.  Do tego procesu potrzeba dostarczyć relatywnie dużo energii, ponieważ trzeba zerwać dużo połączeń (wiązań) między fragmentami łańcucha.  \marg{\includegraphics[width=0.9\linewidth]{polimer}}
+ \marg{Zmiana struktury polimeru w~trakcie rozciągania}
+ Dalsze rozciąganie jest o~wiele łatwiejsze, gdyż powoduje jedynie rozciąganie łańcuchów -- aż do momentu, kiedy zostaną one całkowicie wydłużone, i~dostarczenie dodatkowej energii spowoduje zerwanie połączeń między łańcuchami i~w~końcu pęknięcie gumy. Oznacza to, że elastyczność gumy zmienia się podczas rozciągania, a~zależność napięcia w~stosunku do stopnia rozciągnięcia nie jest liniowa (patrz wykres napięcie--rozciągnięcie po lewej stronie). Na początku ma stromy obszar, w~którym guma jest sztywniejsza, potem środkowy obszar, w~którym materiał jest łatwiejszy do rozciągnięcia, a~następnie kolejny stromy obszar, w~którym gumę coraz trudniej rozciągnąć. 
+
+\marg{\includegraphics[width=.8\linewidth]{guma}}%
+\marg{Wykres zależności napięcia od rozciągnięcia dla polimeru}%
+Wróćmy teraz do ciśnienia wewnątrz balonu i~spróbujmy wyznaczyć jego charakterystykę w~pełnym zakresie nadmuchania balonu. Widać bowiem, że fakt, iż ciśnienie wewnątrz jest odwrotnie proporcjonalne do promienia, nie może być uznany jako uniwersalny dla balonów. W~rzeczywistości zależność ciśnienia od rozmiaru w~balonie przypomina krzywą w~kształcie litery N (patrz wykres rozmiar--ciesnienie po lewej stronie). Stopień krzywizny z~kolei zależy od rodzaju gumy. 
+\marg{\includegraphics[width=.8\linewidth]{wykrescisnienie}}
+\marg{Wykresu zależności ciśnienia wewnątrz balonu od jego rozmiaru. W~artykule [$*$]  pokazane jest, jak kształt ten został wyznaczony doświadczalnie }
+W~przypadku naszych balonów możliwa jest sytuacja, w~której oba balony, choć różnych rozmiarów, będą napompowane w~taki sposób, że ciśnienia wewnątrz będą takie same, i~wtedy nic się nie stanie. Da się również tak dobrać poziom napompowania, że duży balon będzie tuż przed granicą pęknięcia i~ciśnienie  na tyle duże, że nadmucha on mniejszy balon. 
+
+\looseness-1{\spaceskip.3em minus.1em
+Czyżby zatem poprawna odpowiedź na tytułową zagadkę brzmiała: „To zależy”?
+Tak! I~chociaż na temat trudności z~udzieleniem jednoznacznej odpowiedzi krąży wiele dowcipów i~anegdot, tutaj też potwierdza się fakt, że jeden poziom wyjaśnienia prowadzi do kolejnych i~rzuca światło na kolejne szczegóły, które sprawiają, że dane zjawisko staje się trudne do %ujednolicenia
+jednoznacznego opisania. A~wraz z~odpowiedzią na jedno pytanie pojawia się kilka następnych. Swoją drogą ciekawe, jak wyglądałoby zachowanie układu, w~którym połączymy więcej balonów. Albo czy układ będzie działał tak samo, jeśli będziemy pompować ten sam balon kilkakrotnie? 
+\marg{\hangindent11.5pt[$*$] Z.~Ješková, D. Featonby, V. Fekováh: {\it Balloons revisited}, Physics Education (2012) 47 392.
+
+}
+Balony, chociaż są popularne i~używane na co dzień, to ich zachowanie pozostawia nam kilka interesujących obszarów do eksploracji na różnych poziomach. Mam nadzieję, że ten artykuł zachęci Czytelnika do eksperymentowania i~zadawania pytań, a~to zaowocuje nowymi, fascynującymi odkryciami.}
+
+
+\normalsize\vskip-8pt plus10pt
+\hspace*{-5.5cm}\vrule height.4pt width18cm
+\vskip-12pt plus10pt
+
+\def\zadMat#1{%
+  \textbf{M~#1.} \csuse{zadM-#1}%\\%
+  %Rozwiązanie na str.~\pageref{rozM-#1}%
+}
+\def\zadFiz#1{%
+  \textbf{F~#1.} \csuse{zadF-#1}%\\%
+ % Rozwiązanie na str.~\pageref{rozF-#1}%
+}
+
+\renewcommand{\Zadania}[1][0pt]{%
+\zadspis
+\phantomsection\label{zadania}\noindent\setbox0=\hbox to70pt{\includegraphics{kot}\hss}%
+\copy0{\Magenta{\LARGE\bf Zadania}}}
+\marg[6]
+{\Zadania%\vskip20pt
+}%
+
+\marg[70]{\begin{tikzpicture}[scale=1.9]
+\tkzSetUpPoint[fill=black]
+\tkzDefPoints{0/0/S,1.4/0/A,0/1/B,1/.5/C}
+\tkzDefPointOnLine[pos=.3](S,A)\tkzGetPoint{A'}
+\tkzDefPointOnLine[pos=.4](S,B)\tkzGetPoint{B'}
+\tkzDefPointOnLine[pos=.5](S,C)\tkzGetPoint{C'}
+
+\tkzDrawPoints(S,A,B,C,A',B',C')
+\tkzDrawSegments(S,A S,B S,C)
+
+\tkzDrawPolygons[fill=magenta,opacity=.5](A,B,C A',B',C')
+\tkzDrawPolygons(A,B,C A',B',C')
+
+%%% labelling
+\newcommand{\labnode}[2]{\node at ([shift={(#1)}]#2) {\scriptsize $#2$};}
+\labnode{-90:.1}{A}
+\labnode{-180:.1}{B}
+\labnode{45:.1}{C}
+\labnode{-90:.1}{A'}
+\labnode{-180:.1}{B'}
+\labnode{-30:.1}{C'}
+\labnode{-.05,-.1}{S}
+\end{tikzpicture}}\redaguje{Przygotował  Dominik BUREK}
+
+\zadMat{1819}
+
+\zadMat{1820}
+
+\zadMat{1821}
+
+\redaguje{Przygotował Andrzej MAJHOFER}
+
+\zadFiz{1121}
+
+\marg[30]{\normalsize
+\Magenta{\bf Rozwiązania na str.~\pageref{rozwiazania}}}\zadFiz{1122}
+\eject
+\normalsize
