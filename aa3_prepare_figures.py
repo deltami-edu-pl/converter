@@ -4,17 +4,15 @@ import shutil
 import subprocess
 from pathlib import Path
 from wand.image import Image
-from config import VERSION, PATH_SOURCE, PATH_FIGURES
+from config import VERSION, PATH_SOURCE, PATH_FIGURES, log_section
 
 
+@log_section
 def prepare_figures():
-    print()
-    print(f"### prepare_figures")
     if PATH_FIGURES.exists():
         print(f"# Directory {PATH_FIGURES} already exists")
-        print("### prepare_figures done")
-        print()
         return
+
     print(f"# Creating directory {PATH_FIGURES}")
     PATH_FIGURES.mkdir(parents=True)
 
@@ -41,7 +39,9 @@ def prepare_figures():
     print()
 
     for pdf_file in pdf_files:
-        dest_path = PATH_FIGURES / (pdf_file.stem.replace("-eps-converted-to", "") + ".png")
+        dest_path = PATH_FIGURES / (
+            pdf_file.stem.replace("-eps-converted-to", "") + ".png"
+        )
         try:
             with Image(filename=str(pdf_file), resolution=600) as img:
                 img.format = "png"
@@ -59,8 +59,6 @@ def prepare_figures():
 
     files_count = copied_files_count + converted_files_count
     print(f"# Moved {files_count} files to {PATH_FIGURES}")
-    print("### prepare_figures done")
-    print()
 
 
 if __name__ == "__main__":

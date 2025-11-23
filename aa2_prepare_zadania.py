@@ -2,61 +2,57 @@
 
 import re
 from pathlib import Path
-from config import PATH_SOURCE, log_section
+from config import PATH_SOURCE, log_section, first_match
 
+def extract_zadmat_block(skip_file: Path) -> str | None:
+    """
+    Wyciąga blok \\def\\zadMat z pierwszego znalezionego pliku .tex (innego niż skip_file).
+    Zapisuje z powrotem plik bez tego bloku i zwraca wyciętą zawartość.
+    """
+    for path in PATH_SOURCE.glob("*.tex"):
+        if path == skip_file:
+            continue
+
+        content = path.read_text(encoding="utf-8")
+        idx = content.find(r"\def\zadMat")
+        if idx == -1:
+            continue
+
+        zadmat_content = content[idx:]
+        path.write_text(content[:idx], encoding="utf-8")
+        print(f"# Extracted \\def\\zadMat block from {path.name}")
+        return zadmat_content
+
+    return None
 
 @log_section
 def prepare_zadania():
-    existing_numbers = []
-    pattern_existing = re.compile(r"^(\d{2})-.*\.tex$")
-    for file in PATH_SOURCE.glob("*.tex"):
-        match = pattern_existing.match(file.name)
-        if match:
-            existing_numbers.append(int(match.group(1)))
-
-    next_number = max(existing_numbers, default=0) + 1
-    next_number_str = f"{next_number:02}"
-
-    target_pattern = re.compile(r"^\d{4}-zadania-rozw\.tex$")
-    zadania_rozw_path = None
-    for file in PATH_SOURCE.glob("*.tex"):
-        if target_pattern.match(file.name):
-            zadania_rozw_path = file
-            break
-
-    if not zadania_rozw_path:
-        print("ERROR: No file matching ####-zadania-rozw.tex was found.")
+    # Find the NNNN-zadania-rozw.tex file
+    zadania_rozw_pattern = "[0-9][0-9][0-9][0-9]-zadania-rozw.tex"
+    zadania_rozw = first_match(zadania_rozw_pattern)
+    if not zadania_rozw:
+        print(f"ERROR: No file matching {zadania_rozw_pattern} was found.")
         return
 
-    new_name = f"{next_number_str}-zadania-rozw.tex"
-    new_path = PATH_SOURCE / new_name
-    zadania_rozw_path.rename(new_path)
-    print(f"# Renamed {zadania_rozw_path.name} to {new_name}")
+    rozwiazania_pattern = "[0-9][0-9]-rozwiazania.tex"
+    rozwiazania = first_match(rozwiazania_pattern)
+    if not rozwiazania:
+        print(f"ERROR: No file matching {rozwiazania_pattern} was found.")
+        return
 
-    zadmat_content = None
-    for file in PATH_SOURCE.glob("*.tex"):
-        if file == new_path:
-            continue  # skip the newly created file
+    rozwiazania.unlink()
+    zadania_rozw.rename(rozwiazania)
+    print(f"# Renamed {zadania_rozw.name} to {rozwiazania.name}")
 
-        content = file.read_text(encoding="utf-8")
-        split_index = content.find(r"\def\zadMat")
-
-        if split_index != -1:
-            # Extract the \def\zadMat block to the end
-            zadmat_content = content[split_index:]
-            # Save the remaining content back to the original file
-            file.write_text(content[:split_index], encoding="utf-8")
-            print(f"# Extracted \\def\\zadMat block from {file.name}")
-            break
-
+    zadmat_content = extract_zadmat_block(rozwiazania)
     if zadmat_content is None:
         print("ERROR: No \\def\\zadMat block found in any file.")
         return
 
     # Prepend the \def\zadMat block to the new zadania file
-    current_zadania_text = new_path.read_text(encoding="utf-8")
-    new_path.write_text(zadmat_content + "\n" + current_zadania_text, encoding="utf-8")
-    print(f"# Prepended \\def\\zadMat block to {new_name}")
+    current_text = rozwiazania.read_text(encoding="utf-8")
+    rozwiazania.write_text(zadmat_content + "\n" + current_text, encoding="utf-8")
+    print(f"# Prepended \\def\\zadMat block to {rozwiazania.name}")
 
 if __name__ == "__main__":
     prepare_zadania()

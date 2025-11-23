@@ -3,18 +3,21 @@
 import re
 from pathlib import Path
 
+
+def first_match(pattern: str) -> Path | None:
+    """Zwraca pierwszy plik pasujący do glob pattern albo None."""
+    return next(PATH_SOURCE.glob(pattern), None)
+
+
 PATH_ROOT = Path(".")
 PATH_SOURCE = PATH_ROOT / f"got"
 
-VERSION =  next(
-    re.match(r"(\d{4}-\d{2})-delta\.tex$", f.name).group(1)
-    for f in PATH_SOURCE.iterdir()
-    if re.match(r"\d{4}-\d{2}-delta\.tex$", f.name)
-)
+VERSION = first_match("[0-9][0-9][0-9][0-9]-[0-9][0-9]-delta.tex")
 
 PATH_DONE = PATH_ROOT / f"{VERSION}-done"
 PATH_FIGURES = PATH_ROOT / f"{VERSION}-figures"
 PATH_DELTA_TEX = PATH_SOURCE / (f"{VERSION}-delta.tex")
+
 
 def GET_NEXT_TEX_FILE():
     files = sorted(
@@ -29,6 +32,7 @@ def GET_NEXT_TEX_FILE():
     )
 
     return files[0] if files else None
+
 
 print(f"VERSION: {VERSION}")
 print(f"PATH_DONE: {PATH_DONE}")
@@ -46,4 +50,5 @@ def log_section(func):
         print()
         print(f"### {name} done")
         return result
+
     return wrapper
