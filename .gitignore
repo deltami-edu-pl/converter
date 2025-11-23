@@ -1,1 +1,14 @@
 .DS_Store
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.eps
+*.bak
+*.aux
+# *.tex
+
+*-done/*
+
+__pycache__
+got

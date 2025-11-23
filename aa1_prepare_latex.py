@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import subprocess
 from pathlib import Path
-from config import PATH_SOURCE
+from config import PATH_SOURCE, log_section
 
 
+@log_section
 def prepare_latex():
-    print()
-    print("### prepare_latex")
-
     latexindent_args = ["latexindent", "-w", "-l", "-y=defaultSettings.yaml"]
 
     if not Path("defaultSettings.yaml").exists():
@@ -33,10 +31,6 @@ def prepare_latex():
     for ext in ["*.bak0", "*.aux"]:
         for file in PATH_SOURCE.rglob(ext):
             file.unlink()
-
-    print("### prepare_latex done")
-    print()
-
 
 if __name__ == "__main__":
     prepare_latex()

@@ -3,7 +3,7 @@
 import re
 import sys
 import os
-from config import VERSION, PATH_SOURCE, PATH_FIGURES, PATH_DELTA_TEX
+from config import VERSION, PATH_SOURCE, PATH_FIGURES, PATH_DELTA_TEX, log_section
 
 used_names = []
 
@@ -39,9 +39,8 @@ def crop_image(figures_folder, name, params):
     used_names.append(new)
     return new
 
+@log_section
 def prepare_articles():
-    print()
-    print(f"### prepare_articles")
     if not VERSION:
         print("ERROR: VERSION is not set!")
         sys.exit(1)
@@ -162,9 +161,6 @@ def prepare_articles():
             
         except Exception as e:
             print(f"An error occurred: {str(e)}")
-
-    print("### prepare_articles done")
-    print()
 
 if __name__ == "__main__":
     prepare_articles()

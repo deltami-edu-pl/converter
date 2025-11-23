@@ -12,8 +12,7 @@ from bs4 import Comment
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
 import subprocess
-from config import VERSION
-from pathlib import Path
+from config import VERSION, GET_NEXT_TEX_FILE, log_section
 
 FILENAME_ADD_TIKZ = "tikz"
 FILENAME_ADD_PANDOC = "pandoc"
@@ -23,34 +22,18 @@ NEWPAGE = 'convert.html'
 TEXTWIDTH = 356 # 356 pt - szerokosc strony (\textwidth) w formacie Delty; uzywane aby poprawiac szerokosc obrazkow
 COLOR = 'FF0088'
 
-def get_next_file():
-    current_dir = Path(".")
-
-    # --- Search for matching files ---
-    files = sorted(
-        [
-            file
-            for file in current_dir.iterdir()
-            if file.is_file()
-            and file.suffix == ".tex"
-            and not file.name.endswith("-pandoc.tex")
-            and not file.name.endswith("-tikz.tex")
-        ]
-    )
-
-    return str(files[0])
-
 ##############################################
 ############ MAIN FUNCTION ###################
 ##############################################
 
+@log_section
 def convert_to_html():
     # if len(sys.argv) < 3:
     #     print("Za mało parametrów: python xxxxx.py <figures_folder> <filename>")
     #     sys.exit(1)
 
     figures_folder = f"{VERSION}-figures"
-    filename = get_next_file()
+    filename = GET_NEXT_TEX_FILE()
 
     if figures_folder[-1] == "/": 
         figures_folder = figures_folder[:-1]
@@ -743,8 +726,4 @@ def correct_html(html_content):
     return newsoup
 
 if __name__ == '__main__':
-    print()
-    print("### convert_to_html")
     convert_to_html()
-    print("### convert_to_html done")
-    print()

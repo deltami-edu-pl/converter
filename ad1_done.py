@@ -1,28 +1,22 @@
 #!/usr/bin/env python3
 
 import shutil
-from config import PATH_DONE, PATH_ROOT
+from config import PATH_DONE, PATH_ROOT, GET_NEXT_TEX_FILE, log_section
 
-
+@log_section
 def done():
-    print()
-    print(f"### done")
 
     PATH_DONE.mkdir(parents=True, exist_ok=True)
 
-    for file in PATH_ROOT.glob("*-article.html"):
-        prefix = file.name.removesuffix("-article.html")
-        related_files = list(PATH_ROOT.glob(f"{prefix}*"))
-        print(f"# Archive files: {prefix}")
+    filename = GET_NEXT_TEX_FILE()
+    print(f"# Archive files: {filename}")
 
-        for related_file in related_files:
-            target = PATH_DONE / related_file.name
-            shutil.move(str(related_file), target)
-            print(f"# Moved {related_file.name}")
-
-    print(f"### done done")
-    print()
-
+    prefix = filename.stem
+    related_files = list(PATH_ROOT.glob(f"{prefix}*"))
+    for related_file in related_files:
+        target = PATH_DONE / related_file.name
+        shutil.move(str(related_file), target)
+        print(f"# Moved {related_file.name}")
 
 if __name__ == "__main__":
     done()

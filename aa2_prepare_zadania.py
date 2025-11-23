@@ -2,13 +2,11 @@
 
 import re
 from pathlib import Path
-from config import PATH_SOURCE
+from config import PATH_SOURCE, log_section
 
 
+@log_section
 def prepare_zadania():
-    print()
-    print(f"### prepare_zadania")
-
     existing_numbers = []
     pattern_existing = re.compile(r"^(\d{2})-.*\.tex$")
     for file in PATH_SOURCE.glob("*.tex"):
@@ -59,10 +57,6 @@ def prepare_zadania():
     current_zadania_text = new_path.read_text(encoding="utf-8")
     new_path.write_text(zadmat_content + "\n" + current_zadania_text, encoding="utf-8")
     print(f"# Prepended \\def\\zadMat block to {new_name}")
-
-    print("### prepare_zadania done")
-    print()
-
 
 if __name__ == "__main__":
     prepare_zadania()
