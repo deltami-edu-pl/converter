@@ -183,7 +183,6 @@ def convert_to_html():
     # USUWAM WSZYSTKIE PLIKI TYMCZASOWE
     # os.remove(filename_pandoc_after)
 
-
 ##############################################
 ############ OTHER FUNCTIONS #################
 ##############################################
@@ -608,7 +607,6 @@ def replace_article_in_newpage(soup, title="", author="", url=""):
             newpagesoup.find("article", "article-input").replace_with(soup.find("article", "article-input"))
     
     return newpagesoup  
-
 
 def correct_html(html_content):
     # pandoc zamiast \qed tworzy 0[], a nie []

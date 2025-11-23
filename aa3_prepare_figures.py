@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import shutil
 import subprocess
 from pathlib import Path
@@ -17,7 +19,7 @@ def prepare_figures():
     PATH_FIGURES.mkdir(parents=True)
 
     # Copy images from various folders
-    source_folders = ["art", "ilustracje", "rys", "stale"]
+    source_folders = ["art", "rys", "stale"]
     pdf_files = []
     copied_files_count = 0
     converted_files_count = 0
@@ -39,7 +41,7 @@ def prepare_figures():
     print()
 
     for pdf_file in pdf_files:
-        dest_path = PATH_FIGURES / (pdf_file.stem + ".png")
+        dest_path = PATH_FIGURES / (pdf_file.stem.replace("-eps-converted-to", "") + ".png")
         try:
             with Image(filename=str(pdf_file), resolution=600) as img:
                 img.format = "png"

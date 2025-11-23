@@ -6,11 +6,12 @@ from flask import Flask, send_from_directory, abort, render_template
 
 def serve():
     app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
-    app.run(debug=True)  # Enable debug mode for hot reload
 
     @app.route("/")
     def home():
         filtered_files = [f for f in os.listdir(".") if f.endswith("-article.html")]
+        print("home")
+        print(filtered_files)
         return "<br />".join(
             sorted(map(lambda f: f"<a href='{f}'>{f}</a>", filtered_files))
         )
@@ -37,10 +38,14 @@ def serve():
             else:
                 with open(filename, "r") as file:
                     content = file.read()
-                return render_template("template.html", title=filename, content=content)
+                return render_template(
+                    "static/template.html", title=filename, content=content
+                )
 
         else:
             abort(404)
+
+    app.run(debug=True)
 
 
 if __name__ == "__main__":

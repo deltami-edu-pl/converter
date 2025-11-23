@@ -17,7 +17,7 @@ def get_content_without_li(li_element):
             content += str(child)
     return clean_html(content)
 
-def process_exercises(input_file):
+def convert_zadania(input_file):
     # Read the HTML file
     with open(input_file, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -82,7 +82,7 @@ def process_exercises(input_file):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 2:
-        print("Usage: python process_exercises.py <input_html_file>")
+        print("Usage: python convert_zadania.py <input_html_file>")
         sys.exit(1)
     
-    process_exercises(sys.argv[1]) 
+    convert_zadania(sys.argv[1]) 

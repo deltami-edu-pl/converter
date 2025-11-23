@@ -1,6 +1,6 @@
 from pathlib import Path
 
-VERSION = "2025-05"
+VERSION = "2025-12"
 
 PATH_ROOT = Path(".")
 PATH_SOURCE = PATH_ROOT / VERSION
