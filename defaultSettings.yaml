@@ -1,43 +1,113 @@
 # 🧱 Ogólne ustawienia
-defaultIndent: '  '  # dwie spacje jako wcięcie
+defaultIndent: "  "  # dwie spacje jako wcięcie
 preserveTrailingWhitespace: 0
 removeTrailingWhitespace: 1
+trailingComments: 1
+
+onlyOneBackUp: 1
+
+removeTrailingWhitespace:
+  beforeProcessing: 0
+  afterProcessing: 1
+
+indentAfterItems:
+    itemize: 1
+    enumerate: 1
+    description: 1
+    list: 1
+
+itemNames:
+    item: 1
+    myitem: 1
+    marg: 1
+
+
+indentRules:
+  marg: "  "
+
+
+modifyLineBreaks:
+  preserveBlankLines: 1
+  condenseMultipleBlankLinesInto: 1
+  textWrapOptions:
+    columns: 80
+
+
+#     rowWidth: 20
+
 
 # 📚 Wcięcia wewnątrz środowisk
-indentPreamble: 1
-indentAfterHeadings: 1
-indentRules:
-  section: 1
-  subsection: 1
-  subsubsection: 1
-  paragraph: 1
+# indentPreamble: 1
+# indentAfterHeadings: 1
+# indentRules:
+#   section: 1
+#   subsection: 1
+#   subsubsection: 1
+#   paragraph: 1
+#   subparagraph: 1
+
+# 🧾 Komendy zaczynające nową linię
+commandsStartsOnOwnLine:
+#   - begin
+#   - tikzpicture
+#   - includegraphics
+#   - item
+#   - section
+#   - subsection
+#   - subsubsection
+#   - paragraph
+#   - caption
+#   - label
+#   - ref
+#   - cite
+#   - footnote
+  - marg
 
 # 📐 Wyrównywanie w środowiskach typu tabular
-lookForAlignDelims:
-  tabular:
-    delims: ["&"]
-    alignDoubleBackSlash: 1
-    spacesBeforeDoubleBackSlash: 1
-    spacesBeforeAmpersand: 1
-    spacesAfterAmpersand: 1
+# lookForAlignDelims:
+#   tabular:
+#     delims: ["&"]
+#     alignDoubleBackSlash: 1
+#     spacesBeforeDoubleBackSlash: 1
+#     spacesBeforeAmpersand: 1
+#     spacesAfterAmpersand: 1
+#     multiColumnGrouping: 1
+#     alignRowsWithoutMaxDelims: 1
 
-# ✂️ Zasady łamania linii po nagłówkach
-modifyLineBreaks:
-  afterHeading: 1
-  afterSection: 1
-  afterSubsection: 1
-  afterSubsubsection: 1
-  afterParagraph: 1
-  afterItem: 1
+# ✂️ Zasady łamania linii po nagłówkach i elementach
+# modifyLineBreaks:
+#   afterHeading: 1
+#   afterSection: 1
+#   afterSubsection: 1
+#   afterSubsubsection: 1
+#   afterParagraph: 1
+#   afterItem: 1
+#   afterDescriptionLabel: 1
+#   afterCommandWithArgumentName:
+#     - caption
+#     - label
 
-# 🧼 Usuwanie zbędnych pustych linii
-removeParagraphLineBreaksInsideEnvironments:
-  itemize: 1
-  enumerate: 1
-  tabular: 1
+# # 🧼 Usuwanie pustych linii w środowiskach
+# removeParagraphLineBreaksInsideEnvironments:
+#   itemize: 1
+#   enumerate: 1
+#   description: 1
+#   tabular: 1
 
-# ✨ Pozostałe
-noAdditionalIndent:
-  - center
-  - flushleft
-  - flushright
+# # 🛑 Brak dodatkowego wcięcia w niektórych środowiskach
+# noAdditionalIndent:
+#   - center
+#   - flushleft
+#   - flushright
+#   - verse
+#   - quote
+
+# # 🛠️ Dodatkowe opcje
+# keepBlankLines: 0
+# onlyOneBackslashPerLine: 0
+# alwaysLookForSplitBraces: 1
+
+# userCommands:
+#   - name: marg
+#     arguments: 1
+#     startsOnOwnLine: 1

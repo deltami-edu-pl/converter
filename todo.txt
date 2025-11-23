@@ -1,5 +1,0 @@
-równania do których jest odniesienie musza mieć \tag{1} algo \tag{$\star$}, a potem \eqref (zmieniany na $\eqref$ - \ref nie działa)
-
-trimowanie - lepsza jakość, rozmiar obrazków: delta-2021-01-art-03-kostrzewski.html
-eps - kolor numeru
-\ref i \cite: delta-2023-11-art-05-rotkiewicz
