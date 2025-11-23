@@ -3,16 +3,14 @@
 import re
 from pathlib import Path
 
+PATH_ROOT = Path(".")
+PATH_SOURCE = PATH_ROOT / f"got"
 
 def first_match(pattern: str) -> Path | None:
     """Zwraca pierwszy plik pasujący do glob pattern albo None."""
     return next(PATH_SOURCE.glob(pattern), None)
 
-
-PATH_ROOT = Path(".")
-PATH_SOURCE = PATH_ROOT / f"got"
-
-VERSION = first_match("[0-9][0-9][0-9][0-9]-[0-9][0-9]-delta.tex")
+VERSION = first_match("[0-9][0-9][0-9][0-9]-[0-9][0-9]-delta.tex").name[:7]
 
 PATH_DONE = PATH_ROOT / f"{VERSION}-done"
 PATH_FIGURES = PATH_ROOT / f"{VERSION}-figures"

@@ -33,7 +33,7 @@ def convert_to_html():
     #     sys.exit(1)
 
     figures_folder = f"{VERSION}-figures"
-    filename = GET_NEXT_TEX_FILE()
+    filename = GET_NEXT_TEX_FILE().name
 
     if figures_folder[-1] == "/": 
         figures_folder = figures_folder[:-1]
