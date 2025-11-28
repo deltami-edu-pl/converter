@@ -13,6 +13,9 @@ from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
 import subprocess
 from config import VERSION, GET_NEXT_TEX_FILE, log_section
+from ac2_convert_to_html_bibliography import fix_bibliography
+from ac2_convert_to_html_labels import auto_number_equations
+from ac2_convert_to_html_rys_captions import expand_rys_captions
 
 FILENAME_ADD_TIKZ = "tikz"
 FILENAME_ADD_PANDOC = "pandoc"
@@ -136,7 +139,7 @@ def convert_to_html():
         file.write(content)
 
     filename_pandoc_after = filename_noext+"-"+FILENAME_ADD_PANDOC+".html"
-    pandoc_call_string = "pandoc --wrap=preserve "+filename_pandoc+" -t html -V lang=pl --mathjax -s -o "+filename_pandoc_after+" --citeproc"
+    pandoc_call_string = "pandoc --wrap=preserve "+filename_pandoc+" -t html -V lang=pl --mathjax -s -o "+filename_pandoc_after+""
     print("- Pandoc: " + pandoc_call_string)
     result = subprocess.run(pandoc_call_string, shell=True, check=False, capture_output=True)
     if result.stderr:
@@ -254,6 +257,7 @@ def replace_algorithms(content, filename_noext, figures_folder):
         i=i+1
     return content
 
+
 def prepare_pandoc(content):
     pt = "(cm|pt|px|em)"
     
@@ -284,8 +288,10 @@ def prepare_pandoc(content):
     content = re.sub(r'\\hsize[0-9\.]+'+pt, '', content)
     content = re.sub(r'\\noindent', '', content)
     content = re.sub(r'\\vtop', '', content)
-    content = re.sub(r'\\begin\{thebibliography\}\{[A-Za-z0-9\-]*\}','\\\\begin{bibliography}', content)
-    content = re.sub(r'\\end\{thebibliography\}','\\\\end{bibliography}', content)
+    # content = re.sub(r'\\begin\{thebibliography\}\{[A-Za-z0-9\-]*\}','\\\\begin{bibliography}', content)
+    # content = re.sub(r'\\end\{thebibliography\}','\\\\end{bibliography}', content)
+    content = fix_bibliography(content)
+    content = expand_rys_captions(content)
         
     if re.findall(r'\\long\\def\\matematyka', content):
         content = content.replace('\\begin{document}', '\\begin{document}\\title{Klub 44}')
@@ -433,12 +439,13 @@ def prepare_pandoc(content):
 
     content = re.sub(r'=\\newline=', r'=', content)
 
-    i=1
-    matches = re.findall(r'(\\begin\{equation\}(.*?\\label.*?\\end\{equation\}))', content, flags=re.DOTALL)
-    for match in matches:
-        if not "\\tag" in match[0]:
-            content = content.replace(match[0], "\\begin{equation}\\tag{"+str(i)+"}"+match[1])
-            i=i+1
+    content = auto_number_equations(content)
+    # i=1
+    # matches = re.findall(r'(\\begin\{equation\}(.*?\\label.*?\\end\{equation\}))', content, flags=re.DOTALL)
+    # for match in matches:
+    #     if not "\\tag" in match[0]:
+    #         content = content.replace(match[0], "\\begin{equation}\\tag{"+str(i)+"}"+match[1])
+    #         i=i+1
     
     matches = re.findall(r'(\\includegraphics\[width=([0-9\.]+)(pt|cm|px|in)\])', content)
     for match in matches:

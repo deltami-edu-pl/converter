@@ -17,7 +17,7 @@ def prepare_figures():
     PATH_FIGURES.mkdir(parents=True)
 
     # Copy images from various folders
-    source_folders = ["art", "rys", "stale"]
+    source_folders = ["art", "rys", "stale", "graphics"]
     pdf_files = []
     copied_files_count = 0
     converted_files_count = 0

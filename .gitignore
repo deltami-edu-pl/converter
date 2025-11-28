@@ -9,6 +9,7 @@
 # *.tex
 
 *-done/*
+*-figures/*
 
 __pycache__
 got
