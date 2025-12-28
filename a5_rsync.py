@@ -1,32 +1,26 @@
 #!/usr/bin/env python3
 
 import subprocess
-from config import VERSION
+from config import PATH_FIGURES, log_section
 
 
-def sync():
-    print()
-    print(f"### sync")
-
-    figures = VERSION + "-figures"
-
+@log_section
+def rsync():
     command = [
         "rsync",
         "-avz",
         "--progress",
         "-e",
         "ssh",
-        figures,
+        str(PATH_FIGURES),
         "delta:/home/delta/delta-dev.mimuw.edu.pl/delta/media",
     ]
 
     try:
         subprocess.run(command, check=True)
-        print(f"### sync done")
-        print()
     except subprocess.CalledProcessError as e:
         print(f"ERROR: {e}")
 
 
 if __name__ == "__main__":
-    sync()
+    rsync()

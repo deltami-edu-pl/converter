@@ -3,19 +3,11 @@
 import shutil
 import subprocess
 from pathlib import Path
-from wand.image import Image
-from config import VERSION, PATH_SOURCE, PATH_FIGURES, log_section
+from config import VERSION, PATH_SOURCE, PATH_FIGURES, log_section, convert_pdf_to_png
 
 
 @log_section
-def prepare_figures():
-    if PATH_FIGURES.exists():
-        print(f"# Directory {PATH_FIGURES} already exists")
-        return
-
-    print(f"# Creating directory {PATH_FIGURES}")
-    PATH_FIGURES.mkdir(parents=True)
-
+def prepare_images():
     # Copy images from various folders
     source_folders = ["art", "rys", "stale", "graphics"]
     pdf_files = []
@@ -39,27 +31,17 @@ def prepare_figures():
     print()
 
     for pdf_file in pdf_files:
-        dest_path = PATH_FIGURES / (
-            pdf_file.stem.replace("-eps-converted-to", "") + ".png"
-        )
-        try:
-            with Image(filename=str(pdf_file), resolution=600) as img:
-                img.format = "png"
-                img.alpha_channel = "remove"
-                img.background_color = "white"
-                img.compression_quality = 100
-                img.save(filename=str(dest_path))
+        png_name = pdf_file.stem.replace("-eps-converted-to", "") + ".png"
+        dest_path = PATH_FIGURES / png_name
+        if convert_pdf_to_png(pdf_file, dest_path):
             converted_files_count += 1
             print(f"# Converted {dest_path}")
-        except Exception as e:
-            print(f"ERROR: Converting PDF to PNG: {pdf_file.name} -> {dest_path}")
-            print(f"    {e}")
     print(f"# Converted {converted_files_count}")
     print()
 
     files_count = copied_files_count + converted_files_count
-    print(f"# Moved {files_count} files to {PATH_FIGURES}")
+    print(f"# Prepared {files_count} images in {PATH_FIGURES}")
 
 
 if __name__ == "__main__":
-    prepare_figures()
+    prepare_images()

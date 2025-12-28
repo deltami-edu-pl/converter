@@ -1,7 +1,7 @@
 import re
 
 def expand_rys_captions(content: str) -> str:
-    """
+    r"""
     1. Usuwa CAŁĄ linię z definicją \def\rys#1{...} (jeśli taka jest).
     2. Zamienia wszystkie wywołania \rys{...} na:
          Rys. N. ...

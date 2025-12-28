@@ -5,7 +5,7 @@ from config import PATH_SOURCE, log_section
 
 
 @log_section
-def prepare_latex():
+def intent_tex():
     latexindent_args = ["latexindent", "-w", "-l", "-y=defaultSettings.yaml"]
 
     if not Path("defaultSettings.yaml").exists():
@@ -33,4 +33,4 @@ def prepare_latex():
             file.unlink()
 
 if __name__ == "__main__":
-    prepare_latex()
+    intent_tex()

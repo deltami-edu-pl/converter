@@ -1,6 +1,5 @@
 import re
-from pathlib import Path
-from config import VERSION, PATH_FIGURES
+from config import VERSION, PATH_ROOT, log_section
 
 """
 For each delta-<folder>-*.html file (excluding *-pandoc.html and *-article.html),
@@ -9,15 +8,12 @@ replacing references to <folder>-figures with /media/<folder>-figures.
 """
 
 
-def convert_to_article():
-    print()
-    print(f"### convert_to_article")
-
-    cwd = Path(".")
+@log_section
+def extract_article():
     start = "<!-- //// START OF ARTICLE //// -->"
     end = "<!-- //// END OF ARTICLE //// -->"
 
-    for file in cwd.glob("*.html"):
+    for file in PATH_ROOT.glob("*.html"):
         # Skip unwanted files
         if (
             file.name.endswith("-pandoc.html")
@@ -42,9 +38,6 @@ def convert_to_article():
         else:
             print(f"ERROR: No article block found in {file.name}")
 
-    print("### convert_to_article done")
-    print()
-
 
 if __name__ == "__main__":
-    convert_to_article()
+    extract_article()

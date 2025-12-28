@@ -26,7 +26,7 @@ def extract_zadmat_block(skip_file: Path) -> str | None:
     return None
 
 @log_section
-def prepare_zadania():
+def merge_zadania():
     # Find the NNNN-zadania-rozw.tex file
     zadania_rozw_pattern = "[0-9][0-9][0-9][0-9]-zadania-rozw.tex"
     zadania_rozw = first_match(zadania_rozw_pattern)
@@ -55,4 +55,4 @@ def prepare_zadania():
     print(f"# Prepended \\def\\zadMat block to {rozwiazania.name}")
 
 if __name__ == "__main__":
-    prepare_zadania()
+    merge_zadania()

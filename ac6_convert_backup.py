@@ -10,11 +10,10 @@ from bs4 import Comment
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlretrieve
 import subprocess
-from config import VERSION, GET_NEXT_TEX_FILE, log_section
+from config import VERSION, GET_NEXT, log_section
 from pathlib import Path
 
 FILENAME_ADD_TIKZ = "tikz"
-FILENAME_ADD_PANDOC = "pandoc"
 
 NEWPAGE = 'convert.html'
 
@@ -32,7 +31,7 @@ def convert_to_html():
     #     sys.exit(1)
 
     figures_folder = f"{VERSION}-figures"
-    filename = GET_NEXT_TEX_FILE().name
+    filename = GET_NEXT().name
 
     if figures_folder[-1] == "/": 
         figures_folder = figures_folder[:-1]
@@ -130,11 +129,11 @@ def convert_to_html():
     content = prepare_pandoc(content)
 
     # TU SIĘ ZAPISUJE PANDOC
-    filename_pandoc = filename_noext+"-"+FILENAME_ADD_PANDOC+".tex"
+    filename_pandoc = filename_noext+"-"+PANDOC+".tex"
     with open(filename_pandoc, 'w') as file:
         file.write(content)
 
-    filename_pandoc_after = filename_noext+"-"+FILENAME_ADD_PANDOC+".html"
+    filename_pandoc_after = filename_noext+"-"+PANDOC+".html"
     pandoc_call_string = "pandoc --wrap=preserve "+filename_pandoc+" -t html -V lang=pl --mathjax -s -o "+filename_pandoc_after+" --citeproc"
     print("- Pandoc: " + pandoc_call_string)
     result = subprocess.run(pandoc_call_string, shell=True, check=False, capture_output=True)
@@ -142,7 +141,7 @@ def convert_to_html():
         print("! Pandoc: error: pandoc zwrócił błąd")
         print(result.stderr)
 
-    filename_pandoc_after = filename_noext+"-"+FILENAME_ADD_PANDOC+".html"
+    filename_pandoc_after = filename_noext+"-"+PANDOC+".html"
 
     if not os.path.isfile(filename_pandoc_after):
         print(f"! Pandoc: plik "+filename_pandoc_after+" nie istnieje")
