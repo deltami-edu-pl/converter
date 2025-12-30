@@ -1,31 +1,14 @@
 #!/usr/bin/env python3
 
-import unicodedata
 import re
-import os
-import requests
-import urllib.error
 import sys
-import urllib.parse
-from bs4 import BeautifulSoup
-from bs4 import Comment
-from urllib.parse import urljoin, urlparse
-from urllib.request import urlretrieve
 import subprocess
-from config import (
-    VERSION,
-    GET_NEXT,
-    log_section,
-    COLOR,
-    IMAGES,
-    PANDOC,
-    PATH_FIGURES,
-    PATH_ROOT,
-    contain_tikz,
-)
+from config import FILE
+from helper import log_section
 from a3a_prepare_pandoc import prepare_pandoc
 from a3b_correct_html import correct_html
-from a3c_extract_article import extract_article
+from a3c_convert_zadania import convert_zadania
+from a3d_extract_article import extract_article
 
 
 @log_section
@@ -33,9 +16,9 @@ def convert_pandoc():
     content = prepare_pandoc()
 
     # TU SIĘ ZAPISUJE PANDOC
-    pandoc_tex = PATH_ROOT / (GET_NEXT().stem + "-" + PANDOC + ".tex")
-    pandoc_html = PATH_ROOT / (GET_NEXT().stem + "-" + PANDOC + ".html")
-    final_html = PATH_ROOT / (GET_NEXT().stem + ".html")
+    pandoc_tex = FILE().article.tex
+    pandoc_html = FILE().article.html
+    # final_html = PATH_ROOT / (GET_NEXT().stem + ".html")
 
     pandoc_tex.write_text(content, encoding="utf-8")
 
@@ -60,19 +43,26 @@ def convert_pandoc():
     print(f"- Pandoc: sukces! aby sprawdzic ostrzezenia uruchom komende:")
     print(pandoc_call_string + " --verbose")
 
-    html_content = pandoc_html.read_text(encoding="utf-8")
+    content = pandoc_html.read_text(encoding="utf-8")
 
-    newsoup = correct_html(html_content)
+    content = correct_html(content)
+    content = extract_article(content)
+    content = convert_zadania(content)
 
-    final_html_content = re.sub(r"\n\n\n+", r"\n\n", str(newsoup))
+    content = re.sub(r"\n\n\n+", r"\n\n", content)
+
+    pandoc_html.write_text(content, encoding="utf-8")
+
+    # final_html_content = re.sub(r"\n\n\n+", r"\n\n", str(newsoup))
     # final_html_content = newsoup.encode('utf-8')
-    final_html.write_text(final_html_content, encoding="utf-8")
+    # final_html.write_text(final_html_content, encoding="utf-8")
 
-    print(f"- SUKCES! plik " + str(final_html) + " stworzony!")
+    # print(f"- SUKCES! pandoc.html stworzony!")
 
     # USUWAM WSZYSTKIE PLIKI TYMCZASOWE
     # os.remove(filename_pandoc_after)
-    extract_article()
+
+    # extract_article()
 
 
 if __name__ == "__main__":

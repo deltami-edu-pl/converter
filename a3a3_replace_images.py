@@ -1,8 +1,9 @@
-
 import re
 import os
 import subprocess
-from config import PATH_FIGURES, GET_NEXT, IMAGES, contain_tikz
+from config import PATH, FILE
+from helper import contain_tikz
+
 
 # zamienia tikzpicture na \includegraphics{imagepath_noext.png}, gdzie obrazek jest przekonwertowany z xxx.pdf
 def replace_images(content: str) -> str:
@@ -13,13 +14,7 @@ def replace_images(content: str) -> str:
             r"(\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})", content, flags=re.DOTALL
         )
         for match in matches:
-            image_path = PATH_FIGURES / (
-                GET_NEXT().stem
-                + "-"
-                + IMAGES
-                + "-figure"
-                + str(i)
-            )
+            image_path = PATH.FIGURES / (FILE().images.tex.stem + "-figure" + str(i))
             content = replace_tikz(content, match, str(image_path))
             i = i + 1
 
@@ -79,5 +74,3 @@ def replace_tikz(content, match, imagepath_noext):
     return content.replace(
         match, "\\includegraphics" + widthtext + "{" + image_file + "}"
     )
-
-

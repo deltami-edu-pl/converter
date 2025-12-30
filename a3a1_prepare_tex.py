@@ -1,9 +1,25 @@
 import re
-from config import TEXTWIDTH, log_section
+from config import TEXTWIDTH
+from helper import log_section
 
 
 @log_section
 def prepare_tex(content: str) -> str:
+
+    # specjalne formuly dla pliku z zadaniami
+    if re.findall(r"\\zadanieM", content):
+        newcommands = "\\theoremstyle{definition}\\newtheorem{exercise}{Zadanie}\n\\newtheorem{answer}{Rozwiązanie}\n\n"
+        newcommands = (
+            newcommands
+            + "\\renewcommand{\\zadanieM}[3]{\\begin{exercise}{M #1.}#2\\begin{answer}#3\\end{answer}\\end{exercise}}\n"
+        )
+        newcommands = (
+            newcommands
+            + "\\renewcommand{\\zadanieF}[3]{\\begin{exercise}{F #1.}#2\\begin{answer}#3\\end{answer}\\end{exercise}}\n"
+        )
+        content = content.replace(
+            "\\begin{document}", newcommands + "\n\\begin{document}\\title{Zadania}"
+        )
 
     # dodaje komende, bo w ten sposob moge zmienic \marg{ na \myquote{ i nie musz szukac konca nawiasu aby wstawic \end{quote}
     content = re.sub(
@@ -332,7 +348,7 @@ def prepare_tex(content: str) -> str:
     content = re.sub(r"\\xleft\b", r"\\left", content)
 
     # naprawa cudzysłowów - na polskie
-    content = re.sub(r",,(?=\S)", "„", content)
+    content = re.sub(r"(^|[\s\(\[\{—–])\s*,,(?=\S)", r"\1„", content)
     content = re.sub(r"''", "”", content)
 
     # zamiana \ref na \eqref i usunięcie okalających nawiasów
@@ -342,5 +358,12 @@ def prepare_tex(content: str) -> str:
     content = re.sub(
         r"\\leqno\s*\(\s*([^)]+?)\s*\)", r"\\tag{\1}", content, flags=re.DOTALL
     )
+
+        # dodanie polecenia \dv, bo pakiet physics nie działa w MathJax
+    if content.find("\\dv") != -1:
+        doc_start = content.find("\\begin{document}")
+        if doc_start != -1:
+            newcommand = r"\newcommand{\dv}[2]{\frac{\mathrm d #1}{\mathrm d #2}}" + "\n\n"
+            content = content[:doc_start] + newcommand + content[doc_start:]
 
     return content

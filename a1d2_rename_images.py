@@ -1,7 +1,6 @@
 import re
-import sys
 import os
-from config import VERSION, PATH_SOURCE, PATH_FIGURES, PATH_DELTA_TEX, log_section
+from config import PATH
 
 used_names = []
 
@@ -58,7 +57,7 @@ def crop_image(figures_folder: str, name: str, params: str) -> str | None:
 
 
 def rename_images(content: str) -> str | None:
-    figures_folder = str(PATH_FIGURES)  # 2025-figures
+    figures_folder = str(PATH.FIGURES)  # 2025-figures
 
     # zamiana sciezek - wszystkie obrazki sa w figures/ oraz pdfy zostaly przerobione na png i sa includowane teraz
     matches = re.findall(

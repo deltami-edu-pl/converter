@@ -1,4 +1,3 @@
-import re
 
 def expand_rys_captions(content: str) -> str:
     r"""

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from config import log_section
+from helper import log_section
 from a1_prepare import prepare
 from a2_convert_images import convert_images
 from a3_convert_pandoc import convert_pandoc

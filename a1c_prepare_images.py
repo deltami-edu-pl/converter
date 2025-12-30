@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import shutil
-import subprocess
-from pathlib import Path
-from config import VERSION, PATH_SOURCE, PATH_FIGURES, log_section, convert_pdf_to_png
+from config import PATH
+from helper import log_section, convert_pdf_to_png
 
 
 @log_section
@@ -15,13 +14,13 @@ def prepare_images():
     converted_files_count = 0
 
     for source_folder in source_folders:
-        source_path = PATH_SOURCE / source_folder
+        source_path = PATH.SOURCE / source_folder
         if source_path.exists():
             for file in source_path.rglob("*"):
                 if file.is_file():
                     suffix = file.suffix.lower()
                     if suffix in {".png", ".jpg", ".jpeg"}:
-                        dest_path = PATH_FIGURES / file.name
+                        dest_path = PATH.FIGURES / file.name
                         shutil.copy2(file, dest_path)
                         copied_files_count += 1
                         print(f"# Copied {dest_path}")
@@ -32,7 +31,7 @@ def prepare_images():
 
     for pdf_file in pdf_files:
         png_name = pdf_file.stem.replace("-eps-converted-to", "") + ".png"
-        dest_path = PATH_FIGURES / png_name
+        dest_path = PATH.FIGURES / png_name
         if convert_pdf_to_png(pdf_file, dest_path):
             converted_files_count += 1
             print(f"# Converted {dest_path}")
@@ -40,7 +39,7 @@ def prepare_images():
     print()
 
     files_count = copied_files_count + converted_files_count
-    print(f"# Prepared {files_count} images in {PATH_FIGURES}")
+    print(f"# Prepared {files_count} images in {PATH.FIGURES}")
 
 
 if __name__ == "__main__":

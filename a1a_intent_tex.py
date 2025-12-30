@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import subprocess
 from pathlib import Path
-from config import PATH_SOURCE, log_section
+from config import PATH
+from helper import log_section
 
 
 @log_section
@@ -11,7 +12,7 @@ def intent_tex():
     if not Path("defaultSettings.yaml").exists():
         raise FileNotFoundError("Brakuje pliku defaultSettings.yaml")
 
-    tex_files = sorted(PATH_SOURCE.rglob("*.tex"))
+    tex_files = sorted(PATH.SOURCE.rglob("*.tex"))
     print(f"# Found {len(tex_files)} .tex files to format")
 
     for tex_file in tex_files:
@@ -29,8 +30,9 @@ def intent_tex():
 
     # Cleanup backup and aux files
     for ext in ["*.bak0", "*.aux"]:
-        for file in PATH_SOURCE.rglob(ext):
+        for file in PATH.SOURCE.rglob(ext):
             file.unlink()
+
 
 if __name__ == "__main__":
     intent_tex()

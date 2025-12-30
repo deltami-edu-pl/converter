@@ -1,153 +1,20 @@
 import re
-from config import TEXTWIDTH
 
-# usuwa zawartosc komentarzy oraz linie, w ktorych sa tylko komentarze
-def remove_comments(content):
+
+def clean_tex(content: str) -> str:
+    # usuwa zawartosc komentarzy oraz linie, w ktorych sa tylko komentarze
     content = re.sub(r"(?<=[^\\])%.*", "%", content)
     content = re.sub(r"\n([ \t]*%\n)*", "\n", content)
     content = re.sub(r"(?<=\~)\%\n", "", content, flags=re.DOTALL)
 
-    return content
-
-
-def clean_tex(content: str) -> str | None:
-    pt = "(cm|pt|px|em)"
-
-    content = remove_comments(content)
-
     content = re.sub(r"\\allowbreak", "", content, flags=re.DOTALL)
-    
+
     # polecenia z prepare_articles - usuwanie wstępne
     content = re.sub(r"\\includeonly\{[^\}]*\}", "", content)
     content = re.sub(r"\\input\{[^\}]*\}", "", content)
     content = re.sub(r"\\input\ ?[^\\\ ]*", "", content)
 
-    # polecenia z convert_to_html_prepare.py - usuwanie totalne
-    content = re.sub(r"\n\\okladka(\[[0-9\-]*\])?\n", "\n", content)  # 2023-12 only
-    content = re.sub(r"\\includegraphics\[[^\]]*\]\{[^\}]*kmo_logo_krzywe.png\}", "", content)
-
-    content = re.sub(r"\\wd0", "0", content)
-    content = re.sub(r"\\hangindent[0-9]+" + pt, "", content)
-    content = re.sub(r"\\hangindent[0-9]+", "", content)
-    content = re.sub(r"\\hangafter[0-9]+", "", content)
-    content = re.sub(r"\\lower[0-9\.]+" + pt, "", content)
-    content = re.sub(r"\\phantom1", "", content)
-    content = re.sub(r"\\scalebox\{[^\}]*\}", "", content)
-
-    content = re.sub(r"\\hsize[0-9\.]+" + pt, "", content)
-    content = re.sub(r"\\noindent", "", content)
-    content = re.sub(r"\\vtop", "", content)
-
-    content = re.sub(r"\\img\[[^\]]*\]\{klub44-[^\}]*\}", "", content)
-    content = re.sub(r"\\long\\def\\matematyka", "", content)
-    content = re.sub(r"\\long\\def\\fizyka", "", content)
-    content = re.sub(r"\\matematyka", "", content)
-    content = re.sub(r"\\fizyka", "", content)
-    content = re.sub(r"\\klub\[[0-9]*\]\{(m|f)\}", "", content)
-
-    # usunięcie \textsc
-    content = re.sub(r"\\textsc", "", content)
-
-    # usuniecie vspace, newpage
-    content = re.sub(r"\\smallskip", "", content)
-    content = re.sub(r"\\medskip", "", content)
-    content = re.sub(r"\\vspace\{[^\}]*\}", "", content)
-    content = re.sub(r"\\vspace\*\{[^\}]*\}", "", content)
-    content = re.sub(r"\\hspace\{[^\}]*\}", "", content)
-    content = re.sub(r"\\hspace\*\{[^\}]*\}", "", content)
-    content = re.sub(r"\\hfill", "", content)
-    content = re.sub(r"\\quad\{", "{", content)
-    content = re.sub(r"\\newpage", "", content)
-    content = re.sub(r"\\break", "", content)
-    content = re.sub(r"\\nobreak", "", content)
-    content = re.sub(r"\\fboxsep[0-9\.-]*" + pt, "", content)
-    content = re.sub(r"\\rotatebox\{90\}", "", content)
-    content = re.sub(r"\\raise[0-9\.-]*" + pt, "", content)
-    content = re.sub(r"\\rightskip\sby[0-9\.-]*" + pt, "", content)
-    content = re.sub(r"\\slash", "/", content)
-
-    content = re.sub(r"\\spis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
-    content = re.sub(r"\\kpospis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
-    content = re.sub(r"\\tikzstyle\{[^\}]*\}=\[[^\]\[]*\[[^\]]*\][^\]]*\]", "", content)
-    content = re.sub(r"\\tikzstyle\{[^\}]*\}=\[[^\]]*\]", "", content)
-    content = re.sub(r"\\resizebox\{[^\}]*\}\{[^\}]*\}", "", content)
-
-    content = re.sub(r"\\llap", "", content)
-    content = re.sub(r"\\vskip\\parskip", "", content)
-    content = re.sub(r"\\looseness-[0-9]+", "", content)
-    content = re.sub(r"\\arraycolsep\.[0-9]+" + pt, "", content)
-
-    content = re.sub(r"\\begin\{multicols\}\{[0-9]+\}", "", content)
-    content = re.sub(r"\\begin\{multicols\}[0-9]+", "", content)
-    content = re.sub(r"\\end\{multicols\}", "", content)
-    content = re.sub(r"\\setcounter\{equation\}[0-9]+", "", content)
-    content = re.sub(r"\\szero[0-9\.]*" + pt, "", content)
-    content = re.sub(r"\\spaceskip[0-9\.]+" + pt + r" minus[0-9\.]+" + pt + r"?", "", content)
-    content = re.sub(r"\\spaceskip[0-9\.-]+" + pt, "", content)
-    content = re.sub(r"\\tabcolsep\sby[0-9\-\.]+" + pt, "", content)
-    content = re.sub(r"\\tabcolsep\s*[0-9\.]*" + pt, "", content)
-    content = re.sub(r"\\itemsep[0-9]+" + pt, "", content)
-    content = re.sub(r"\\ensuremath", "", content)
-
-    content = re.sub(r"\\begin\{adjustwidth\}(\{[^\}]*\})?(\{[^\}]*\})?", "", content)
-    content = re.sub(r"\\end\{adjustwidth\}", "", content)
-
-    content = re.sub(r"\\centerline", "", content)
-
-    content = re.sub(r"\\refstepcounter\{figure\}", "", content)
-
-    content = re.sub(r'\\vrule\s+height\s?[\.0-9]+'+pt+r'\s+width\s?[\.0-9]+'+pt+r'(\s+depth\s?[\.0-9]+'+pt+r')?','',content)
-    content = re.sub(r'\\vrule\s+height\s?[\.0-9]+'+pt+r'\s+depth\s?[\.0-9]+'+pt+r'(\s+width\s?[\.0-9]+'+pt+r')?','',content)
-    content = re.sub(r'\\vrule\s+width\s?[\.0-9]+'+pt+r'\s+depth\s?[\.0-9]+'+pt+r'(\s+height\s?[\.0-9]+'+pt+r')?','',content)
-    content = re.sub(r'\\vrule\s+width\s?[\.0-9]+'+pt+r'\s+height\s?[\.0-9]+'+pt+r'(\s+depth\s?[\.0-9]+'+pt+r')?','',content)
-    content = re.sub(r'\\vrule\s+depth\s?[\.0-9]+'+pt+r'\s+width\s?[\.0-9]+'+pt+r'(\s+height\s?[\.0-9]+'+pt+r')?','',content)
-    content = re.sub(r'\\vrule\s+depth\s?[\.0-9]+'+pt+r'\s+height\s?[\.0-9]+'+pt+r'(\s+width\s?[\.0-9]+'+pt+r')?','',content)
-
-    content = re.sub(r'\\baselineskip\s+by[0-9\.\-\s]*'+pt, '', content)
-    content = re.sub(r'\\baselineskip[^\s]*\s+plus\.[^\s]*\s+minus\.[^\s]*\s+', '', content)
-    content = re.sub(r'\\baselineskip[^\s]*\s+plus\.[^\s]*\s+', '', content)
-    content = re.sub(r'\\baselineskip[^\s]*\s+minus\.[^\s]*\s+', '', content)
-    content = re.sub(r'\\baselineskip[^\s]*\s+', '', content)
-    content = re.sub(r'\\parskip\s+by[0-9\.\-\s]*'+pt, '', content)
-    content = re.sub(r'\\parskip[0-9\.\-\s]*'+pt, '', content)
-    content = re.sub(r'\\advance', '', content)
-    content = re.sub(r'\\vadjust', '', content)
-    content = re.sub(r'\\goodbreak', '', content)
-    content = re.sub(r'\\vskip\s*[\-0-9\.]*'+pt+r'\s+plus[\-0-9\.]*'+pt+r'\s+minus[\-0-9\.]*'+pt, '', content)
-    content = re.sub(r'\\vskip\s*[\-0-9\.]*'+pt+r'\s+plus[\-0-9\.]*'+pt, '', content)
-    content = re.sub(r'\\vskip\s*[\-0-9\.]*'+pt, '', content)
-    content = re.sub(r'\\hskip\s*[\-0-9\.]*'+pt, '', content)
-    content = re.sub(r'\\medmuskip[\-0-9\.]*mu', '', content)
-    content = re.sub(r'\\kern[0-9\.-]* to[0-9\.]'+pt, '', content)
-    content = re.sub(r'\\kern[0-9\.-]*'+pt, '', content)
-    content = re.sub(r'\\vbox to[0-9\.]'+pt, '', content)  
-
-    content = re.sub(r'\\vfill', '', content)  
-    content = re.sub(r'\\eject', '', content)  
-    content = re.sub(r'\\null', '', content)  
-
-    content = re.sub(r'\\everypar=\{[^\}]*\}', '', content)
-
-    content = re.sub(r'\\scriptsize', '', content)
-    content = re.sub(r'\\normalsize', '', content)
-
-    # tikz
-    content = re.sub(r'\\usetikzlibrary(\[[^\]]*\])?\{[^\}]*\}','', content, flags=re.DOTALL)
-
-    # algpseudocode
-    content = re.sub(r'\\usepackage\[[^\]]*\]\{algpseudocode\}', '', content)  
-
-    content = re.sub(r'\\begin\{dwieszpalty\}', '', content)
-    content = re.sub(r'\\end\{dwieszpalty\}', '', content)
-    content = re.sub(r'\\begin\{szeroko\}', '', content)
-    content = re.sub(r'\\end\{szeroko\}', '', content)
-    content = re.sub(r'\\redaguje', '', content)
-    # content = re.sub(r'\\Zadania', '', content)
-
-    content = re.sub(r'\\vbox', '', content)  
-    content = re.sub(r'\\setbox0=', '', content)  
-    content = re.sub(r'\\includegraphics(\[width=[0-9\.]+cm])?\{[^/]*/kmo_logo_krzywe-eps-converted-to.png\}', '', content)  
-
-    content = re.sub(r'\\textcolor\{black\}\{\s*\}', '', content)
+    # usuwa zbędne puste linie i zostawia maksymalnie 2 puste linie
+    content = re.sub(r"\n\n\n+", r"\n\n", content)
 
     return content

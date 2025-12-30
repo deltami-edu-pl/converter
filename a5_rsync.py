@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import subprocess
-from config import PATH_FIGURES, log_section
+from config import PATH
+from helper import log_section
 
 
 @log_section
@@ -12,7 +13,7 @@ def rsync():
         "--progress",
         "-e",
         "ssh",
-        str(PATH_FIGURES),
+        str(PATH.FIGURES),
         "delta:/home/delta/delta-dev.mimuw.edu.pl/delta/media",
     ]
 

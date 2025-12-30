@@ -1,54 +1,34 @@
 #!/usr/bin/env python3
 
-import unicodedata
 import re
-import os
-import requests
-import urllib.error
-import sys
-import urllib.parse
-from bs4 import BeautifulSoup
-from bs4 import Comment
-from urllib.parse import urljoin, urlparse
-from urllib.request import urlretrieve
 import subprocess
-from config import (
-    VERSION,
-    GET_NEXT,
-    log_section,
-    COLOR,
-    IMAGES,
-    PATH_ROOT,
-    PATH_FIGURES,
-    convert_pdf_to_png,
-    contain_tikz,
-)
 from pathlib import Path
-from wand.image import Image
+from config import PATH, FILE, COLOR
+from helper import log_section, convert_pdf_to_png, contain_tikz
 
 
 @log_section
 def convert_images():
 
-    content = GET_NEXT().read_text(encoding="utf-8")
+    content = FILE().source.tex.read_text(encoding="utf-8")
 
-    # usuniecie komentarzy
-    # print("- usuwam komentarze")
-    content = re.sub(r"(?<=[^\\])%.*", "%", content)
-    content = re.sub(r"\n([ \t]*%\n)*", "\n", content)
-    content = re.sub(r"(?<=\~)\%\n", "", content, flags=re.DOTALL)
+    # # usuniecie komentarzy
+    # # print("- usuwam komentarze")
+    # content = re.sub(r"(?<=[^\\])%.*", "%", content)
+    # content = re.sub(r"\n([ \t]*%\n)*", "\n", content)
+    # content = re.sub(r"(?<=\~)\%\n", "", content, flags=re.DOTALL)
 
-    # usuniecie zadan i rozwiazan
-    # print("- usuwam zadania i rozwiązania")
-    content = re.sub(r"\\zadMat\{[0-9]+\}", "", content)
-    content = re.sub(r"\\zadFiz\{[0-9]+\}", "", content)
-    content = re.sub(r"\\rozMat(\[[0-9\-]+\])?\{[0-9]+\}", "", content)
-    content = re.sub(r"\\rozFiz(\[[0-9\-]+\])?\{[0-9]+\}", "", content)
-    content = re.sub(r"\\szrozFiz\{[0-9]+\}", "", content)
+    # # usuniecie zadan i rozwiazan
+    # # print("- usuwam zadania i rozwiązania")
+    # content = re.sub(r"\\zadMat\{[0-9]+\}", "", content)
+    # content = re.sub(r"\\zadFiz\{[0-9]+\}", "", content)
+    # content = re.sub(r"\\rozMat(\[[0-9\-]+\])?\{[0-9]+\}", "", content)
+    # content = re.sub(r"\\rozFiz(\[[0-9\-]+\])?\{[0-9]+\}", "", content)
+    # content = re.sub(r"\\szrozFiz\{[0-9]+\}", "", content)
 
-    # usuniecie input
-    content = re.sub(r"\\input\s+[^\s]+\s", " ", content)
-    content = re.sub(r"\\input\s+[^\\]+\\", "\\\\", content)
+    # # usuniecie input
+    # content = re.sub(r"\\input\s+[^\s]+\s", " ", content)
+    # content = re.sub(r"\\input\s+[^\\]+\\", "\\\\", content)
 
     # podstawienie '\def{\rysa} w miejsce pojawienia aby byla dobra kolejnosc
     matches = re.findall(
@@ -68,21 +48,6 @@ def convert_images():
         content = content.replace(match[0], "")
         content = content.replace(match[1], match[2])
 
-    # specjalne formuly dla pliku z zadaniami
-    if re.findall(r"\\zadanieM", content):
-        newcommands = "\\theoremstyle{definition}\\newtheorem{exercise}{Zadanie}\n\\newtheorem{answer}{Rozwiązanie}\n\n"
-        newcommands = (
-            newcommands
-            + "\\renewcommand{\\zadanieM}[3]{\\begin{exercise}{M #1.}#2\\begin{answer}#3\\end{answer}\\end{exercise}}\n"
-        )
-        newcommands = (
-            newcommands
-            + "\\renewcommand{\\zadanieF}[3]{\\begin{exercise}{F #1.}#2\\begin{answer}#3\\end{answer}\\end{exercise}}\n"
-        )
-        content = content.replace(
-            "\\begin{document}", newcommands + "\n\\begin{document}\\title{Zadania}"
-        )
-
     content = re.sub(r"\\angle", r"\\measuredangle", content)
 
     # ustawienie koloru
@@ -99,15 +64,15 @@ def convert_images():
     # content = re.sub(r'\\usepackage\{tkz-euclide\}', '\\\\usepackage{tkz-euclide}\n\\\\usetkzobj{all}',content)
 
     tikz_block = rf"""
-    \\usepackage{{tikz}}
-    \\usetikzlibrary{{external}}
-    \\tikzexternalize[
-        shell escape=-enable-write18,
-        prefix=./
-    ]
-    \\tikzset{{external/force remake}}
-    \\tikzset{{/pgf/images/external info}}
-    \\tikzexternalize
+\\usepackage{{tikz}}
+\\usetikzlibrary{{external}}
+\\tikzexternalize[
+    shell escape=-enable-write18,
+    prefix=./
+]
+\\tikzset{{external/force remake}}
+\\tikzset{{/pgf/images/external info}}
+\\tikzexternalize
     """.strip()
 
     content = re.sub(
@@ -124,12 +89,41 @@ def convert_images():
     #     content,
     # )
 
+    # wyodrębnienie wszystkich tikzpicture i zastąpienie zawartości dokumentu tylko nimi
+    tikzpictures = re.findall(
+        r"\\begin\{tikzpicture\}.*?\\end\{tikzpicture\}",
+        content,
+        flags=re.DOTALL,
+    )
+    # również tikzpicture w scalebox
+    tikzpictures_scalebox = re.findall(
+        r"\\scalebox\{[^\}]*\}\{\\begin\{tikzpicture\}.*?\\end\{tikzpicture\}\}",
+        content,
+        flags=re.DOTALL,
+    )
+    all_tikzpictures = tikzpictures + tikzpictures_scalebox
+
+    print(f"# Found {len(all_tikzpictures)} tikzpicture blocks")
+    # znajdź \begin{document} i \end{document}
+    doc_start = content.find("\\begin{document}")
+    doc_end = content.find("\\end{document}")
+
+    if doc_start != -1 and doc_end != -1:
+        # przed \begin{document}
+        before_doc = content[: doc_start + len("\\begin{document}")]
+        # po \end{document}
+        after_doc = content[doc_end:]
+        # zawartość dokumentu to tylko tikzpicture
+        doc_content = "\n\n" + "\n\n".join(all_tikzpictures) + "\n\n"
+        # złożenie z powrotem
+        content = before_doc + doc_content + after_doc
+
     # TU SIĘ ZAPISUJE TIKZ
-    image_tex = PATH_ROOT / (GET_NEXT().stem + "-" + IMAGES + ".tex")
+    image_tex = FILE().images.tex
     image_tex.write_text(content, encoding="utf-8")
 
     if contain_tikz(content):
-    # wywolanie pdflatex
+        # wywolanie pdflatex
         pdflatex_call_string = (
             'pdflatex --shell-escape -interaction=nonstopmode -file-line-error "'
             + str(image_tex)
@@ -143,8 +137,8 @@ def convert_images():
             print("# ERROR: pdflatex zwrócił błąd")
             # print(result)
         # else:
-            # print("- TikZ: sukces!")
-            # print(result)
+        # print("- TikZ: sukces!")
+        # print(result)
 
         convert_externalized_pdfs_for_tex(image_tex)
 
@@ -155,11 +149,13 @@ def convert_externalized_pdfs_for_tex(image_tex: Path):
     # 1) znajdź PDF-y pasujące do job_prefix
     # TikZ externalize zwykle robi nazwy typu:
     # <job_prefix>-figure0.pdf, <job_prefix>-figure1.pdf ... albo podobnie
-    pdf_files = sorted(PATH_ROOT.glob(f"{job_prefix}*.pdf"))
-    print(f"# Found {len(pdf_files)} PDF files for prefix '{job_prefix}' in {PATH_ROOT}")
+    pdf_files = sorted(PATH.ROOT.glob(f"{job_prefix}*.pdf"))
+    print(
+        f"# Found {len(pdf_files)} PDF files for prefix '{job_prefix}' in {PATH.ROOT}"
+    )
 
     if not pdf_files:
-        print(f"WARNING: No PDFs found for prefix '{job_prefix}' in {PATH_ROOT}")
+        print(f"WARNING: No PDFs found for prefix '{job_prefix}' in {PATH.ROOT}")
         return
 
     converted_files_error = 0
@@ -168,7 +164,7 @@ def convert_externalized_pdfs_for_tex(image_tex: Path):
     # 2) konwersja + sprzątanie
     for pdf_file in pdf_files:
         # --- KONWERSJA PDF -> PNG (Twój kod) ---
-        dest_path = PATH_FIGURES / (
+        dest_path = PATH.FIGURES / (
             pdf_file.stem.replace("-eps-converted-to", "") + ".png"
         )
         if convert_pdf_to_png(pdf_file, dest_path):
@@ -188,7 +184,16 @@ def convert_externalized_pdfs_for_tex(image_tex: Path):
 def remove_junk_files(pdf_file: Path):
     stem = pdf_file.stem  # np. "01-byczuk-tikz-figure0"
     # rozszerzenia, które chcesz usuwać jako "cache/śmieci" dla tych samych stemów
-    junk_exts = {".md5", ".dpth", ".log", ".aux", ".synctex.gz", ".pdf", ".auxlock", ".out"}
+    junk_exts = {
+        ".md5",
+        ".dpth",
+        ".log",
+        ".aux",
+        ".synctex.gz",
+        ".pdf",
+        ".auxlock",
+        ".out",
+    }
     for ext in junk_exts:
         junk_path = pdf_file.with_name(stem + ext)
         if junk_path.exists():
@@ -196,6 +201,7 @@ def remove_junk_files(pdf_file: Path):
                 junk_path.unlink()
             except Exception as e:
                 print(f"WARNING: Can't remove {junk_path}: {e}")
+
 
 if __name__ == "__main__":
     convert_images()

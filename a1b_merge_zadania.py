@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
-import re
 from pathlib import Path
-from config import PATH_SOURCE, log_section, first_match
+from config import PATH
+from helper import log_section
+
 
 def extract_zadmat_block(skip_file: Path) -> str | None:
     """
     Wyciąga blok \\def\\zadMat z pierwszego znalezionego pliku .tex (innego niż skip_file).
     Zapisuje z powrotem plik bez tego bloku i zwraca wyciętą zawartość.
     """
-    for path in PATH_SOURCE.glob("*.tex"):
+    for path in PATH.SOURCE.glob("*.tex"):
         if path == skip_file:
             continue
 
@@ -25,19 +26,20 @@ def extract_zadmat_block(skip_file: Path) -> str | None:
 
     return None
 
+
 @log_section
 def merge_zadania():
     # Find the NNNN-zadania-rozw.tex file
     zadania_rozw_pattern = "[0-9][0-9][0-9][0-9]-zadania-rozw.tex"
-    zadania_rozw = first_match(zadania_rozw_pattern)
+    zadania_rozw = next(PATH.SOURCE.glob(zadania_rozw_pattern), None)
     if not zadania_rozw:
-        print(f"ERROR: No file matching {zadania_rozw_pattern} was found.")
+        print(f"# ERROR: No file matching {zadania_rozw_pattern} was found.")
         return
 
     rozwiazania_pattern = "[0-9][0-9]-rozwiazania.tex"
-    rozwiazania = first_match(rozwiazania_pattern)
+    rozwiazania = next(PATH.SOURCE.glob(rozwiazania_pattern), None)
     if not rozwiazania:
-        print(f"ERROR: No file matching {rozwiazania_pattern} was found.")
+        print(f"# ERROR: No file matching {rozwiazania_pattern} was found.")
         return
 
     rozwiazania.unlink()
@@ -46,13 +48,14 @@ def merge_zadania():
 
     zadmat_content = extract_zadmat_block(rozwiazania)
     if zadmat_content is None:
-        print("ERROR: No \\def\\zadMat block found in any file.")
+        print("# ERROR: No \\def\\zadMat block found in any file.")
         return
 
     # Prepend the \def\zadMat block to the new zadania file
     current_text = rozwiazania.read_text(encoding="utf-8")
     rozwiazania.write_text(zadmat_content + "\n" + current_text, encoding="utf-8")
     print(f"# Prepended \\def\\zadMat block to {rozwiazania.name}")
+
 
 if __name__ == "__main__":
     merge_zadania()

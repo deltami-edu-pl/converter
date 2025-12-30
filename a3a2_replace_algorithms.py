@@ -1,5 +1,5 @@
 import re
-from config import PATH_FIGURES, GET_NEXT
+from config import PATH, FILE
 
 
 def replace_algorithms(content: str) -> str:
@@ -11,7 +11,7 @@ def replace_algorithms(content: str) -> str:
     algorithms2 = re.findall(
         r"(\\begin\{algorithmic\}.*?\\end\{algorithmic\})", content, flags=re.DOTALL
     )
-    img_src = str(PATH_FIGURES) + "/" + GET_NEXT().stem + "-algorithm-"
+    img_src = str(PATH.FIGURES) + "/" + FILE().source.stem + "-algorithm-"
     for algorithm in algorithms + algorithms2:
         algorithm_file = img_src + str(i) + ".png"
         content = content.replace(
