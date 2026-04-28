@@ -1,4 +1,8 @@
-/* MOJE ZMIANY DO STRONY GŁÓWNEJ MAŁE */
+/* WERSJA 29.05.2025 */
+/* DOÅÄ„CZENIE STYLU span.image-caption */
+
+/* 04.01.2024 */
+/* DOÅÄ„CZENIE STYLU .erratum */
 
 .article-page .header {
 	position:static;
@@ -37,6 +41,24 @@
 	margin-top: 10px;
 }
 
+/* styl do erraty */
+
+.article-page div.erratum {
+	width: 100%;
+	padding: 15px;
+	margin: 20px 0px;
+	background: #EEEEEE;
+	font-size: 18px;
+	font-family: Lora;
+}
+
+.article-page div.erratum p {
+	margin-top: 6px;
+	margin-bottom: 6px;
+}
+
+/* koniec stylu do erraty */
+
 @media only screen and (max-width: 600px) {
 	.article-page a.article-title {
 		font-size: 36px;
@@ -50,7 +72,7 @@
 }
 
 
-/* DALEJ OSTYLOWANIE ARTYKUŁÓW */
+/* DALEJ OSTYLOWANIE ARTYKUÅÃ“W */
 
 /* styl do tresci artykulow */
 
@@ -275,6 +297,15 @@
 	article.article-input 
 	blockquote {
 		max-width: 80%;
+	}
+
+	article.article-input
+       	span.image-caption {
+		color: #444444;
+		font-size: 16px;
+		margin-left: 60px;
+		margin-right: 60px;
+		display: block;
 	}
 
 	article.article-input 

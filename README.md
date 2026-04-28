@@ -4,7 +4,7 @@
 
 STEP 0: ŹRÓDŁA 
 0.1 Skopiować do katalogu 2025-01 źródła Delty (zawartość katalogu z plikami TeX, np. 2025-01-delta.tex; ostatnio nazywał się druk)
-0.2 Przenazwać plik z zadaniami (np. 2412-zadania-rozw.tex) na 20-zadania.tex, dodać do jego początku fragment w którym są wywoływane (czyli końcówkę któregoś z początkowych plików TeX z komendami \zadMat itp) - tego już nie trzeba - to robi b1_prepare_zadania.py
+<!-- To robi b1_prepare_zadania.py: 0.2 Przenazwać plik z zadaniami (np. 2412-zadania-rozw.tex) na 20-zadania.tex, dodać do jego początku fragment w którym są wywoływane (czyli końcówkę któregoś z początkowych plików TeX z komendami \zadMat itp) -->
 
 STEP 1: STWORZENIE OSOBNYCH PLIKÓW TEX 
 1.1 Wpisać do config.py wersję wydania (np. 2025-01)
@@ -13,10 +13,10 @@ STEP 1: STWORZENIE OSOBNYCH PLIKÓW TEX
 ## GŁÓWNA ROBOTA ##
 
 STEP 2: PLIKI TEX -> HTML
-2.0 (opcjonalnie) Odpalić ./convert-2-html.py (uruchamia poniższą komendę dla wszystkich plików)
+2.0 (opcjonalnie) Odpalić python convert-2-html.py (uruchamia poniższą komendę dla pierwszego pliku alfabetycznie)
 
-2.1 Odpalić python convert-py-2-html.py 2025-01-figures delta-2025-01-art-XX-cos.tex
-2.2 Obejrzeć delta-2025-01-art-XX-cos.html
+2.1 Odpalia python convert-py-2-html.py
+2.2 Obejrzeć XX-cos-article.html
 2.3 Jeżeli HTML nie powstał lub ma błędy - zmieniać delta-2025-01-art-XX-cos.tex i wrócić do 2.1
 
 STEP 3: POPRAWKI W HTMLACH

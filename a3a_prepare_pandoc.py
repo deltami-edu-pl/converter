@@ -14,7 +14,7 @@ from a3a6_auto_number_equations import auto_number_equations
 
 @log_section
 def prepare_pandoc():
-    content = FILE().source.read_text(encoding="utf-8")
+    content = FILE().source.tex.read_text(encoding="utf-8")
 
     content = clean_tex(content)
     content = prepare_tex(content)

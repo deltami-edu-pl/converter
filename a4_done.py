@@ -10,7 +10,7 @@ from helper import log_section
 
 @log_section
 def done():
-    stem = FILE().source.stem
+    stem = FILE().source.tex.stem
     print(f"# Archive files: {stem}")
 
     for file in list[Path](PATH.ROOT.glob(f"{stem}*")):

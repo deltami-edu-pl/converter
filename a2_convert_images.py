@@ -123,6 +123,7 @@ def convert_images():
     image_tex.write_text(content, encoding="utf-8")
 
     if contain_tikz(content):
+        print(str(image_tex))
         # wywolanie pdflatex
         pdflatex_call_string = (
             'pdflatex --shell-escape -interaction=nonstopmode -file-line-error "'
@@ -135,7 +136,7 @@ def convert_images():
         )
         if result.returncode != 0:
             print("# ERROR: pdflatex zwrócił błąd")
-            # print(result)
+            print(result)
         # else:
         # print("- TikZ: sukces!")
         # print(result)

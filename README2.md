@@ -1,3 +1,40 @@
+step by step
+- source env/bin/activate
+- python server.py
+
+- niestety najpierw to wszystko przepisuje byc może z lekkimi modyfikacjami
+- potem robie większe modyfikacje
+- i lecę totalnie od góry 
+
+
+
+- pozbyć się tych idotycznych prefików
+- pozbyć się przekazywania parametrów parametrów
+- dodać formatowanie tex i html
+- pozbyć sie skryptów sh
+
+
+
+
+- chciałbym móc pojedynczy plik przerobić z tex na html i tyle!
+
+od końca
+- article.html powstaje z
+- delta-2025-02-*.html (ale nie pandoc i nie -article) a on powstaje z
+- delta-2025-02 -pandoc.html
+
+
+potrzebuję
+- jeden docelowy plik html article z odpowiednimi obrazkami
+- jeden *.tex z podmienionymi obrazkami (pandoc)
+- jeden *.tex z poprawionym formatowanie etc.
+
+
+ls *.py | entr -r sh -c 'pkill -f "python server.py"; python server.py'
+
+sudo tlmgr install tkz-euclide tkz-base pgf
+
+
 - Download "druk.zip" from dropbox with latex files
 - Rename "druk" to "2025-01"
 - Rename "2501-zadania-rozw.tex" to "14-zadania.tex"
@@ -6,7 +43,7 @@
 - Create virtual env python3 -m venv env
 - Run virtual env source env/bin/activate
 - Install reqs pip install -r requirements.txt
-- 
+
 
 
 
@@ -26,26 +63,6 @@ odpalenie `sudo mktexlsr`
 sprawdzenie `sudo kpsewhich upgreek.sty`
 
 
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-01-skibski.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-02-miskiewicz.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-03-szymanek.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-04-hansdorfer.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-05-tjz.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-06-aktualnosci.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-07-lukaszewicz.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-08-lehman.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-09-ligi.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-10-pzn.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-11-niebo.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-12-rozwiazania.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-13-bzdega.tex
-python convert-py-2-html.py 2025-01-figures delta-2025-01-art-14-zadania.tex
-
-
-scp -r 2025-01-figures delta:/home/delta/delta-dev.mimuw.edu.pl/delta/media
-
-./convert-3-clean.sh 2025-01
-./convert-4-cut-out-article.sh 2025-01
 
 
 refaktor
