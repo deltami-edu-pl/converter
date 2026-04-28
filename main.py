@@ -8,6 +8,7 @@ from a3_convert_pandoc import convert_pandoc
 from a4_done import done
 from a5_rsync import rsync
 from a6_serve import serve
+from a7_finished import finished
 
 ALIASES = {
     "p": "prep",
@@ -17,6 +18,7 @@ ALIASES = {
     "d": "done",
     "r": "rsync",
     "s": "serve",
+    "f": "finish",
 }
 
 
@@ -43,6 +45,8 @@ def main():
         rsync()
     elif command == "serve":
         serve()
+    elif command == "finish":
+        finished()
     else:
         print(f"Unknown command: {command}")
         print_help()

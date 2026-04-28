@@ -32,7 +32,7 @@ class FILE_CLASS:
     source: Ext
 
 
-def init_paths() -> PATH_CLASS:
+def init_paths() -> tuple[PATH_CLASS, str]:
     PATH_ROOT = Path(".")
     PATH_SOURCE = PATH_ROOT / "got"
     if not PATH_SOURCE.exists():
@@ -75,16 +75,19 @@ def init_paths() -> PATH_CLASS:
     print(f"# PATH_DONE: {PATH_DONE}")
     print()
 
-    return PATH_CLASS(
-        ROOT=PATH_ROOT,
-        SOURCE=PATH_SOURCE,
-        FIGURES=PATH_FIGURES,
-        DELTA=PATH_DELTA_TEX,
-        DONE=PATH_DONE,
+    return (
+        PATH_CLASS(
+            ROOT=PATH_ROOT,
+            SOURCE=PATH_SOURCE,
+            FIGURES=PATH_FIGURES,
+            DELTA=PATH_DELTA_TEX,
+            DONE=PATH_DONE,
+        ),
+        VERSION,
     )
 
 
-PATH = init_paths()
+PATH, VERSION = init_paths()
 
 
 def FILE() -> FILE_CLASS:
@@ -116,6 +119,7 @@ def FILE() -> FILE_CLASS:
 
 __all__ = [
     "PATH",
+    "VERSION",
     "FILE",
     "COLOR",
     "NEWPAGE",
