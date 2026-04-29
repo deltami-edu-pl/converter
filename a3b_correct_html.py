@@ -237,6 +237,10 @@ def correct_html(html_content) -> str:
         img = p.find("img")
         if img is None:
             continue
+        # nie owijaj obrazkow w marginesach (blockquote-margin) - tam image-caption
+        # nie ma sensu i CSS dla marginesow ma swoje rzadzace style
+        if p.find_parent("blockquote") is not None:
+            continue
         # img moze byc opakowany w <span> - znajdz najwyzszego przodka ktory jest
         # bezposrednim dzieckiem <p>, zeby patrzec na rodzenstwa w <p>, nie w <span>
         anchor = img
