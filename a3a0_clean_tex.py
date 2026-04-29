@@ -18,6 +18,13 @@ def clean_tex(content: str) -> str | None:
         r"\\marg{Afiliacja: \1}",
         content,
     )
+    # afiliacja w autorze: \waut{Autor\hfill\scriptsize\rm Instytucja}
+    # -> \waut{Autor} \marg{Afiliacja: Instytucja}
+    content = re.sub(
+        r"\\waut\{([^}]*?)\\hfill\s*\\scriptsize\s*\\rm\s+([^}]*?)\}",
+        r"\\waut{\1}\n\\marg{Afiliacja: \2}",
+        content,
+    )
 
     content = re.sub(r"\\hangindent[0-9]+" + pt, "", content)
     content = re.sub(r"\\hangindent[0-9]+", "", content)
@@ -62,6 +69,7 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\slash", "/", content)
 
     content = re.sub(r"\\spis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
+    content = re.sub(r"\\kospis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
     content = re.sub(r"\\kpospis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
     content = re.sub(r"\\tikzstyle\{[^\}]*\}=\[[^\]\[]*\[[^\]]*\][^\]]*\]", "", content)
     content = re.sub(r"\\tikzstyle\{[^\}]*\}=\[[^\]]*\]", "", content)
