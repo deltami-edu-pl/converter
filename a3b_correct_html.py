@@ -303,6 +303,23 @@ def correct_html(html_content) -> str:
     for el in article.findChildren(recursive=False):
         main_text.append(el.extract())
         main_text.append("\n\n")
+
+    # Jesli ostatni blockquote-margin zawiera obrazek a jego span-anchor jest
+    # w ostatnim paragrafie - przesun sam span ~5 paragrafow wstecz, zeby obrazek
+    # w marginesie nie konczyl sie ponizej tekstu artykulu. Blockquote zostawiamy.
+    blockquotes = main_text.find_all("blockquote", "blockquote-margin")
+    if blockquotes:
+        last_bq = blockquotes[-1]
+        if last_bq.find("img") is not None and last_bq.has_attr("id"):
+            anchor = main_text.find("span", {"id": "span-" + last_bq["id"]})
+            paragraphs = main_text.find_all("p", recursive=False)
+            if anchor is not None and paragraphs:
+                anchor_p = anchor.find_parent("p")
+                if anchor_p is paragraphs[-1]:
+                    span_target = paragraphs[max(0, len(paragraphs) - 2)]
+                    anchor.extract()
+                    span_target.insert(0, anchor)
+
     article_div.insert(0, main_text)
 
     article.append(article_div)
