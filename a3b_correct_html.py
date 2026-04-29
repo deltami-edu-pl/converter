@@ -226,23 +226,46 @@ def correct_html(html_content) -> str:
     # <p><img/>...caption...</p>  ->  <p><img/><span class="image-caption">caption</span></p>
     # (zdejmuje wiodace <br/> po obrazku, owija reszte jesli jest tam jakikolwiek tekst)
     # przypadki:
-    #   <p><img/></p>                  -> pominiete (brak tresci)
-    #   <p><img/>\n</p>                -> pominiete (sama biel)
+    #   <p><img/></p>                  -> pominiete (brak tresci, chyba ze nastepny <p>
+    #                                     zaczyna sie od "Rys. N" -> wtedy scal go jako caption)
+    #   <p><img/>\n</p>                -> jw.
     #   <p><img/><br/></p>             -> pominiete (br bez tresci; <br/> zostaje)
     #   <p><img/>caption</p>           -> owiniete
     #   <p><img/><br/>caption</p>      -> owiniete, <br/> usuniety
     #   <p><img/><br/><br/>caption</p> -> owiniete, oba <br/> usuniete
-    for p in soup.find_all("p"):
+    for p in list(soup.find_all("p")):
         img = p.find("img")
         if img is None:
             continue
-        siblings = list(img.next_siblings)
+        # img moze byc opakowany w <span> - znajdz najwyzszego przodka ktory jest
+        # bezposrednim dzieckiem <p>, zeby patrzec na rodzenstwa w <p>, nie w <span>
+        anchor = img
+        while anchor.parent is not p:
+            anchor = anchor.parent
+        siblings = list(anchor.next_siblings)
         leading_brs = []
         while siblings and getattr(siblings[0], "name", None) == "br":
             leading_brs.append(siblings.pop(0))
         has_content = any(
             (getattr(n, "name", None)) or str(n).strip() for n in siblings
         )
+        # jesli po obrazku nic nie ma, sprobuj zaanektowac nastepny <p> jako podpis
+        if not has_content:
+            next_p = p.find_next_sibling("p")
+            if next_p is not None and re.match(
+                r"Rys\.?\s*\d", next_p.get_text().strip()
+            ):
+                for child in list(next_p.children):
+                    p.append(child.extract())
+                next_p.extract()
+                # po dolaczeniu rebuilduj rodzenstwa
+                siblings = list(anchor.next_siblings)
+                leading_brs = []
+                while siblings and getattr(siblings[0], "name", None) == "br":
+                    leading_brs.append(siblings.pop(0))
+                has_content = any(
+                    (getattr(n, "name", None)) or str(n).strip() for n in siblings
+                )
         if not has_content:
             continue
         for br in leading_brs:
@@ -252,7 +275,7 @@ def correct_html(html_content) -> str:
         span["class"] = "image-caption"
         for node in caption_nodes:
             span.append(node)
-        img.insert_after(span)
+        anchor.insert_after(span)
 
     article = soup.find("body")
     if article is None:
