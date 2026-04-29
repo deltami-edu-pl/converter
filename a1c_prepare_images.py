@@ -8,7 +8,7 @@ from helper import log_section, convert_pdf_to_png
 @log_section
 def prepare_images():
     # Copy images from various folders
-    source_folders = ["art", "rys", "stale", "graphics"]
+    source_folders = ["art", "rys", "stale", "graphics", "media"]
     pdf_files = []
     copied_files_count = 0
     converted_files_count = 0
