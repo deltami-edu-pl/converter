@@ -46,16 +46,26 @@ def convert_images():
 
     for match in sorted(matches + matches2, key=lambda x: -len(x[1])):
         content = content.replace(match[0], "")
-        content = content.replace(match[1], match[2])
+        # ##1 -> #1: zdejmujemy jeden poziom zagniezdzenia \def przy inline'owaniu cialo
+        body = re.sub(r"##(\d)", r"#\1", match[2])
+        content = content.replace(match[1], body)
 
     content = re.sub(r"\\angle", r"\\measuredangle", content)
 
     # ustawienie koloru
+    # + safety net na polskie operatory trygonometryczne ktorych delta.sty nie definiuje,
+    #   a uzywane sa w tikzpicture (np. \tg w 02-miskiewicz). \providecommand nie nadpisze
+    #   istniejacej definicji, wiec to bezpieczne.
     content = content.replace(
         "\\begin{document}",
         "\\definecolor{deltaColor}{HTML}{"
         + COLOR
-        + "}\n\\colorlet{magenta}{deltaColor}\n\n\\begin{document}",
+        + "}\n\\colorlet{magenta}{deltaColor}\n\n"
+        "\\providecommand{\\tg}{\\operatorname{tg}}\n"
+        "\\providecommand{\\ctg}{\\operatorname{ctg}}\n"
+        "\\providecommand{\\arctg}{\\operatorname{arc\\,tg}}\n"
+        "\\providecommand{\\arcctg}{\\operatorname{arc\\,ctg}}\n\n"
+        "\\begin{document}",
     )
 
     # dodanie \usetkzobjc{all}, bo czesto sie nie kompiluje bez oraz ustawienie eksportowania obrazkow
