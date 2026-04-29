@@ -31,6 +31,27 @@ def clean_tex(content: str) -> str | None:
         content,
     )
 
+    # afiliacja na koncu artykulu w postaci dwoch \rightline'ow w \scriptsize:
+    #   {\scriptsize \rightline{Zaklad X, } \rightline{Centrum Y}}
+    # -> usun z miejsca w ktorym jest, dodaj \marg{Afiliacja: Zaklad X Centrum Y}
+    # zaraz po \begin{document}, zeby trafilo do gornego marginesu w HTML.
+    aff_match = re.search(
+        r"\{\\scriptsize\s+\\rightline\{([^}]*)\}\s+\\rightline\{\s*([^}]*)\}\s*\}",
+        content,
+        flags=re.DOTALL,
+    )
+    if aff_match:
+        aff_text = (aff_match.group(1).rstrip() + " " + aff_match.group(2).strip()).strip()
+        # zwin biele do pojedynczych spacji, posprzataj koncowe przecinki
+        aff_text = re.sub(r"\s+", " ", aff_text)
+        aff_text = re.sub(r",\s*$", "", aff_text)
+        content = content[: aff_match.start()] + content[aff_match.end() :]
+        content = content.replace(
+            r"\begin{document}",
+            r"\begin{document}" + r"\marg{Afiliacja: " + aff_text + "}",
+            1,
+        )
+
     content = re.sub(r"\\hangindent[0-9]+" + pt, "", content)
     content = re.sub(r"\\hangindent[0-9]+", "", content)
     content = re.sub(r"\\hangafter[0-9]+", "", content)
