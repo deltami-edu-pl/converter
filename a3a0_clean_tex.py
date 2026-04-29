@@ -205,7 +205,15 @@ def clean_tex(content: str) -> str | None:
     # content = re.sub(r'\\Zadania', '', content)
 
     content = re.sub(r"\\vbox", "", content)
-    content = re.sub(r"\\setbox0=", "", content)
+
+    # niskopoziomowy TeX-owy uklad (dimen rejestry, hbox/setbox mierzace szerokosc tabel)
+    # niewidoczne w HTML, ale pandoc krztusi sie na \begin{...} w \hbox{\macro}
+    content = re.sub(r"\\aboverulesep\s*[\-0-9.]*pt", "", content)
+    content = re.sub(r"\\belowrulesep\s*[\-0-9.]*pt", "", content)
+    content = re.sub(r"\\newdimen\s*\{\\\w+\}", "", content)
+    content = re.sub(r"\\setbox\d+=\\hbox\{\\\w+(?:\{[^}]*\})*\}", "", content)
+    content = re.sub(r"\\hbox\{\\\w+(?:\{[^}]*\})*\}", "", content)
+    content = re.sub(r"\\setbox\d+=", "", content)
     content = re.sub(
         r"\\includegraphics(\[width=[0-9\.]+cm])?\{[^/]*/kmo_logo_krzywe-eps-converted-to.png\}",
         "",
