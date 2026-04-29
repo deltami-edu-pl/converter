@@ -77,12 +77,28 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\kospis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
     content = re.sub(r"\\kpospis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
 
+    # tabulary w math display: $$ \begin{tabular}...\end{tabular} \leqno(*) $$
+    # pandoc nie radzi sobie z tabular w math mode. Wyjmujemy do \begin{center},
+    # \leqno(*) (lub juz przekonwertowane \tag{*}) renderujemy jako literalne (*)
+    # z hfill po prawej. Uruchamia sie PRZED prepare_tex (ktore robi leqno->tag).
+    content = re.sub(
+        r"\$\$\s*(\\begin\{tabular\}.*?\\end\{tabular\})\s*"
+        r"(?:\\leqno\s*\(\s*([^)]+?)\s*\)|\\tag\{([^}]*)\})\s*\$\$",
+        lambda m: r"\begin{center}" + m.group(1) + r"\hfill(" + (m.group(2) or m.group(3)) + r")\end{center}",
+        content,
+        flags=re.DOTALL,
+    )
+
     # tabulary - pandoc nie obsluguje @{...} w specach kolumn (renderuje tabele
     # jako <div class="tabular"> z surowym tekstem zamiast <table>). Strippujemy.
     def _strip_at_in_tabular(m):
-        return r"\begin{tabular}{" + re.sub(r"@\{[^}]*\}", "", m.group(1)) + "}"
+        opts = m.group(1) or ""
+        spec = re.sub(r"@\{[^}]*\}", "", m.group(2))
+        return r"\begin{tabular}" + opts + "{" + spec + "}"
     content = re.sub(
-        r"\\begin\{tabular\}\{([^}]*)\}", _strip_at_in_tabular, content
+        r"\\begin\{tabular\}(\[[^\]]*\])?\{([^}]*)\}",
+        _strip_at_in_tabular,
+        content,
     )
     # \multicolumn1c{...} (skrocona skladnia bez nawiasow) -> \multicolumn{1}{c}{...}
     content = re.sub(
@@ -236,6 +252,9 @@ def clean_tex(content: str) -> str | None:
 
     content = re.sub(r"\\begin\{dwieszpalty\}", "", content)
     content = re.sub(r"\\end\{dwieszpalty\}", "", content)
+    # po zdjeciu warstwy custom environments, ##1 staje sie nieprawidlowe na top
+    # poziomie - pandoc nie obsluguje. Zdejmujemy poziom zagniezdzenia ##->#.
+    content = re.sub(r"##(\d)", r"#\1", content)
     content = re.sub(r"\\begin\{szeroko\}", "", content)
     content = re.sub(r"\\end\{szeroko\}", "", content)
     content = re.sub(r"\\redaguje", "", content)
@@ -248,8 +267,10 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\aboverulesep\s*[\-0-9.]*pt", "", content)
     content = re.sub(r"\\belowrulesep\s*[\-0-9.]*pt", "", content)
     content = re.sub(r"\\newdimen\s*\{\\\w+\}", "", content)
-    content = re.sub(r"\\setbox\d+=\\hbox\{\\\w+(?:\{[^}]*\})*\}", "", content)
-    content = re.sub(r"\\hbox\{\\\w+(?:\{[^}]*\})*\}", "", content)
+    # uwaga: dopuszczamy tylko puste argumenty {}, zeby nie zjesc \hbox z trescia
+    # tekstowa (np. \hbox{\textsf{\textbf{...}}} z prawdziwego naglowka)
+    content = re.sub(r"\\setbox\d+=\\hbox\{\\\w+(?:\{\})*\}", "", content)
+    content = re.sub(r"\\hbox\{\\\w+(?:\{\})*\}", "", content)
     content = re.sub(r"\\setbox\d+=", "", content)
     content = re.sub(
         r"\\includegraphics(\[width=[0-9\.]+cm])?\{[^/]*/kmo_logo_krzywe-eps-converted-to.png\}",
