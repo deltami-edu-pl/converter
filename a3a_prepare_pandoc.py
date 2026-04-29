@@ -4,6 +4,7 @@ from config import FILE
 from helper import log_section
 
 from a3a0_clean_tex import clean_tex
+from a3a0b_clean_rozwiazania import clean_rozwiazania
 from a3a1_prepare_tex import prepare_tex
 from a3a2_replace_algorithms import replace_algorithms
 from a3a2b_crop_trim_images import crop_trim_images
@@ -17,6 +18,8 @@ from a3a6_auto_number_equations import auto_number_equations
 def prepare_pandoc():
     content = FILE().source.tex.read_text(encoding="utf-8")
 
+    if "rozwiazania" in FILE().source.tex.name:
+        content = clean_rozwiazania(content)
     content = clean_tex(content)
     content = prepare_tex(content)
     content = replace_algorithms(content)
