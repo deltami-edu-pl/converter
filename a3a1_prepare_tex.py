@@ -121,6 +121,7 @@ def prepare_tex(content: str) -> str:
             )
             content = re.sub(r"(\\end\{" + key + r"\*?\})", r"}\1", content)
 
+    content = re.sub(r"\\aafil(\[[^\]]*\])?\{(?=Kontakt[:\s])", "\\\\marg{", content)
     content = re.sub(r"\\aafil(\[[^\]]*\])?\{", "\\\\marg{Afiliacja: ", content)
     content = re.sub(r"(\\color\{[a-zA-Z0-9]+\})([^{]*?)(?=})", r"\1{\2}", content)
     content = re.sub(r"\\color\{magenta\}", "\\\\textcolor{deltaColor}", content)
