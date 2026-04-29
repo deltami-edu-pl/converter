@@ -24,6 +24,9 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\img\[[^\]]*\]\{klub44-[^\}]*\}", "", content)
     content = re.sub(r"\\long\\def\\matematyka", "", content)
     content = re.sub(r"\\long\\def\\fizyka", "", content)
+    # pandoc nie obsluguje \long\def - traci wtedy CALA tresc wywolan tej komendy.
+    # zamiana na \def sprawia, ze pandoc rozwija makro normalnie.
+    content = re.sub(r"\\long\\def", r"\\def", content)
     content = re.sub(r"\\matematyka", "", content)
     content = re.sub(r"\\fizyka", "", content)
     content = re.sub(r"\\klub\[[0-9]*\]\{(m|f)\}", "", content)
