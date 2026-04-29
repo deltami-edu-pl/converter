@@ -223,6 +223,37 @@ def correct_html(html_content) -> str:
         ):
             span_tag.replaceWithChildren()
 
+    # <p><img/>...caption...</p>  ->  <p><img/><span class="image-caption">caption</span></p>
+    # (zdejmuje wiodace <br/> po obrazku, owija reszte jesli jest tam jakikolwiek tekst)
+    # przypadki:
+    #   <p><img/></p>                  -> pominiete (brak tresci)
+    #   <p><img/>\n</p>                -> pominiete (sama biel)
+    #   <p><img/><br/></p>             -> pominiete (br bez tresci; <br/> zostaje)
+    #   <p><img/>caption</p>           -> owiniete
+    #   <p><img/><br/>caption</p>      -> owiniete, <br/> usuniety
+    #   <p><img/><br/><br/>caption</p> -> owiniete, oba <br/> usuniete
+    for p in soup.find_all("p"):
+        img = p.find("img")
+        if img is None:
+            continue
+        siblings = list(img.next_siblings)
+        leading_brs = []
+        while siblings and getattr(siblings[0], "name", None) == "br":
+            leading_brs.append(siblings.pop(0))
+        has_content = any(
+            (getattr(n, "name", None)) or str(n).strip() for n in siblings
+        )
+        if not has_content:
+            continue
+        for br in leading_brs:
+            br.extract()
+        caption_nodes = [n.extract() for n in siblings]
+        span = soup.new_tag("span")
+        span["class"] = "image-caption"
+        for node in caption_nodes:
+            span.append(node)
+        img.insert_after(span)
+
     article = soup.find("body")
     if article is None:
         print("- !!! Nie ma body!")
