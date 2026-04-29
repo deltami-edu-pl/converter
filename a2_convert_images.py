@@ -30,26 +30,6 @@ def convert_images():
     # content = re.sub(r"\\input\s+[^\s]+\s", " ", content)
     # content = re.sub(r"\\input\s+[^\\]+\\", "\\\\", content)
 
-    # podstawienie '\def{\rysa} w miejsce pojawienia aby byla dobra kolejnosc
-    matches = re.findall(
-        r"(\\def(\\rys[^\{]*)\{(\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})\})",
-        content,
-        flags=re.DOTALL,
-    )
-    matches2 = re.findall(
-        r"(\\def(\\rys[^\{]*)\{(\\scalebox\{[^\}]*\}\{\\begin\{tikzpicture\}.*?\\end\{tikzpicture\})\}\})",
-        content,
-        flags=re.DOTALL,
-    )
-    if len(matches + matches2) > 0:
-        print("- podmieniam komendy \\def\\rysx")
-
-    for match in sorted(matches + matches2, key=lambda x: -len(x[1])):
-        content = content.replace(match[0], "")
-        # ##1 -> #1: zdejmujemy jeden poziom zagniezdzenia \def przy inline'owaniu cialo
-        body = re.sub(r"##(\d)", r"#\1", match[2])
-        content = content.replace(match[1], body)
-
     content = re.sub(r"\\angle", r"\\measuredangle", content)
 
     # ustawienie koloru
@@ -112,6 +92,9 @@ def convert_images():
         flags=re.DOTALL,
     )
     all_tikzpictures = tikzpictures + tikzpictures_scalebox
+    # ##1 -> #1: tikzpictures sa wyciagane z wnetrza \def\rysX{...}, wiec zdejmujemy
+    # jeden poziom zagniezdzenia gdy ekstraktujemy je do standalone'owego dokumentu
+    all_tikzpictures = [re.sub(r"##(\d)", r"#\1", tp) for tp in all_tikzpictures]
 
     print(f"# Found {len(all_tikzpictures)} tikzpicture blocks")
     # znajdź \begin{document} i \end{document}
