@@ -77,8 +77,35 @@ def convert_thebibliography(text: str) -> str:
     )
 
 
-def fix_bibliography(content: str) -> str:
+def fix_xitem_enumerate(content: str) -> str:
+    r"""
+    Niektóre artykuły uzywaja niestandardowego \xitem do bibliografii:
+        \begin{enumerate}[leftmargin=*,widest={D]}]\def\xitem#1 {\item[#1]}
+            \xitem{[}A{]} ... \xitem{[}B{]} ...
+        \end{enumerate}
+    Pandoc krztusi sie na \def w naglowku enumerate i opcjach z {D]}, w efekcie
+    cala lista znika z HTML. Zamieniamy enumerate na description (pandoc renderuje
+    jako <dl> z <dt> dla etykiet, wiec [A], [B] zostaja widoczne):
+        - \def\xitem... -> usuniete
+        - \xitem{[}X{]} -> \item[{[}X{]}]
+        - cale enumerate -> description
     """
+    def repl(m: re.Match) -> str:
+        body = m.group(1)
+        body = re.sub(r"\\def\\xitem#1\s*\{\\item\[#1\]\}", "", body)
+        body = re.sub(r"\\xitem(\{\[\}\w+\{\]\})", r"\\item[\1]", body)
+        return r"\begin{description}" + body + r"\end{description}"
+
+    return re.sub(
+        r"\\begin\{enumerate\}\[[^\[]*?widest=\{[^}]+\}[^\[]*?\](.*?)\\end\{enumerate\}",
+        repl,
+        content,
+        flags=re.DOTALL,
+    )
+
+
+def fix_bibliography(content: str) -> str:
+    r"""
     Poprawia bibliografię LaTeX:
     - mapuje \bibitem{key} -> numer (1, 2, 3, ...)
     - zamienia \cite{key1,key2} -> [1, 2] z klikalnymi linkami
@@ -89,6 +116,7 @@ def fix_bibliography(content: str) -> str:
           \item \label{bib:key1} ...
           ...
         \end{enumerate}
+    - normalizuje \xitem-bibliografie na zwykla enumerate
     Zwraca zmodyfikowany content.
     """
 
@@ -97,5 +125,7 @@ def fix_bibliography(content: str) -> str:
     content = replace_cite_macros(content, bib_index)
 
     content = convert_thebibliography(content)
+
+    content = fix_xitem_enumerate(content)
 
     return content
