@@ -71,6 +71,18 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\spis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
     content = re.sub(r"\\kospis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
     content = re.sub(r"\\kpospis\{[^\}]*\}\s*\{[^\}]*\}", "", content)
+
+    # tabulary - pandoc nie obsluguje @{...} w specach kolumn (renderuje tabele
+    # jako <div class="tabular"> z surowym tekstem zamiast <table>). Strippujemy.
+    def _strip_at_in_tabular(m):
+        return r"\begin{tabular}{" + re.sub(r"@\{[^}]*\}", "", m.group(1)) + "}"
+    content = re.sub(
+        r"\\begin\{tabular\}\{([^}]*)\}", _strip_at_in_tabular, content
+    )
+    # \multicolumn1c{...} (skrocona skladnia bez nawiasow) -> \multicolumn{1}{c}{...}
+    content = re.sub(
+        r"\\multicolumn(\d+)([lcr])\{", r"\\multicolumn{\1}{\2}{", content
+    )
     content = re.sub(r"\\tikzstyle\{[^\}]*\}=\[[^\]\[]*\[[^\]]*\][^\]]*\]", "", content)
     content = re.sub(r"\\tikzstyle\{[^\}]*\}=\[[^\]]*\]", "", content)
     content = re.sub(r"\\resizebox\{[^\}]*\}\{[^\}]*\}", "", content)
