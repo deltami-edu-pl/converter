@@ -89,7 +89,9 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\break", "", content)
     content = re.sub(r"\\nobreak", "", content)
     content = re.sub(r"\\fboxsep[0-9\.-]*" + pt, "", content)
-    content = re.sub(r"\\rotatebox\{90\}", "", content)
+    # \rotatebox{kat}{tresc} - pandoc gubi rotatebox RAZEM z trescia. Strippujemy
+    # samo polecenie zostawiajac {tresc} jako kolejny argument do dalszej obrobki.
+    content = re.sub(r"\\rotatebox\{[^}]*\}", "", content)
     content = re.sub(r"\\raise[0-9\.-]*" + pt, "", content)
     content = re.sub(r"\\rightskip\sby[0-9\.-]*" + pt, "", content)
     content = re.sub(r"\\slash", "/", content)
