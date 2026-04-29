@@ -4,13 +4,14 @@ import re
 import subprocess
 from pathlib import Path
 from config import PATH, FILE, COLOR
-from helper import log_section, convert_pdf_to_png, contain_tikz
+from helper import log_section, convert_pdf_to_png, contain_tikz, wrap_overlay_centerlines
 
 
 @log_section
 def convert_images():
 
     content = FILE().source.tex.read_text(encoding="utf-8")
+    content = wrap_overlay_centerlines(content)
 
     # # usuniecie komentarzy
     # # print("- usuwam komentarze")

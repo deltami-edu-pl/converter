@@ -1,8 +1,13 @@
 import re
+from helper import wrap_overlay_centerlines
 
 def clean_tex(content: str) -> str | None:
     pt = "(cm|pt|px|em)"
-    
+
+    # owin \centerline{...\includegraphics+\llap...} w tikzpicture - inaczej pandoc
+    # zgubi naklady tekstowe (raise/llap/kern). Idempotentne.
+    content = wrap_overlay_centerlines(content)
+
     # polecenia z convert_to_html_prepare.py - usuwanie totalne
     content = re.sub(r"\n\\okladka(\[[0-9\-]*\])?\n", "\n", content)  # 2023-12 only
     content = re.sub(
