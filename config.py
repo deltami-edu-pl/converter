@@ -16,6 +16,8 @@ class PATH_CLASS:
     FIGURES: Path
     DELTA: Path
     DONE: Path
+    FINISHED: Path  # ROOT/<VERSION>-finished, tworzone w a7_finished
+    ARCHIVE: Path   # ROOT/../!DONE, tworzone w a7_finished
 
 
 @dataclass
@@ -65,6 +67,9 @@ def init_paths() -> tuple[PATH_CLASS, str]:
         print(f"# Creating folder {PATH_DONE}")
         PATH_DONE.mkdir(parents=True)
 
+    PATH_FINISHED = PATH_ROOT / f"{VERSION}-finished"
+    PATH_ARCHIVE = PATH_ROOT / ".." / "!DONE"
+
     print()
     print("# Paths initialized:")
     print(f"# VERSION: {VERSION}")
@@ -73,6 +78,8 @@ def init_paths() -> tuple[PATH_CLASS, str]:
     print(f"# PATH_FIGURES: {PATH_FIGURES}")
     print(f"# PATH_DELTA_TEX: {PATH_DELTA_TEX}")
     print(f"# PATH_DONE: {PATH_DONE}")
+    print(f"# PATH_FINISHED: {PATH_FINISHED}")
+    print(f"# PATH_ARCHIVE: {PATH_ARCHIVE}")
     print()
 
     return (
@@ -82,6 +89,8 @@ def init_paths() -> tuple[PATH_CLASS, str]:
             FIGURES=PATH_FIGURES,
             DELTA=PATH_DELTA_TEX,
             DONE=PATH_DONE,
+            FINISHED=PATH_FINISHED,
+            ARCHIVE=PATH_ARCHIVE,
         ),
         VERSION,
     )
