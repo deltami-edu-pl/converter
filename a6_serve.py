@@ -1,8 +1,56 @@
 #!/usr/bin/env python3
 
 import os
+import signal
+import socket
+import subprocess
+import sys
+import time
 from config import FILE
 from flask import Flask, send_from_directory, abort, render_template
+
+
+PORT = 5000
+
+
+def is_port_free(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.bind(("127.0.0.1", port))
+            return True
+        except OSError:
+            return False
+
+
+def kill_stale_flask(port: int) -> None:
+    """Jesli na porcie wisi nasz stary Flask (z poprzedniej sesji ktora padla),
+    ubij go. Procesow systemowych (np. ControlCenter/AirPlay) nie ruszamy."""
+    try:
+        result = subprocess.run(
+            ["lsof", "-ti", f":{port}"], capture_output=True, text=True, check=False
+        )
+    except FileNotFoundError:
+        return
+    pids = [p for p in result.stdout.strip().split() if p]
+    for pid_str in pids:
+        try:
+            pid = int(pid_str)
+            cmd = subprocess.run(
+                ["ps", "-p", str(pid), "-o", "command="],
+                capture_output=True, text=True, check=False,
+            ).stdout
+        except (ValueError, FileNotFoundError):
+            continue
+        if "a6_serve" in cmd or ("python" in cmd and "main.py" in cmd):
+            print(f"# Stary serwer Flask wisi na :{port} (PID {pid}) - ubijam")
+            try:
+                os.kill(pid, signal.SIGTERM)
+                time.sleep(0.5)
+                if not is_port_free(port):
+                    os.kill(pid, signal.SIGKILL)
+                    time.sleep(0.3)
+            except ProcessLookupError:
+                pass
 
 
 def serve():
@@ -47,7 +95,29 @@ def serve():
         # else:
         #     abort(404)
 
-    app.run(debug=True)
+    # Flask debug=True spawnuje child przez Werkzeug reloader. Cleanup robimy
+    # tylko w parencie (WERKZEUG_RUN_MAIN nie jest 'true'), inaczej child by
+    # ubil rodzica matchujac sie z `main.py` w cmdline. Port przekazujemy do
+    # childa przez env var, zeby nie powtarzac wyboru portu.
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        port = int(os.environ.get("DELTA_PORT", PORT))
+    else:
+        port = PORT
+        if not is_port_free(port):
+            kill_stale_flask(port)
+        if not is_port_free(port):
+            print(f"# Port {port} zajety (zwykle macOS AirPlay Receiver)")
+            print(f"#   wylacz: System Settings -> General -> AirDrop & Handoff -> AirPlay Receiver")
+            port = 5050
+            if not is_port_free(port):
+                kill_stale_flask(port)
+            if not is_port_free(port):
+                print(f"# ERROR: {port} tez zajety - sprawdz lsof -i :{port}")
+                sys.exit(1)
+            print(f"# Uzywam {port} zamiast {PORT}")
+        os.environ["DELTA_PORT"] = str(port)
+        print(f"# Serwer na http://localhost:{port}/")
+    app.run(debug=True, port=port)
 
 
 if __name__ == "__main__":
