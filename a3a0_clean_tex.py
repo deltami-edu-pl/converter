@@ -10,6 +10,15 @@ def clean_tex(content: str) -> str | None:
     )
 
     content = re.sub(r"\\wd0", "0", content)
+    # afiliacja inline: \hfill{\scriptsize*Wydzial...} -> \marg{Afiliacja: ...}
+    # (autor uzyl bezposredniego \hfill zamiast makra \aafil; trzeba zlapac PRZED
+    # stripowaniem \hfill i \scriptsize ponizej)
+    content = re.sub(
+        r"\\hfill\s*\{\\scriptsize\*([^}]*)\}",
+        r"\\marg{Afiliacja: \1}",
+        content,
+    )
+
     content = re.sub(r"\\hangindent[0-9]+" + pt, "", content)
     content = re.sub(r"\\hangindent[0-9]+", "", content)
     content = re.sub(r"\\hangafter[0-9]+", "", content)
