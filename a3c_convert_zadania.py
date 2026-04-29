@@ -1,79 +1,74 @@
 #!/usr/bin/env python3
 
-from bs4 import BeautifulSoup
 import re
-from config import FILE
+from bs4 import BeautifulSoup
 from helper import log_section
 
 
-def clean_html(html_content) -> str:
-    # Remove unnecessary whitespace and newlines
-    html_content = re.sub(r"\s+", " ", html_content)
-    html_content = html_content.strip()
-    return html_content
-
-
-def get_content_without_li(li_element):
-    # Get the content without the li tags
-    content = ""
-    for child in li_element.children:
-        if child.name is not None:  # Skip text nodes
-            content += str(child)
-    return clean_html(content)
+def _li_inner_html(li) -> str:
+    """Zawartosc <li> bez samych tagow <li></li>."""
+    return "".join(str(child) for child in li.contents).strip()
 
 
 @log_section
 def convert_zadania(content: str) -> str:
-    # Parse HTML
+    """
+    Jesli artykul ma na marginesie blok "Wskazowki do zadan" z lista <ol>
+    a w tresci osobna liste zadan, paruje je i przerzuca wskazowki pod zadania
+    jako rozwijalna sekcja "Wskazowka". Margines ze wskazowkami (razem z
+    tytulem) jest usuwany, jego span-anchor tez.
+
+    Bezpieczne dla artykulow ktore nie pasuja do tego wzorca - wtedy zwraca
+    content bez zmian.
+    """
     soup = BeautifulSoup(content, "html.parser")
 
-    # Find all ordered lists
-    lists = soup.find_all("ol")
+    hints_blockquote = None
+    for bq in soup.find_all("blockquote", "blockquote-margin"):
+        text = bq.get_text()
+        if re.search(r"Wskaz[óo]wk[aiy]\s+do\s+zada", text) and bq.find("ol"):
+            hints_blockquote = bq
+            break
+    if hints_blockquote is None:
+        return content
 
-    print(f"Found {len(lists)} ordered lists in {FILE().article.html}")
+    hints_list = hints_blockquote.find("ol")
+    hints = hints_list.find_all("li", recursive=False)
 
-    if len(lists) < 2:
-        print("Error: Need at least two ordered lists in the input file")
-        return
+    problems_list = None
+    for ol in soup.find_all("ol"):
+        if ol.find_parent("blockquote") is not None:
+            continue
+        problems_list = ol
+        break
+    if problems_list is None:
+        return content
 
-    # Get hints and problems lists
-    hints_list = lists[0]
-    problems_list = lists[1]
+    problems = problems_list.find_all("li", recursive=False)
+    if not problems or not hints:
+        return content
 
-    # Create new content with exercises
-    exercises = []
+    for problem_li, hint_li in zip(problems, hints):
+        problem_inner = _li_inner_html(problem_li)
+        hint_inner = _li_inner_html(hint_li)
+        wrapper = BeautifulSoup(
+            f"""<div class="exercise"><!-- EXERCISE BEGIN -->
+{problem_inner}
+<!-- EXERCISE MIDDLE--> <header class="answer"><a href="javascript:void(0)">Wskazówka</a></header><div class="answer-content">
+{hint_inner}
+</div>
+</div>""",
+            "html.parser",
+        )
+        problem_li.clear()
+        problem_li.append(wrapper)
 
-    # Process each pair of items
-    for hint, problem in zip(hints_list.find_all("li"), problems_list.find_all("li")):
-        # Get the content without the li tags
-        problem_content = get_content_without_li(problem)
-        hint_content = get_content_without_li(hint)
-
-        # Create exercise element
-        exercise = f"""<!-- EXERCISE BEGIN -->
-<li>
-    <div class="exercise">
-        {problem_content}
-        <header class="answer">
-            <a href="javascript:void(0)">Wskazówka</a>
-        </header>
-        <div class="answer-content">
-            {hint_content}
-        </div>
-    </div>
-</li>
-<!-- EXERCISE END -->"""
-
-        exercises.append(exercise)
-
-    # Remove the first list (hints)
-    lists[0].decompose()
-
-    # Create new ol tag with exercises
-    new_ol = soup.new_tag("ol")
-    new_ol.append(BeautifulSoup("\n\n".join(exercises), "html.parser"))
-
-    # Replace the second list with new ol containing exercises
-    lists[1].replace_with(new_ol)
+    # usun caly margines wraz z tytulem "Wskazowki do zadan" oraz jego anchor
+    bq_id = hints_blockquote.get("id", "")
+    if bq_id:
+        anchor = soup.find("span", {"id": "span-" + bq_id})
+        if anchor is not None:
+            anchor.decompose()
+    hints_blockquote.decompose()
 
     return str(soup)
