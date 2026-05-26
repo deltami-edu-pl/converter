@@ -31,6 +31,17 @@ def clean_tex(content: str) -> str | None:
         content,
     )
 
+    # afiliacja jako osobna grupa pod \waut: {\hfill\scriptsize\rm Instytucja}
+    # (autor Bzdęga: \waut{...}\n{\hfill\scriptsize\rm Uniwersytet...})
+    # bez tej reguly \hfill i \scriptsize zostaja zestripowane (linie 86, 265),
+    # a tekst afiliacji wlatuje do body jako pierwszy akapit. Lapiemy PRZED
+    # stripowaniem.
+    content = re.sub(
+        r"\{\\hfill\s*\\scriptsize\s*\\rm\s+([^}]*)\}",
+        r"\\marg{Afiliacja: \1}",
+        content,
+    )
+
     # afiliacja na koncu artykulu w postaci dwoch \rightline'ow w \scriptsize:
     #   {\scriptsize \rightline{Zaklad X, } \rightline{Centrum Y}}
     # -> usun z miejsca w ktorym jest, dodaj \marg{Afiliacja: Zaklad X Centrum Y}
