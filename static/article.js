@@ -1,3 +1,4 @@
+/* WERSJA 22.12.2023 */
 // plik z funkcjami do tresci artykulow (przesuwa blockquote na margines oraz chowa i robi chowalne wskazowki)
 
 $( document ).ready(function() {
