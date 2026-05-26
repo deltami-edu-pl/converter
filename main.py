@@ -6,7 +6,7 @@ from a1_prepare import prepare
 from a2_convert_images import convert_images
 from a3_convert_pandoc import convert_pandoc
 from a4_done import done
-from a5_rsync import rsync
+from a5_rsync import rsync, push, pull
 from a6_serve import serve
 from a7_finished import finished
 
@@ -43,6 +43,18 @@ def main():
         done()
     elif command == "rsync":
         rsync()
+    elif command == "push":
+        push()
+    elif command == "push:css":
+        push("css")
+    elif command == "push:js":
+        push("js")
+    elif command == "pull":
+        pull()
+    elif command == "pull:css":
+        pull("css")
+    elif command == "pull:js":
+        pull("js")
     elif command == "serve":
         serve()
     elif command == "finish":
