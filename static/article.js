@@ -1,3 +1,6 @@
+/* WERSJA 26.05.2026 */
+// po kliknięciu w obrazek na marginesie pojawia się fullscreen modal
+
 /* WERSJA 22.12.2023 */
 // plik z funkcjami do tresci artykulow (przesuwa blockquote na margines oraz chowa i robi chowalne wskazowki)
 
@@ -69,18 +72,21 @@ $( document ).ready(function() {
 	});
 
 	// fullscreen lightbox dla obrazkow w marginesie (desktop only)
+	// uzywamy .click() + natywnego addEventListener bo strona dziala na
+	// starej jQuery (<1.7) bez .on()/.off()
 	if ($(window).width() >= 1150) {
-		$(document).on('click', '.article-input-margin blockquote img', function() {
+		$('.article-input-margin blockquote img').click(function() {
 			var overlay = $('<div class="image-lightbox"></div>');
 			overlay.append($('<img>').attr('src', $(this).attr('src')));
-			var close = function() {
-				overlay.remove();
-				$(document).off('keydown.lightbox');
-			};
-			overlay.on('click', close);
-			$(document).on('keydown.lightbox', function(e) {
+			function onKey(e) {
 				if (e.key === 'Escape') close();
-			});
+			}
+			function close() {
+				overlay.remove();
+				document.removeEventListener('keydown', onKey);
+			}
+			overlay.click(close);
+			document.addEventListener('keydown', onKey);
 			$('body').append(overlay);
 		});
 	}
