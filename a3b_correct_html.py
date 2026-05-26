@@ -138,6 +138,27 @@ def correct_html(html_content) -> str:
         )
 
     soup = BeautifulSoup(html_content, "html.parser")
+
+    # owin naglowek "Bibliografia" + wszystko az do nastepnego naglowka w
+    # <div class="framed"> - styluje sie to jak quote/erratum (ramka z lewym
+    # akcentem). Heading dostaje id="bibliografia" z pandoca (slugifikacja
+    # \section*{Bibliografia}).
+    biblio_heading = soup.find(["h1", "h2", "h3"], id="bibliografia")
+    if biblio_heading is not None:
+        wrapper = soup.new_tag("div")
+        wrapper["class"] = "framed"
+        biblio_heading.insert_before(wrapper)
+        node = biblio_heading
+        while node is not None:
+            nxt = node.next_sibling
+            if (
+                getattr(node, "name", None) in ("h1", "h2", "h3")
+                and node is not biblio_heading
+            ):
+                break
+            wrapper.append(node.extract())
+            node = nxt
+
     title = ""
     author = ""
     url = "#"

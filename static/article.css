@@ -1,3 +1,6 @@
+/* WERSJA 26.05.2026 */
+/* DOŁĄCZENIE STYLU div.framed */
+
 /* WERSJA 29.05.2025 */
 /* DOÅÄ„CZENIE STYLU span.image-caption */
 
@@ -58,6 +61,26 @@
 }
 
 /* koniec stylu do erraty */
+
+/* styl do bibliografii i innych blokow ramkowych */
+
+.article-page div.framed {
+	padding: 15px 20px;
+	margin: 24px 0;
+	background: #F5F5F5;
+	border-left: 3px solid var(--primary-color);
+	font-size: 16px;
+}
+
+.article-page div.framed > :first-child {
+	margin-top: 0;
+}
+
+.article-page div.framed > :last-child {
+	margin-bottom: 0;
+}
+
+/* koniec stylu .framed */
 
 @media only screen and (max-width: 600px) {
 	.article-page a.article-title {
