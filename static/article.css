@@ -307,14 +307,16 @@
 		font-weight: bold;
 	}
 
-	article.article-input 
+	article.article-input
 	img {
 		max-width: 80%;
+		max-height: 50vh;
 	}
 
-	article.article-input 
+	article.article-input
 	blockquote img {
 		max-width: 270px;
+		max-height: none;
 	}
 
 	article.article-input 
