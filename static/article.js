@@ -67,5 +67,22 @@ $( document ).ready(function() {
 			console.log("KLIK!");
 			$(this).parents('div.exercise').find('div.answer-content').toggle('fast');});
 	});
+
+	// fullscreen lightbox dla obrazkow w marginesie (desktop only)
+	if ($(window).width() >= 1150) {
+		$(document).on('click', '.article-input-margin blockquote img', function() {
+			var overlay = $('<div class="image-lightbox"></div>');
+			overlay.append($('<img>').attr('src', $(this).attr('src')));
+			var close = function() {
+				overlay.remove();
+				$(document).off('keydown.lightbox');
+			};
+			overlay.on('click', close);
+			$(document).on('keydown.lightbox', function(e) {
+				if (e.key === 'Escape') close();
+			});
+			$('body').append(overlay);
+		});
+	}
 })
 

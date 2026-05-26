@@ -622,8 +622,38 @@
 		border-bottom: 2px solid black;
 	}
 
-	article.article-input 
+	article.article-input
 	table.with-borders .bt {
 		border-top: 2px solid black;
 	}
+
+/* lupka i fullscreen lightbox dla obrazkow w marginesie (desktop only) */
+@media (min-width: 1150px) {
+	article.article-input
+	div.article-input-margin blockquote img {
+		cursor: zoom-in;
+		transition: opacity 0.15s;
+	}
+	article.article-input
+	div.article-input-margin blockquote img:hover {
+		opacity: 0.85;
+	}
+}
+
+.image-lightbox {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.85);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	cursor: zoom-out;
+}
+
+.image-lightbox img {
+	max-width: 95vw;
+	max-height: 95vh;
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
 
