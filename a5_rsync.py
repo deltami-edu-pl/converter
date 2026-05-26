@@ -17,7 +17,18 @@ ASSETS = {
 
 
 def _rsync(src: str, dst: str) -> None:
-    command = ["rsync", "-avz", "--progress", "-e", "ssh", src, dst]
+    # --chmod wymusza czytelnosc dla wszystkich uzytkownikow na zdalnej stronie,
+    # niezaleznie od lokalnych uprawnien zrodla (zeby web server nie dostawal 403).
+    command = [
+        "rsync",
+        "-avz",
+        "--progress",
+        "--chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r",
+        "-e",
+        "ssh",
+        src,
+        dst,
+    ]
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
