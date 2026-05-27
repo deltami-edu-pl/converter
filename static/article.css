@@ -627,15 +627,14 @@
 		border-top: 2px solid black;
 	}
 
-/* lupka i fullscreen lightbox dla obrazkow w marginesie (desktop only) */
+/* lupka i fullscreen lightbox dla wszystkich obrazkow w artykule (desktop only) */
+/* wykluczamy img.math-inline - to drobne rownania, nie ma sensu ich powiekszac */
 @media (min-width: 1150px) {
-	article.article-input
-	div.article-input-margin blockquote img {
+	article.article-input img:not(.math-inline) {
 		cursor: zoom-in;
 		transition: opacity 0.15s;
 	}
-	article.article-input
-	div.article-input-margin blockquote img:hover {
+	article.article-input img:not(.math-inline):hover {
 		opacity: 0.85;
 	}
 }

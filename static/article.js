@@ -71,11 +71,12 @@ $( document ).ready(function() {
 			$(this).parents('div.exercise').find('div.answer-content').toggle('fast');});
 	});
 
-	// fullscreen lightbox dla obrazkow w marginesie (desktop only)
+	// fullscreen lightbox dla wszystkich obrazkow w artykule (desktop only)
+	// wykluczamy img.math-inline (drobne rownania).
 	// uzywamy .click() + natywnego addEventListener bo strona dziala na
 	// starej jQuery (<1.7) bez .on()/.off()
 	if ($(window).width() >= 1150) {
-		$('.article-input-margin blockquote img').click(function() {
+		$('.article-input img').not('.math-inline').click(function() {
 			var overlay = $('<div class="image-lightbox"></div>');
 			overlay.append($('<img>').attr('src', $(this).attr('src')));
 			function onKey(e) {
