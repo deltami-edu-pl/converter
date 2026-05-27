@@ -304,7 +304,10 @@ def clean_tex(content: str) -> str | None:
     # uwaga: dopuszczamy tylko puste argumenty {}, zeby nie zjesc \hbox z trescia
     # tekstowa (np. \hbox{\textsf{\textbf{...}}} z prawdziwego naglowka)
     content = re.sub(r"\\setbox\d+=\\hbox\{\\\w+(?:\{\})*\}", "", content)
-    content = re.sub(r"\\hbox\{\\\w+(?:\{\})*\}", "", content)
+    # \hbox{\macro} - tylko zdejmujemy wrapper, zeby \macro (np. \rysa
+    # rozwijajaca sie do \includegraphics) trafil dalej do pandoca; pandoc i tak
+    # \hbox{} ignoruje
+    content = re.sub(r"\\hbox\{(\\\w+(?:\{\})*)\}", r"\1", content)
     content = re.sub(r"\\setbox\d+=", "", content)
     content = re.sub(
         r"\\includegraphics(\[width=[0-9\.]+cm])?\{[^/]*/kmo_logo_krzywe-eps-converted-to.png\}",
