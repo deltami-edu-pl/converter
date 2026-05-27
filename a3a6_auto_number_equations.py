@@ -10,6 +10,9 @@ def auto_number_equations(content: str) -> str:
         \end{equation}
 
     Jeśli nie ma \tag{}, dodaje \tag{1}, \tag{2}, ...
+    Buduje mape label -> numer i podstawia \ref{X}/\eqref{X} na ten numer,
+    bo pandoc by zwrocil "[X]" jako widoczny tekst linku (nie zna numerow
+    z mathjaxowych label-ow).
     """
 
     eq_pattern = re.compile(
@@ -18,6 +21,7 @@ def auto_number_equations(content: str) -> str:
     )
 
     i = 1
+    label_to_num: dict[str, int] = {}
 
     def repl(m: re.Match):
         nonlocal i
@@ -31,6 +35,11 @@ def auto_number_equations(content: str) -> str:
         if r"\label" not in body:
             return m.group(0)
 
+        # zapamietujemy mapowanie label -> numer
+        label_match = re.search(r"\\label\{([^}]+)\}", body)
+        if label_match:
+            label_to_num[label_match.group(1)] = i
+
         # wstawiamy \tag{n} tuż za \begin{equation}
         new_equation = (
             r"\begin{equation}"
@@ -42,4 +51,16 @@ def auto_number_equations(content: str) -> str:
         i += 1
         return new_equation
 
-    return eq_pattern.sub(repl, content)
+    content = eq_pattern.sub(repl, content)
+
+    def ref_repl(m: re.Match) -> str:
+        kind = m.group(1)  # "ref" lub "eqref"
+        label = m.group(2)
+        num = label_to_num.get(label)
+        if num is None:
+            return m.group(0)
+        return f"({num})" if kind == "eqref" else str(num)
+
+    content = re.sub(r"\\(ref|eqref)\{([^}]+)\}", ref_repl, content)
+
+    return content
