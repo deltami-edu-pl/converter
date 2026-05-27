@@ -28,12 +28,19 @@ def prepare_tex(content: str) -> str:
         content,
     )
 
-    # \R nie jest zdefiniowane w delta.sty (linia 787 zakomentowana), wiec
-    # pandoc/MathJax widzi nieznana komende i renderuje literalne "\R" na
-    # czerwono. Wstrzykujemy definicje - pandoc rozwija ja w mathu.
+    # Komendy nieznane MathJax-owi (delta.sty ich nie definiuje albo robi to
+    # w sekcjach niewidocznych dla pandoca). Wstrzykujemy w preambule -
+    # pandoc rozwija je w mathu zanim wyemituje HTML.
+    math_macros = (
+        "\\newcommand{\\R}{\\mathbb{R}}\n"
+        "\\providecommand{\\tg}{\\operatorname{tg}}\n"
+        "\\providecommand{\\ctg}{\\operatorname{ctg}}\n"
+        "\\providecommand{\\arctg}{\\operatorname{arc\\,tg}}\n"
+        "\\providecommand{\\arcctg}{\\operatorname{arc\\,ctg}}\n"
+    )
     content = re.sub(
         r"\\begin\{document\}",
-        "\\\\newcommand{\\\\R}{\\\\mathbb{R}}\n\n\\\\begin{document}",
+        math_macros.replace("\\", "\\\\") + "\n\\\\begin{document}",
         content,
     )
 
