@@ -28,6 +28,15 @@ def prepare_tex(content: str) -> str:
         content,
     )
 
+    # \R nie jest zdefiniowane w delta.sty (linia 787 zakomentowana), wiec
+    # pandoc/MathJax widzi nieznana komende i renderuje literalne "\R" na
+    # czerwono. Wstrzykujemy definicje - pandoc rozwija ja w mathu.
+    content = re.sub(
+        r"\\begin\{document\}",
+        "\\\\newcommand{\\\\R}{\\\\mathbb{R}}\n\n\\\\begin{document}",
+        content,
+    )
+
     matches = re.findall(
         r"(\\rlap\{(\$\\Delta[^\$]*\$)\}\\href\{([^\}]+)\}\{[^\}]+\})",
         content,
