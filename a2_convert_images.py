@@ -7,6 +7,45 @@ from config import PATH, FILE, COLOR
 from helper import log_section, convert_pdf_to_png, contain_tikz, wrap_overlay_centerlines
 
 
+def _extract_newcommands_as_provide(content: str) -> str:
+    """
+    Znajduje wszystkie \\newcommand{\\name}[args][default]{body} w content
+    z prawidlowym balansem klamerek (regex nie ogarnia, bo body moze byc
+    wieloliniowe z zagniezdzonymi {}).
+
+    Zwraca tekst zlozony z tych definicji zamienionych na \\providecommand
+    (zeby nie kolidowac z delta.sty itp.) oddzielonych nowymi liniami,
+    zakonczony '\\n\\n' jezeli cokolwiek znaleziono - albo pusty string.
+    """
+    results: list[str] = []
+    head = re.compile(r"\\newcommand\{\\\w+\}(\[[^\]]*\])?(\[[^\]]*\])?\s*\{")
+    i = 0
+    while True:
+        m = head.search(content, i)
+        if not m:
+            break
+        body_start = m.end()
+        depth = 1
+        j = body_start
+        while j < len(content) and depth > 0:
+            c = content[j]
+            if c == "\\" and j + 1 < len(content):
+                j += 2
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        if depth != 0:
+            break
+        full = content[m.start():j]
+        results.append(full.replace("\\newcommand", "\\providecommand", 1))
+        i = j
+
+    return ("\n".join(results) + "\n\n") if results else ""
+
+
 @log_section
 def convert_images():
 
@@ -37,6 +76,13 @@ def convert_images():
     # + safety net na polskie operatory trygonometryczne ktorych delta.sty nie definiuje,
     #   a uzywane sa w tikzpicture (np. \tg w 02-miskiewicz). \providecommand nie nadpisze
     #   istniejacej definicji, wiec to bezpieczne.
+    # zbieramy article-localne \newcommand-y (np. \putlabel w 13-rozwiazania),
+    # zeby przeniesc je do preambuly standalone'owego dokumentu - inaczej
+    # gubia sie przy ekstrakcji samych blokow tikzpicture, a sa w nich uzywane.
+    # \providecommand zamiast \newcommand, zeby nie kolidowac z definicjami
+    # z delta.sty.
+    custom_macros = _extract_newcommands_as_provide(content)
+
     content = content.replace(
         "\\begin{document}",
         "\\definecolor{deltaColor}{HTML}{"
@@ -46,7 +92,8 @@ def convert_images():
         "\\providecommand{\\ctg}{\\operatorname{ctg}}\n"
         "\\providecommand{\\arctg}{\\operatorname{arc\\,tg}}\n"
         "\\providecommand{\\arcctg}{\\operatorname{arc\\,ctg}}\n\n"
-        "\\begin{document}",
+        + custom_macros
+        + "\\begin{document}",
     )
 
     # dodanie \usetkzobjc{all}, bo czesto sie nie kompiluje bez oraz ustawienie eksportowania obrazkow
