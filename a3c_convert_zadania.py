@@ -83,12 +83,28 @@ def convert_zadania(content: str) -> str:
         problem_li.clear()
         problem_li.append(wrapper)
 
-    # usun caly margines wraz z tytulem "Wskazowki do zadan" oraz jego anchor
-    bq_id = hints_blockquote.get("id", "")
-    if bq_id:
-        anchor = soup.find("span", {"id": "span-" + bq_id})
-        if anchor is not None:
-            anchor.decompose()
-    hints_blockquote.decompose()
+    # usun tylko sam tytul "Wskazowki do zadan" i lista <ol>; reszta moze
+    # zawierac inne tresci (obrazki, logo, afiliacja - np. 14-bzdega ma w
+    # tym samym \marg{} logo KMO + rysunek trojkata + wskazowki).
+    for strong in hints_blockquote.find_all("strong"):
+        if re.search(r"Wskaz[óo]wk[aiy]\s+do\s+zada", strong.get_text(strip=True)):
+            # usun caly <p> zawierajacy ten <strong>, jezeli istnieje;
+            # inaczej tylko sam <strong>
+            container = strong.find_parent("p")
+            (container or strong).decompose()
+            break
+    hints_list.decompose()
+
+    # jezeli po wyjeciu wskazowek nic sensownego nie zostalo - usun caly
+    # blockquote (i jego span-anchor), zeby nie zostawial pustego marginesu
+    leftover = hints_blockquote.get_text(strip=True)
+    has_media = hints_blockquote.find("img") is not None
+    if not leftover and not has_media:
+        bq_id = hints_blockquote.get("id", "")
+        if bq_id:
+            anchor = soup.find("span", {"id": "span-" + bq_id})
+            if anchor is not None:
+                anchor.decompose()
+        hints_blockquote.decompose()
 
     return str(soup)
