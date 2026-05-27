@@ -35,12 +35,32 @@ def convert_zadania(content: str) -> str:
     hints_list = hints_blockquote.find("ol")
     hints = hints_list.find_all("li", recursive=False)
 
+    # preferuj <ol> ktore jest siostra po <p><strong>Zadania</strong></p>,
+    # bo artykul moze miec inne wczesniejsze listy <ol> (np. punkty
+    # twierdzenia w 14-bzdega) ktore nie sa zadaniami.
     problems_list = None
-    for ol in soup.find_all("ol"):
-        if ol.find_parent("blockquote") is not None:
+    for p in soup.find_all("p"):
+        strong = p.find("strong")
+        if strong is None:
             continue
-        problems_list = ol
-        break
+        if not re.match(r"\s*zadania\b", strong.get_text(strip=True), re.IGNORECASE):
+            continue
+        sib = p.find_next_sibling()
+        while sib is not None:
+            if getattr(sib, "name", None) == "ol":
+                problems_list = sib
+                break
+            sib = sib.find_next_sibling()
+        if problems_list is not None:
+            break
+
+    # fallback: pierwsza top-level <ol> poza blockquote
+    if problems_list is None:
+        for ol in soup.find_all("ol"):
+            if ol.find_parent("blockquote") is not None:
+                continue
+            problems_list = ol
+            break
     if problems_list is None:
         return content
 
