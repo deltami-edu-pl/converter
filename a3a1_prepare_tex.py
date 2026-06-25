@@ -3,6 +3,63 @@ from config import TEXTWIDTH
 from helper import log_section
 
 
+def _collapse_nested_myquote(content: str) -> str:
+    """
+    \\myquote{\\myquote{X}EXTRA} -> \\myquote{X EXTRA}. Balansuje klamerki -
+    zewnetrznym \\myquote bierzemy wlasciwy domykajacy }.
+    """
+    open_tok = r"\myquote{"
+    inner_tok = r"\myquote{"
+    while True:
+        i = content.find(open_tok + inner_tok)
+        if i == -1:
+            return content
+        outer_body_start = i + len(open_tok)
+        # find matching close for outer
+        depth = 1
+        j = outer_body_start
+        outer_close = -1
+        while j < len(content) and depth > 0:
+            c = content[j]
+            if c == "\\" and j + 1 < len(content):
+                j += 2
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    outer_close = j
+                    break
+            j += 1
+        if outer_close == -1:
+            return content
+        # find matching close for inner
+        inner_body_start = outer_body_start + len(inner_tok)
+        depth = 1
+        j = inner_body_start
+        inner_close = -1
+        while j < outer_close and depth > 0:
+            c = content[j]
+            if c == "\\" and j + 1 < len(content):
+                j += 2
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    inner_close = j
+                    break
+            j += 1
+        if inner_close == -1:
+            return content
+        inner_body = content[inner_body_start:inner_close]
+        extra = content[inner_close + 1:outer_close]
+        replacement = "\\myquote{" + inner_body + extra + "}"
+        content = content[:i] + replacement + content[outer_close + 1:]
+
+
 @log_section
 def prepare_tex(content: str) -> str:
 
@@ -363,6 +420,12 @@ def prepare_tex(content: str) -> str:
     # END affil weird
 
     content = re.sub(r"\\rightline\{", "\\\\myquote{", content)
+
+    # collapse zagniezdzonych \myquote{\myquote{X}} -> \myquote{X}; pandoc nie
+    # ogarnia zagniezdzonych footnote (\myquote rozwija sie do \footnote{...}).
+    # Pojawia sie gdy zrodlo ma np. \marg{\rightline{...}} - oba makra mapuja
+    # na \myquote, dajac \myquote{\myquote{...}} z gubionym obrazkiem.
+    content = _collapse_nested_myquote(content)
 
     content = re.sub(r"\\mtyt\{", "\\\\subsection*{", content)
     content = re.sub(r"\\wtyt\{", "\\\\subsection*{", content)
