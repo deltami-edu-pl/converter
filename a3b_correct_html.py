@@ -90,6 +90,15 @@ def correct_html(html_content) -> str:
     html_content = html_content.replace("deltaColor", "var(--primary-color)")
     html_content = html_content.replace("#" + COLOR, "var(--primary-color)")
 
+    # pandoc dla \textcolor[HTML]{HEX}{X} emituje style="color: HEX" bez
+    # poprzedzajacego #, co jest nieprawidlowym CSS i przegladarka ignoruje
+    # kolor. Dopisujemy # przed 3- lub 6-cyfrowym hexem w style="color: ...".
+    html_content = re.sub(
+        r'(style="[^"]*color:\s*)([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})(\s*[;"])',
+        r"\1#\2\3",
+        html_content,
+    )
+
     html_content = re.sub(
         r'<div class="answer">\s*\n?\s*<p>\s*<strong>Rozwiązanie(\s+[0-9]+)?</strong>\. ',
         '<!-- EXERCISE MIDDLE--> <header class="answer"><a href="javascript:void(0)">Rozwiązanie</a></header><div class="answer-content">\n',

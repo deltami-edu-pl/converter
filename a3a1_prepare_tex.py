@@ -139,6 +139,25 @@ def prepare_tex(content: str) -> str:
 
     content = re.sub(r"\\aafil(\[[^\]]*\])?\{(?=\s*Kontakt[:\s])", "\\\\marg{", content)
     content = re.sub(r"\\aafil(\[[^\]]*\])?\{", "\\\\marg{Afiliacja: ", content)
+
+    # \definecolor{name}{HTML}{HEX} + {\color{name}{TEXT}} ->
+    # \textcolor[HTML]{HEX}{TEXT}. Pandoc nie zna nazwanych kolorow z
+    # \definecolor, wiec emituje "color: c1" (nieprawidlowy CSS) i tekst
+    # znika w przegladarce. Substytucja na \textcolor[HTML]{...} sprawia,
+    # ze pandoc emituje "color: #HEX".
+    html_colors = dict(re.findall(
+        r"\\definecolor\{([^}]+)\}\{HTML\}\{([0-9A-Fa-f]+)\}", content
+    ))
+    if html_colors:
+        def _color_repl(m: re.Match) -> str:
+            return f"\\textcolor[HTML]{{{html_colors[m.group(1)]}}}"
+        names_alt = "|".join(re.escape(n) for n in html_colors)
+        content = re.sub(
+            rf"\\color\{{({names_alt})\}}",
+            _color_repl,
+            content,
+        )
+
     content = re.sub(r"(\\color\{[a-zA-Z0-9]+\})([^{]*?)(?=})", r"\1{\2}", content)
     content = re.sub(r"\\color\{magenta\}", "\\\\textcolor{deltaColor}", content)
     content = re.sub(r"\\textcolor\{magenta\}", "\\\\textcolor{deltaColor}", content)
