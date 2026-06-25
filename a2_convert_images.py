@@ -11,11 +11,15 @@ def _extract_newcommands_as_provide(content: str) -> str:
     """
     Znajduje wszystkie \\newcommand{\\name}[args][default]{body} w content
     z prawidlowym balansem klamerek (regex nie ogarnia, bo body moze byc
-    wieloliniowe z zagniezdzonymi {}).
+    wieloliniowe z zagniezdzonymi {}). Dodatkowo wyciaga \\definecolor{...}
+    i \\colorlet{...} - czesto sa definiowane w body przed tikzpicture
+    (np. 03-rajkowski definiuje c1/c2/c3 inline) i bez nich pdflatex
+    przewraca sie na nieznanym kolorze w tikzu.
 
-    Zwraca tekst zlozony z tych definicji zamienionych na \\providecommand
-    (zeby nie kolidowac z delta.sty itp.) oddzielonych nowymi liniami,
-    zakonczony '\\n\\n' jezeli cokolwiek znaleziono - albo pusty string.
+    Zwraca tekst zlozony z tych definicji (newcommandy zamienione na
+    providecommand, zeby nie kolidowac z delta.sty), oddzielonych
+    nowymi liniami, zakonczony '\\n\\n' jezeli cokolwiek znaleziono -
+    albo pusty string.
     """
     results: list[str] = []
     head = re.compile(r"\\newcommand\{\\\w+\}(\[[^\]]*\])?(\[[^\]]*\])?\s*\{")
@@ -42,6 +46,16 @@ def _extract_newcommands_as_provide(content: str) -> str:
         full = content[m.start():j]
         results.append(full.replace("\\newcommand", "\\providecommand", 1))
         i = j
+
+    # \definecolor{name}{model}{spec} - 3 proste argumenty bez balansowania
+    for m in re.finditer(
+        r"\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}", content
+    ):
+        results.append(m.group(0))
+
+    # \colorlet{name}{ref} - 2 proste argumenty
+    for m in re.finditer(r"\\colorlet\{[^}]+\}\{[^}]+\}", content):
+        results.append(m.group(0))
 
     return ("\n".join(results) + "\n\n") if results else ""
 
