@@ -22,7 +22,15 @@ def _extract_newcommands_as_provide(content: str) -> str:
     albo pusty string.
     """
     results: list[str] = []
-    head = re.compile(r"\\newcommand\{\\\w+\}(\[[^\]]*\])?(\[[^\]]*\])?\s*\{")
+    # \newcommand / \renewcommand {\NAME}[args][default] <optional comment> {body}
+    # 16-bzdega ma `\newcommand{\HEX}[1] % {n} (rysuje...)\n{...}` -
+    # komentarz miedzy [1] a { trzeba zaakceptowac, inaczej regex chybi.
+    # \renewcommand bo te same artykuly redefiniuja standardowe makra
+    # (np. 16-bzdega \renewcommand{\hexagon}{...}).
+    head = re.compile(
+        r"\\(?:newcommand|renewcommand)\{\\\w+\}"
+        r"(\[[^\]]*\])?(\[[^\]]*\])?(?:\s*%[^\n]*\n)*\s*\{"
+    )
     i = 0
     while True:
         m = head.search(content, i)
@@ -56,6 +64,33 @@ def _extract_newcommands_as_provide(content: str) -> str:
     # \colorlet{name}{ref} - 2 proste argumenty
     for m in re.finditer(r"\\colorlet\{[^}]+\}\{[^}]+\}", content):
         results.append(m.group(0))
+
+    # \def\name{body} bez argumentow (np. 15-rozwiazania: \def\skala{.7}).
+    # Body z balansem klamerek. Pomijamy makra z #1 - te maja delimitery
+    # ktore i tak nie powinny isc do tikz preambuly.
+    head_def = re.compile(r"\\def\\(\w+)\{")
+    i = 0
+    while True:
+        m = head_def.search(content, i)
+        if not m:
+            break
+        body_start = m.end()
+        depth = 1
+        j = body_start
+        while j < len(content) and depth > 0:
+            c = content[j]
+            if c == "\\" and j + 1 < len(content):
+                j += 2
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        if depth != 0:
+            break
+        results.append(content[m.start():j])
+        i = j
 
     return ("\n".join(results) + "\n\n") if results else ""
 
