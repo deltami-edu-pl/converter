@@ -74,6 +74,92 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\noindent", "", content)
     content = re.sub(r"\\vtop", "", content)
 
+    # \parskip\smallskipamount, \baselineskip12pt plus.2pt minus.2pt,
+    # \rightskip10pt minus20pt - TeX-owe przypisania rejestrow dlugosci.
+    # Pandoc ich nie ogarnia, wyciekaja do HTML jako goly tekst.
+    content = re.sub(r"\\parskip\s*\\\w*skipamount\b", "", content)
+    content = re.sub(
+        r"\\(?:parskip|baselineskip|lineskip|topskip|rightskip|leftskip)\s*[\-0-9.]+"
+        + pt
+        + r"(?:\s+(?:plus|minus)\s*[\-0-9.]+" + pt + r")*",
+        "",
+        content,
+    )
+
+    # \hbox to18cm{...} / \vbox to84pt{...} - boxy z dokladnie zadanym
+    # rozmiarem. Pandoc/HTML nie ma pojecia o "to NN cm", strippujemy sam
+    # prefiks "to<dimen>", zostawiajac samo \hbox/\vbox. \! - negatywna
+    # cienka spacja, wycieka jako tekst.
+    content = re.sub(r"\\([hv])box\s+to\s*[\-0-9.]+" + pt, r"\\\1box", content)
+    content = re.sub(r"\\!", "", content)
+
+    # \hbox{00.\enskip}, \hbox{00.--00.\enskip} - pomocnicze boxy mierzace
+    # szerokosc dla \xitem/\xxitem (\wd0, \wd1). Bez tych makr beztreciowe.
+    content = re.sub(r"\\hbox\{[0-9.\-\s]*\\enskip\}", "", content)
+
+    # \def\NAME#1<delim>...{...} - TeX-owe makra z delimiterami w argumentach
+    # (np. 07-olimpiady ma \def\zz#1 #2,{...}, \def\xitem#1. {...}, \def\pp#1.
+    # #2,{...}). Pandoc nie umie sparsowac tej skladni. Wykrywamy wszystkie
+    # nazwy makr po tym wzorcu, wycinamy definicje i sciagamy prefiks z wywolan
+    # zeby przezyl tekst miedzy nimi.
+    delim_macros = set(re.findall(
+        r"\\def\\([a-zA-Z]+)#1[^{a-zA-Z]", content
+    ))
+    for macro in delim_macros:
+        # parsujemy definicje \def\NAME#1<delim>{<body>}, wyciagajac delim i
+        # body z balansem klamerek. Jezeli delim to control sequence (np.
+        # \right), umiemy rozwinac wywolania \NAME<X><delim> -> body[#1:=X]
+        # zanim wytniemy def.
+        head_match = re.search(
+            rf"\\def\\{macro}#1([^{{]*?)\{{",
+            content,
+        )
+        body: str | None = None
+        delim: str | None = None
+        if head_match:
+            raw_delim = head_match.group(1).strip()
+            if raw_delim.startswith("\\"):
+                delim = raw_delim
+                body_start = head_match.end()
+                depth = 1
+                j = body_start
+                while j < len(content) and depth > 0:
+                    c = content[j]
+                    if c == "\\" and j + 1 < len(content):
+                        j += 2
+                        continue
+                    if c == "{":
+                        depth += 1
+                    elif c == "}":
+                        depth -= 1
+                        if depth == 0:
+                            body = content[body_start:j]
+                            break
+                    j += 1
+
+        # usun definicje
+        content = re.sub(
+            rf"\\def\\{macro}#1[^{{]*\{{[^{{}}]*(?:\{{[^{{}}]*\}}[^{{}}]*)*\}}",
+            "",
+            content,
+        )
+
+        if body is not None and delim is not None:
+            # \NAME<X><delim> -> body z #1 zastapionym przez <X>
+            def _expand(m: re.Match, _body=body) -> str:
+                return _body.replace("#1", m.group(1))
+            content = re.sub(
+                rf"\\{macro}(.*?){re.escape(delim)}",
+                _expand,
+                content,
+                flags=re.DOTALL,
+            )
+
+        # \MACRO<liczba>. -> <liczba>. (np. \xitem1. -> 1.); zachowuje
+        # widoczna numeracje. Musi byc PRZED ogolnym stripem \MACRO\b.
+        content = re.sub(rf"\\{macro}(\d+)\.\s*", r"\1. ", content)
+        content = re.sub(rf"\\{macro}\b\s*", "", content)
+
     content = re.sub(r"\\img\[[^\]]*\]\{klub44-[^\}]*\}", "", content)
     content = re.sub(r"\\long\\def\\matematyka", "", content)
     content = re.sub(r"\\long\\def\\fizyka", "", content)
@@ -88,8 +174,14 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\textsc", "", content)
 
     # usuniecie vspace, newpage
-    content = re.sub(r"\\smallskip", "", content)
-    content = re.sub(r"\\medskip", "", content)
+    # \let\X\Y (i \let\X=\Y) - TeX-owe aliasowanie komend, np.
+    # 07-olimpiady: \let\medskip\smallskip. Musi zniknac PRZED stripami
+    # \smallskip/\medskip ponizej, inaczej zostawiamy sam \let bez argumentow
+    # i pandoc wybucha.
+    content = re.sub(r"\\let\s*\\\w+\s*=?\s*\\\w+", "", content)
+
+    content = re.sub(r"\\smallskip\b", "", content)
+    content = re.sub(r"\\medskip\b", "", content)
     content = re.sub(r"\\vspace\{[^\}]*\}", "", content)
     content = re.sub(r"\\vspace\*\{[^\}]*\}", "", content)
     content = re.sub(r"\\hspace\{[^\}]*\}", "", content)
