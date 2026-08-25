@@ -7,8 +7,16 @@ from helper import log_section, convert_pdf_to_png
 
 @log_section
 def prepare_images():
-    # Copy images from various folders
-    source_folders = ["art", "rys", "stale", "graphics", "media"]
+    # Obrazki leza w podkatalogach dropu, a redakcja co numer wymysla nowa
+    # nazwe (art, rys, stale, graphics, ilustracje, doppler...) - zamiast
+    # dopisywac je do whitelisty skanujemy WSZYSTKIE podkatalogi got/.
+    # Sam top-level got/ pomijamy swiadomie: leza tam PDF-y calego numeru
+    # (2026-09-delta.pdf, ...-delta_press.pdf, po kilkanascie MB), ktorych
+    # nie chcemy konwertowac do PNG ani wysylac na serwer.
+    source_folders = sorted(
+        d.name for d in PATH.SOURCE.iterdir() if d.is_dir()
+    )
+    print(f"# Scanning subfolders: {', '.join(source_folders)}")
     pdf_files = []
     copied_files_count = 0
     converted_files_count = 0

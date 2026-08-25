@@ -4,6 +4,7 @@ from helper import log_section
 from a1d1_wrap_with_main import wrap_with_main
 from a1d2_rename_images import rename_images
 from a1d3_clean_tex import clean_tex
+from a1d4_inline_inputs import inline_inputs, strip_comments
 
 
 @log_section
@@ -19,6 +20,11 @@ def generate_tex():
         content = source_path.read_text(encoding="utf-8")
 
         content = wrap_with_main(content)
+        # strip_comments + inline_inputs MUSZA byc przed rename_images, zeby
+        # \includegraphics z wklejonych fragmentow tez dostal przepisana
+        # sciezke do figures/, i przed clean_tex, ktory \input-y wycina.
+        content = strip_comments(content)
+        content = inline_inputs(content)
         content = rename_images(content)
         content = clean_tex(content)
 
