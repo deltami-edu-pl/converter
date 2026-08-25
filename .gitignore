@@ -8,8 +8,11 @@
 *.aux
 # *.tex
 
+.env
+.dropbox-write-token
 *-done/*
 *-figures/*
+*-output/*
 
 __pycache__
 got

@@ -11,6 +11,9 @@ from a6_serve import serve
 from a7_finished import finished
 from a8_review import review
 from a9_checks import checks
+from a10_admin_map import admin_map
+from a13_dropbox_push import dropbox_push
+from a14_paper_links import paper_links
 
 ALIASES = {
     "p": "prep",
@@ -23,6 +26,10 @@ ALIASES = {
     "f": "finish",
     "v": "review",
     "k": "checks",
+    "am": "admin:map",
+    "dp": "dropbox:pull",
+    "dph": "dropbox:push",
+    "pl": "paper:links",
 }
 
 
@@ -65,6 +72,16 @@ def main():
         review()
     elif command == "checks":
         checks()
+    elif command == "admin:map":
+        admin_map()
+    elif command == "dropbox:pull":
+        # import lokalny: a12 celowo nie zalezy od config.py (got/ jeszcze nie ma)
+        from a12_dropbox_pull import dropbox_pull
+        dropbox_pull(None)
+    elif command == "dropbox:push":
+        dropbox_push()
+    elif command == "paper:links":
+        paper_links(show_doc=True)
     elif command == "finish":
         finished()
     else:
