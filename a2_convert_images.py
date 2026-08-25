@@ -20,8 +20,24 @@ def _extract_newcommands_as_provide(content: str) -> str:
     providecommand, zeby nie kolidowac z delta.sty), oddzielonych
     nowymi liniami, zakonczony '\\n\\n' jezeli cokolwiek znaleziono -
     albo pusty string.
+
+    UWAGA: definicje, ktorych body zawiera cale \\begin{tikzpicture}
+    (np. `\\def\\rysa{\\begin{tikzpicture}...}` w 02-gornicki, 09-ligi),
+    sa POMIJANE. Inaczej ten sam tikzpicture trafia do dokumentu dwa razy -
+    raz z hoistowanej preambuly, raz z body - wiec pdflatex renderuje go
+    podwojnie, a numeracja figureN w a2 rozjezdza sie z numeracja w
+    a3a3_replace_images (ktore liczy tikzpicture tylko w body). Przy
+    mieszance `\\def`-z-tikzem i golych tikzpicture konczy sie to
+    podmienionymi obrazkami w HTML. Hoist i tak jest tu zbedny: sam
+    tikzpicture jest wyciagany z body osobno.
     """
     results: list[str] = []
+
+    def _add(definition: str) -> None:
+        if r"\begin{tikzpicture}" in definition:
+            return
+        results.append(definition)
+
     # \newcommand / \renewcommand {\NAME}[args][default] <optional comment> {body}
     # 16-bzdega ma `\newcommand{\HEX}[1] % {n} (rysuje...)\n{...}` -
     # komentarz miedzy [1] a { trzeba zaakceptowac, inaczej regex chybi.
@@ -52,7 +68,7 @@ def _extract_newcommands_as_provide(content: str) -> str:
         if depth != 0:
             break
         full = content[m.start():j]
-        results.append(full.replace("\\newcommand", "\\providecommand", 1))
+        _add(full.replace("\\newcommand", "\\providecommand", 1))
         i = j
 
     # \definecolor{name}{model}{spec} - 3 proste argumenty bez balansowania
@@ -64,6 +80,62 @@ def _extract_newcommands_as_provide(content: str) -> str:
     # \colorlet{name}{ref} - 2 proste argumenty
     for m in re.finditer(r"\\colorlet\{[^}]+\}\{[^}]+\}", content):
         results.append(m.group(0))
+
+    # \tikzset{...} i \tikzstyle{name}=[...] - definicje stylow i pic-ow
+    # trzymane w BODY artykulu, poza blokami tikzpicture (09-miskiewicz:
+    # \tikzset{mmP/.pic={...}}, \tikzstyle{sArrow}=[...]). Standalone'owy
+    # dokument dostaje w body tylko wyekstrahowane tikzpicture, wiec bez
+    # przeniesienia ich do preambuly pdflatex sypie sie na
+    # "I do not know the key '/tikz/pics/mmP'".
+    head_tikzset = re.compile(r"\\tikzset\{")
+    i = 0
+    while True:
+        m = head_tikzset.search(content, i)
+        if not m:
+            break
+        depth = 1
+        j = m.end()
+        while j < len(content) and depth > 0:
+            c = content[j]
+            if c == "\\" and j + 1 < len(content):
+                j += 2
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+            j += 1
+        if depth != 0:
+            break
+        _add(content[m.start():j])
+        i = j
+
+    # \tikzstyle{name}=[...] - lista opcji moze miec ZAGNIEZDZONE nawiasy
+    # kwadratowe: \tikzstyle{sArrow}=[very thick, -{Stealth[length=3mm]}, ...].
+    # Naiwne [^\]]* urwaloby sie na ']' w "length=3mm]" i pdflatex leci wtedy
+    # na "Paragraph ended before \tikz@style@parseA was complete".
+    head_style = re.compile(r"\\tikzstyle\{[^}]*\}\s*=\s*\[")
+    i = 0
+    while True:
+        m = head_style.search(content, i)
+        if not m:
+            break
+        depth = 1
+        j = m.end()
+        while j < len(content) and depth > 0:
+            c = content[j]
+            if c == "\\" and j + 1 < len(content):
+                j += 2
+                continue
+            if c == "[":
+                depth += 1
+            elif c == "]":
+                depth -= 1
+            j += 1
+        if depth != 0:
+            break
+        _add(content[m.start():j])
+        i = j
 
     # \def\name{body} bez argumentow (np. 15-rozwiazania: \def\skala{.7}).
     # Body z balansem klamerek. Pomijamy makra z #1 - te maja delimitery
@@ -89,7 +161,7 @@ def _extract_newcommands_as_provide(content: str) -> str:
             j += 1
         if depth != 0:
             break
-        results.append(content[m.start():j])
+        _add(content[m.start():j])
         i = j
 
     return ("\n".join(results) + "\n\n") if results else ""
@@ -182,13 +254,13 @@ def convert_images():
         content,
         flags=re.DOTALL,
     )
-    # również tikzpicture w scalebox
-    tikzpictures_scalebox = re.findall(
-        r"\\scalebox\{[^\}]*\}\{\\begin\{tikzpicture\}.*?\\end\{tikzpicture\}\}",
-        content,
-        flags=re.DOTALL,
-    )
-    all_tikzpictures = tikzpictures + tikzpictures_scalebox
+    # Nie dodajemy tu osobno tikzpicture ze \scalebox: regex powyzej i tak
+    # lapie ten sam tikzpicture (bez opakowania), a a3a3_replace_images numeruje
+    # figureN liczac WYLACZNIE gole \begin{tikzpicture}. Wariant ze scaleboxem
+    # nigdy nie zostaje wiec podlinkowany - laduje na koncu listy jako
+    # osierocony, zduplikowany render (13-bzdega: figure3) i jest rsyncowany
+    # na serwer. Skalowanie ze \scalebox i tak nie przechodzi przez pandoca.
+    all_tikzpictures = tikzpictures
     # ##1 -> #1: tikzpictures sa wyciagane z wnetrza \def\rysX{...}, wiec zdejmujemy
     # jeden poziom zagniezdzenia gdy ekstraktujemy je do standalone'owego dokumentu
     all_tikzpictures = [re.sub(r"##(\d)", r"#\1", tp) for tp in all_tikzpictures]

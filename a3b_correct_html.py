@@ -4,6 +4,70 @@ from config import COLOR, NEWPAGE
 from helper import log_section
 
 
+def move_labels_above_images(soup):
+    r"""
+    Przenosi kotwice <span data-label=... id=...></span> NAD obrazek, do ktorego
+    sie odnosi.
+
+    W zrodle \label{fig:x} stoi zwykle PO \podpis{...}, wiec pandoc emituje
+    kotwice pod obrazkiem. Klikniecie w~"rys.~\ref{fig:x}" przewijalo wtedy
+    strone za nisko - obrazek zostawal nad viewportem. Kotwica jest pusta,
+    wiec samo przeniesienie nie zmienia nic w~wygladzie.
+    """
+    moved = 0
+    for span in list(soup.find_all("span", attrs={"data-label": True})):
+        if span.get_text(strip=True):
+            continue  # nie kotwica, a realna tresc - nie ruszamy
+
+        # Kontener MUSI byc realnym pojemnikiem figury. Wczesniej byl tu
+        # fallback na span.parent.parent - dla kotwicy w zwyklym akapicie
+        # kontenerem stawal sie caly div artykulu, find("img") lapal pierwszy
+        # obrazek w tekscie i kotwica twierdzenia/sekcji byla wyrywana ze zdania
+        # i przenoszona na poczatek artykulu. \ref do niej przewijal wtedy
+        # w zupelnie inne miejsce.
+        container = span.find_parent("div", class_="minipage")
+        if container is None:
+            container = span.find_parent("blockquote")
+        if container is None:
+            # ostatnia opcja: wlasny akapit kotwicy, ale tylko gdy sam zawiera
+            # obrazek - wtedy wiadomo, ze kotwica dotyczy tej figury
+            parent = span.parent
+            if parent is not None and parent.name == "p" and parent.find("img"):
+                container = parent
+        if container is None:
+            continue
+
+        img = container.find("img")
+        if img is None:
+            continue
+
+        # czy kotwica jest juz przed obrazkiem?
+        order = [n for n in container.descendants if n is span or n is img]
+        if order and order[0] is span:
+            continue
+
+        # wstaw przed najwyzszym przodkiem obrazka bedacym dzieckiem kontenera
+        target = img
+        while target.parent is not container and target.parent is not None:
+            target = target.parent
+
+        old_parent = span.parent
+        target.insert_before(span.extract())
+        moved += 1
+
+        # akapit, w ktorym wisiala sama kotwica, zostaje pusty
+        if (
+            old_parent is not None
+            and old_parent.name == "p"
+            and not old_parent.get_text(strip=True)
+            and old_parent.find("img") is None
+        ):
+            old_parent.decompose()
+
+    if moved:
+        print(f"- Kotwice data-label przeniesione nad obrazek: {moved}")
+
+
 @log_section
 def replace_article_in_newpage(soup, title="", author="", url=""):
     with open(NEWPAGE, "r") as file:
@@ -311,6 +375,8 @@ def correct_html(html_content) -> str:
         for node in caption_nodes:
             span.append(node)
         anchor.insert_after(span)
+
+    move_labels_above_images(soup)
 
     article = soup.find("body")
     if article is None:

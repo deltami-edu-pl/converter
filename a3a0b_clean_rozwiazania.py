@@ -45,7 +45,15 @@ def clean_rozwiazania(content: str) -> str:
             i += 1
         block_inner = content[m.end() : i - 1]
         if re.search(r"Rozwi[ąa]zania\s+na\s+str", block_inner):
-            out.append(content[pos : m.start()])
+            # Redakcja wrzuca czasem do tego samego \marg ilustracje kolumnowa
+            # (12-rozwiazania: 202608_kol15dol.png). Sam odsylacz "Rozwiazania
+            # na str. N" jest na webie bez sensu, ale obrazka nie wolno zgubic -
+            # wiec wycinamy tylko zdanie z odsylaczem, a \marg zostawiamy.
+            if "\\includegraphics" in block_inner:
+                kept = _drop_group_with(block_inner, r"Rozwi[ąa]zania\s+na\s+str")
+                out.append(content[pos : m.end()] + kept + "}")
+            else:
+                out.append(content[pos : m.start()])
         else:
             out.append(content[pos:i])
         pos = i
@@ -60,6 +68,50 @@ def clean_rozwiazania(content: str) -> str:
     content = re.sub(r"\{\\Zadania\}", "", content)
 
     return content
+
+
+def _drop_group_with(text: str, phrase_re: str) -> str:
+    r"""
+    Usuwa najmniejsza zbalansowana grupe {...} zawierajaca `phrase_re`, razem
+    z poprzedzajacym ja makrem (np. \Magenta{\bf Rozwiazania na str.~\pageref{x}}).
+    Reszta tekstu zostaje nietknieta. Gdy frazy nie ma - zwraca tekst bez zmian.
+    """
+    m = re.search(phrase_re, text)
+    if m is None:
+        return text
+
+    # w lewo: opening brace grupy bezposrednio zawierajacej fraze
+    depth, start = 0, None
+    for i in range(m.start() - 1, -1, -1):
+        if text[i] == "}":
+            depth += 1
+        elif text[i] == "{":
+            if depth == 0:
+                start = i
+                break
+            depth -= 1
+    if start is None:
+        return text
+
+    # w prawo: pasujacy closing brace
+    depth, end = 1, None
+    for i in range(start + 1, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end is None:
+        return text
+
+    # zgarnij makro tuz przed grupa (\Magenta, \textbf itp.)
+    head = re.search(r"\\[a-zA-Z]+\s*$", text[:start])
+    if head:
+        start = head.start()
+
+    return text[:start] + text[end:]
 
 
 def _strip_balanced(content: str, start_re: str) -> str:

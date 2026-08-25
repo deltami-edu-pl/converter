@@ -148,12 +148,27 @@ def clean_tex(content: str) -> str | None:
             # \NAME<X><delim> -> body z #1 zastapionym przez <X>
             def _expand(m: re.Match, _body=body) -> str:
                 return _body.replace("#1", m.group(1))
-            content = re.sub(
-                rf"\\{macro}(.*?){re.escape(delim)}",
-                _expand,
-                content,
-                flags=re.DOTALL,
-            )
+            # TeX rozwija makra z delimiterem ITERACYJNIE: po podstawieniu
+            # zagnieżdżone wywołanie widzi już nowy delimiter. re.sub robi
+            # jedno przejscie i skanuje dalej ZA dopasowaniem, wiec zagniezdzone
+            # \NAME, ktore wpadlo do #1, nigdy nie bylo rozwijane - zostawal
+            # osierocony \right i MathJax renderowal cala formule na czerwono
+            # (02-gos: \bbleft(\lfloor\bbleft(...\right)...\right)).
+            # Powtarzamy wiec do wyczerpania, z limitem na wypadek patologii.
+            for _ in range(20):
+                content, n_sub = re.subn(
+                    rf"\\{macro}(.*?){re.escape(delim)}",
+                    _expand,
+                    content,
+                    flags=re.DOTALL,
+                )
+                if n_sub == 0:
+                    break
+            else:
+                print(
+                    f"- !!! \\{macro}: rozwijanie nie zbieglo sie w 20 iteracjach"
+                    " - sprawdz formule w HTML"
+                )
 
         # \MACRO<liczba>. -> <liczba>. (np. \xitem1. -> 1.); zachowuje
         # widoczna numeracje. Musi byc PRZED ogolnym stripem \MACRO\b.
@@ -235,7 +250,10 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\resizebox\{[^\}]*\}\{[^\}]*\}", "", content)
 
     content = re.sub(r"\\llap", "", content)
-    content = re.sub(r"\\vskip\\parskip", "", content)
+    # \vskip / \hskip, gdzie wymiar jest rejestrem dlugosci, nie liczba:
+    # \vskip\parskip, \vskip-\parskip (07-kat-o), \hskip -\baselineskip.
+    # Bez tego pandoc wywala sie na "unexpected \parskip".
+    content = re.sub(r"\\(?:vskip|hskip)\s*-?\s*\\[a-zA-Z]+", "", content)
     content = re.sub(r"\\looseness-[0-9]+", "", content)
     content = re.sub(r"\\arraycolsep\.[0-9]+" + pt, "", content)
 
@@ -339,21 +357,17 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\advance", "", content)
     content = re.sub(r"\\vadjust", "", content)
     content = re.sub(r"\\goodbreak", "", content)
+    # \vskip / \hskip z pelnym glue: <dimen> [plus <dimen>] [minus <dimen>],
+    # w dowolnej kombinacji i kolejnosci. Wczesniej byly tu osobne warianty
+    # (plus+minus, plus, sam dimen) i "\vskip38pt minus5pt" (03-tjz) przechodzil
+    # tylko czesciowo - zostawal goly "minus5pt" jako akapit w HTML.
     content = re.sub(
-        r"\\vskip\s*[\-0-9\.]*"
+        r"\\(?:vskip|hskip)\s*[\-0-9\.]*"
         + pt
-        + r"\s+plus[\-0-9\.]*"
-        + pt
-        + r"\s+minus[\-0-9\.]*"
-        + pt,
+        + r"(?:\s*(?:plus|minus)\s*[\-0-9\.]*" + pt + r")*",
         "",
         content,
     )
-    content = re.sub(
-        r"\\vskip\s*[\-0-9\.]*" + pt + r"\s+plus[\-0-9\.]*" + pt, "", content
-    )
-    content = re.sub(r"\\vskip\s*[\-0-9\.]*" + pt, "", content)
-    content = re.sub(r"\\hskip\s*[\-0-9\.]*" + pt, "", content)
     content = re.sub(r"\\medmuskip[\-0-9\.]*mu", "", content)
     content = re.sub(r"\\kern[0-9\.-]* to[0-9\.]" + pt, "", content)
     content = re.sub(r"\\kern[0-9\.-]*" + pt, "", content)
