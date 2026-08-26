@@ -18,7 +18,7 @@ jednym zdaniem, a testowi nie.
 
 | co pilnuje | test |
 |---|---|
-| `static/article.css` niezmieniony | `ArticleCssIsFrozen` (suma kontrolna) |
+| pliki stylu niezmienione | `StyleFilesAreFrozen` + hook `PostToolUse` |
 | nic nie usuwa zdalnych danych | `NothingDeletesRemoteData` |
 | brak POST-a na `/change/` w panelu | `NothingDeletesRemoteData` |
 | zapis do Dropboxa wymaga `enable_writes()` | `DropboxWritesAreGated` |
@@ -27,9 +27,14 @@ jednym zdaniem, a testowi nie.
 | slug zgodny z adresami na stronie | `SlugConvention` |
 | upload domyślnie nie pisze | `AdminUploadDefaultsToDryRun` |
 
-Jeśli któryś test przeszkadza, to znak, że zmiana wymaga rozmowy — nie że test
-należy poprawić. Wyjątek: `article.css.sha256` aktualizujesz świadomie, po
-uzgodnieniu zmiany w stylu produkcyjnym.
+Do tego `.claude/settings.json` **nie dopuszcza** edycji plików stylu i `got/`
+narzędziami Edit/Write ani czytania sekretów, a hook `PostToolUse` po każdej
+komendzie sprawdza sumy kontrolne stylu — łapie też zapis heredocem, którego
+reguła narzędziowa nie widzi.
+
+Jeśli któraś blokada przeszkadza, to znak, że zmiana wymaga rozmowy — nie że
+blokadę należy poprawić. Wyjątek: `static/*.sha256` aktualizujesz świadomie,
+po uzgodnieniu zmiany w stylu produkcyjnym.
 
 Zostają dwie reguły, których nie umiem sprawdzić kodem:
 
