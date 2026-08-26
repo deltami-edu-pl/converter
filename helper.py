@@ -1,3 +1,4 @@
+import functools
 import re
 from pathlib import Path
 from wand.image import Image
@@ -71,6 +72,10 @@ def wrap_overlay_centerlines(content: str) -> str:
 
 
 def log_section(func):
+    # functools.wraps, zeby dekorator nie gubil nazwy, docstringa i sygnatury -
+    # bez tego inspect.signature widzi (*args, **kwargs) i nie da sie
+    # sprawdzic testem, ze `apply` domyslnie jest False.
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         name = func.__name__
         print()

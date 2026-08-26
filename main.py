@@ -34,6 +34,7 @@ ALIASES = {
     "ca": "convert:all",
     "rp": "release:prepare",
     "rpub": "release:publish",
+    "t": "test",
 }
 
 
@@ -86,6 +87,11 @@ def main():
         dropbox_push()
     elif command == "paper:links":
         paper_links(show_doc=True)
+    elif command == "test":
+        import unittest
+        loader = unittest.TestLoader().discover("tests")
+        result = unittest.TextTestRunner(verbosity=2).run(loader)
+        sys.exit(0 if result.wasSuccessful() else 1)
     elif command == "convert:all":
         convert_all()
     elif command == "release:prepare":
