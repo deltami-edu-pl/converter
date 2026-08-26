@@ -14,6 +14,7 @@ from a9_checks import checks
 from a10_admin_map import admin_map
 from a13_dropbox_push import dropbox_push
 from a14_paper_links import paper_links
+from a15_release import convert_all, release_prepare, release_publish
 
 ALIASES = {
     "p": "prep",
@@ -30,6 +31,9 @@ ALIASES = {
     "dp": "dropbox:pull",
     "dph": "dropbox:push",
     "pl": "paper:links",
+    "ca": "convert:all",
+    "rp": "release:prepare",
+    "rpub": "release:publish",
 }
 
 
@@ -82,6 +86,14 @@ def main():
         dropbox_push()
     elif command == "paper:links":
         paper_links(show_doc=True)
+    elif command == "convert:all":
+        convert_all()
+    elif command == "release:prepare":
+        release_prepare()
+    elif command == "release:publish":
+        # faza publikacji dotyka produkcji - przez main.py tylko dry-run,
+        # zapisy wymagaja a15_release.py publish --apply --issue <id>
+        release_publish(None, apply=False)
     elif command == "finish":
         finished()
     else:

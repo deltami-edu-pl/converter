@@ -104,9 +104,28 @@ def init_paths() -> tuple[PATH_CLASS, str]:
 PATH, VERSION = init_paths()
 
 
+# Artykul, na ktorym ma pracowac pipeline. Bez tego FILE() bierze pierwszy
+# alfabetycznie plik z ROOT, co wymusza przenoszenie gotowych artykulow do
+# innego katalogu, zeby dojsc do nastepnego. convert:all ustawia to zamiast
+# przekladac pliki.
+_target_stem: str | None = None
+
+
+def set_target(stem: str | None) -> None:
+    global _target_stem
+    _target_stem = stem
+
+
 def FILE() -> FILE_CLASS:
     ARTICLE = "article"
     IMAGES = "images"
+
+    if _target_stem:
+        return FILE_CLASS(
+            article=Ext(PATH.ROOT / f"{_target_stem}-{ARTICLE}"),
+            images=Ext(PATH.ROOT / f"{_target_stem}-{IMAGES}"),
+            source=Ext(PATH.ROOT / _target_stem),
+        )
 
     first = min(
         (
@@ -133,6 +152,7 @@ def FILE() -> FILE_CLASS:
 
 __all__ = [
     "PATH",
+    "set_target",
     "VERSION",
     "FILE",
     "COLOR",

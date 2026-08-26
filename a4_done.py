@@ -20,5 +20,24 @@ def done():
         print(f"# Moved {file.name}")
 
 
+@log_section
+def done_all():
+    """
+    Przenosi WSZYSTKIE gotowe artykuly do OUTPUT. release:publish potrzebuje
+    tego przed archiwizacja - convert:all zostawia je w ROOT, bo nie przeklada
+    plikow zeby dojsc do nastepnego artykulu.
+    """
+    stems = sorted(
+        p.stem
+        for p in PATH.ROOT.glob("[0-9][0-9]-*.tex")
+        if not p.name.endswith(("-article.tex", "-images.tex"))
+    )
+    print(f"# Do przeniesienia: {len(stems)} artykulow")
+    for stem in stems:
+        for file in sorted(PATH.ROOT.glob(f"{stem}*")):
+            shutil.move(str(file), PATH.OUTPUT / file.name)
+        print(f"# Moved {stem}*")
+
+
 if __name__ == "__main__":
     done()
