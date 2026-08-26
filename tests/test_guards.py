@@ -16,24 +16,27 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
-class ArticleCssIsFrozen(unittest.TestCase):
+class StyleFilesAreFrozen(unittest.TestCase):
     """
-    static/article.css jest zsynchronizowany ze stylem produkcyjnym Delty.
-    Lokalna zmiana rozjezdza artykuly z reszta serwisu, a objawia sie dopiero
-    po wgraniu. Suma kontrolna wylapuje to od razu.
+    Pliki stylu sa zsynchronizowane z produkcja Delty. Lokalna zmiana rozjezdza
+    artykuly z reszta serwisu, a objawia sie dopiero po wgraniu.
+
+    Druga warstwa obok hooka PostToolUse: hook zglasza zmiane od razu po
+    komendzie, ten test wylapuje ja takze wtedy, gdy powstala poza sesja.
     """
 
-    def test_checksum_matches(self):
-        css = ROOT / "static" / "article.css"
-        recorded = (ROOT / "static" / "article.css.sha256").read_text().strip()
-        actual = hashlib.sha256(css.read_bytes()).hexdigest()
-        self.assertEqual(
-            actual, recorded,
-            "static/article.css zostal zmieniony. Jesli to swiadoma decyzja"
-            " uzgodniona z userem, zaktualizuj static/article.css.sha256."
-            " Jesli nie - cofnij zmiane i napraw problem w pipelinie (a3*)"
-            " albo w zrodle artykulu.",
-        )
+    def test_checksums_match(self):
+        for name in ("article.css", "article.js"):
+            path = ROOT / "static" / name
+            recorded = (ROOT / "static" / f"{name}.sha256").read_text().strip()
+            actual = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.assertEqual(
+                actual, recorded,
+                f"static/{name} zostal zmieniony. Jesli to swiadoma decyzja"
+                f" uzgodniona z userem, zaktualizuj static/{name}.sha256."
+                " Jesli nie - cofnij zmiane (git checkout -- static/) i napraw"
+                " problem w pipelinie (a3*) albo w zrodle artykulu.",
+            )
 
 
 class NothingDeletesRemoteData(unittest.TestCase):

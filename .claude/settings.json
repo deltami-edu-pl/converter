@@ -12,13 +12,13 @@
     ]
   },
   "hooks": {
-    "PreToolUse": [
+    "PostToolUse": [
       {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/block-protected-writes.sh",
+            "command": ".claude/hooks/verify-style-checksums.sh",
             "timeout": 10
           }
         ]
