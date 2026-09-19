@@ -2,7 +2,7 @@
 
 import shutil
 from config import PATH
-from helper import log_section, convert_pdf_to_png
+from helper import log_section, convert_pdf_to_png, convert_mps_to_png
 
 
 @log_section
@@ -18,6 +18,7 @@ def prepare_images():
     )
     print(f"# Scanning subfolders: {', '.join(source_folders)}")
     pdf_files = []
+    mps_files = []
     copied_files_count = 0
     converted_files_count = 0
 
@@ -34,6 +35,12 @@ def prepare_images():
                         print(f"# Copied {dest_path}")
                     elif suffix == ".pdf":
                         pdf_files.append(file)
+                    # MetaPost: przegladarka nie wyswietli .mps, a artykul
+                    # odwoluje sie do niego jak do zwyklego obrazka (2026-10,
+                    # got/saper/). Konwersja do PNG + podmiana rozszerzenia w
+                    # \includegraphics siedzi w a3a0_clean_tex.
+                    elif suffix == ".mps":
+                        mps_files.append(file)
     print(f"# Copied {copied_files_count}")
     print()
 
@@ -41,6 +48,11 @@ def prepare_images():
         png_name = pdf_file.stem.replace("-eps-converted-to", "") + ".png"
         dest_path = PATH.FIGURES / png_name
         if convert_pdf_to_png(pdf_file, dest_path):
+            converted_files_count += 1
+            print(f"# Converted {dest_path}")
+    for mps_file in mps_files:
+        dest_path = PATH.FIGURES / (mps_file.stem + ".png")
+        if convert_mps_to_png(mps_file, dest_path):
             converted_files_count += 1
             print(f"# Converted {dest_path}")
     print(f"# Converted {converted_files_count}")

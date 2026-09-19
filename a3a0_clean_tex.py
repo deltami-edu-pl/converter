@@ -8,6 +8,28 @@ def clean_tex(content: str) -> str | None:
     # zgubi naklady tekstowe (raise/llap/kern). Idempotentne.
     content = wrap_overlay_centerlines(content)
 
+    # Zlamana linia w opcjonalnym argumencie \includegraphics: pandoc przerywa
+    # parsowanie w srodku [...] i myli sie o kilkanascie linii dalej (2026-10,
+    # 03-gladczuk: "unexpected \footnote expecting \end{quote}" wskazywalo na
+    # \myquote, a winne bylo [\n width=4cm]). Autorzy lamia opcje dla
+    # czytelnosci zrodla, wiec sklejamy je w jedna linie. Ruszamy wylacznie
+    # nawias opcji - sciezka w {...} zostaje nietknieta. Robimy to przed
+    # pozostalymi regexami na \includegraphics, bo one zakladaja jedna linie.
+    content = re.sub(
+        r"\\includegraphics\s*\[([^\]]*)\]\s*\{",
+        lambda m: "\\includegraphics[" + re.sub(r"\s+", " ", m.group(1)).strip() + "]{",
+        content,
+    )
+
+    # MetaPost: a1c_prepare_images konwertuje got/**/*.mps do PNG-a o tej samej
+    # nazwie, wiec referencja w tresci musi isc za tym. Przegladarka .mps nie
+    # otworzy (2026-10: 39 martwych obrazkow w 07-ciesla i 08-jankowski).
+    content = re.sub(
+        r"(\\includegraphics(?:\[[^\]]*\])?\{[^}]*)\.mps\}",
+        r"\1.png}",
+        content,
+    )
+
     # polecenia z convert_to_html_prepare.py - usuwanie totalne
     content = re.sub(r"\n\\okladka(\[[0-9\-]*\])?\n", "\n", content)  # 2023-12 only
     content = re.sub(

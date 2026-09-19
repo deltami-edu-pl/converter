@@ -276,7 +276,14 @@ def convert_images():
         # po \end{document}
         after_doc = content[doc_end:]
         # zawartość dokumentu to tylko tikzpicture
-        doc_content = "\n\n" + "\n\n".join(all_tikzpictures) + "\n\n"
+        # \scriptsize: rysunki maja isc mniejsza czcionka niz domyslna 10pt
+        # standalone'owego dokumentu - w druku podpisy w figurach sa drobne,
+        # a przy domyslnym rozmiarze po skalowaniu PNG-a do szerokosci kolumny
+        # napisy w rysunku wychodza wieksze niz tekst artykulu obok.
+        # Wstawiamy do CIALA dokumentu, nie do preambuly: \scriptsize to
+        # przelacznik, przed \begin{document} nie ma efektu. Pojedyncze
+        # tikzpicture, ktore samo ustawia sobie rozmiar, nadal wygrywa.
+        doc_content = "\n\n\\scriptsize\n\n" + "\n\n".join(all_tikzpictures) + "\n\n"
         # złożenie z powrotem
         content = before_doc + doc_content + after_doc
 
