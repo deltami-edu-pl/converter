@@ -1,5 +1,9 @@
 import functools
 import re
+import shlex
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 from wand.image import Image
 
@@ -21,6 +25,47 @@ def convert_pdf_to_png(pdf_file: Path, dest_path: Path) -> bool:
         print(f"# ERROR: Converting PDF to PNG: {pdf_file.name} -> {dest_path}")
         print(f"    {e}")
         return False
+
+
+def convert_mps_to_png(mps_file: Path, dest_path: Path) -> bool:
+    """
+    MetaPost (.mps) -> PNG, przez mptopdf.
+
+    Ghostscript sam tego nie otworzy: .mps to PostScript, ktory odwoluje sie do
+    fontow TeX-owych po nazwie (cmbx10) i ich nie osadza - magick konczy na
+    "/undefined in cmbx10". mptopdf ma dostep do fontow TeX Live i osadza je w
+    PDF-ie, ktory dalej idzie zwykla sciezka PDF->PNG.
+
+    mptopdf zapisuje wynik OBOK pliku wejsciowego, a wejscie lezy w got/ -
+    nietykalnym dropie redakcji. Dlatego kopiujemy .mps do katalogu tymczasowego
+    i konwertujemy tam.
+    """
+    if not shutil.which("mptopdf"):
+        print(f"# ERROR: brak mptopdf w PATH - nie przekonwertuje {mps_file.name}")
+        return False
+
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        local_mps = tmp_path / mps_file.name
+        shutil.copy2(mps_file, local_mps)
+        # przez powloke swiadomie: mptopdf to skrypt Perla BEZ shebanga -
+        # zaczyna sie od "eval 'exec perl -S $0'", ktore dziala tylko gdy
+        # uruchomi go /bin/sh. Exec wprost konczy sie "Exec format error".
+        result = subprocess.run(
+            f"mptopdf {shlex.quote(local_mps.name)}",
+            shell=True,
+            cwd=tmp_path,
+            capture_output=True,
+            check=False,
+        )
+        # mptopdf nazywa wynik <stem>-mps.pdf, ale wersje sie roznily - bierzemy
+        # to, co faktycznie powstalo.
+        pdfs = sorted(tmp_path.glob("*.pdf"))
+        if not pdfs:
+            print(f"# ERROR: mptopdf nie zrobil PDF-a z {mps_file.name}")
+            print(f"    {result.stdout.decode(errors='replace')[-300:]}")
+            return False
+        return convert_pdf_to_png(pdfs[0], dest_path)
 
 
 def wrap_overlay_centerlines(content: str) -> str:
