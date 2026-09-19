@@ -13,8 +13,9 @@ def done():
     stem = FILE().source.tex.stem
     print(f"# Archive files: {stem}")
 
+    PATH.OUTPUT.mkdir(parents=True, exist_ok=True)
     for file in list[Path](PATH.ROOT.glob(f"{stem}*")):
-        target = PATH.DONE / file.name
+        target = PATH.OUTPUT / file.name
         shutil.move(str(file), target)
         print(f"# Moved {file.name}")
 

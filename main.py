@@ -9,6 +9,8 @@ from a4_done import done
 from a5_rsync import rsync, push, pull
 from a6_serve import serve
 from a7_finished import finished
+from a8_review import review
+from a9_checks import checks
 
 ALIASES = {
     "p": "prep",
@@ -19,6 +21,8 @@ ALIASES = {
     "r": "rsync",
     "s": "serve",
     "f": "finish",
+    "v": "review",
+    "k": "checks",
 }
 
 
@@ -57,6 +61,10 @@ def main():
         pull("js")
     elif command == "serve":
         serve()
+    elif command == "review":
+        review()
+    elif command == "checks":
+        checks()
     elif command == "finish":
         finished()
     else:
