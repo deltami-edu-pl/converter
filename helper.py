@@ -1,3 +1,4 @@
+import functools
 import re
 import shlex
 import shutil
@@ -14,6 +15,15 @@ def contain_tikz(content: str) -> bool:
 def convert_pdf_to_png(pdf_file: Path, dest_path: Path) -> bool:
     try:
         with Image(filename=str(pdf_file), resolution=600) as img:
+            if img.colorspace == "cmyk" and shutil.which("gs"):
+                # magick przelicza CMYK->RGB bez profilu ICC i kolory wychodza
+                # przesycone; gs uzywa domyslnych profili jak przegladarki PDF
+                subprocess.run(
+                    ["gs", "-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=png16m",
+                     "-r600", f"-sOutputFile={dest_path}", str(pdf_file)],
+                    check=True,
+                )
+                return True
             img.format = "png"
             img.alpha_channel = "remove"
             img.background_color = "white"
@@ -116,6 +126,10 @@ def wrap_overlay_centerlines(content: str) -> str:
 
 
 def log_section(func):
+    # functools.wraps, zeby dekorator nie gubil nazwy, docstringa i sygnatury -
+    # bez tego inspect.signature widzi (*args, **kwargs) i nie da sie
+    # sprawdzic testem, ze `apply` domyslnie jest False.
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         name = func.__name__
         print()

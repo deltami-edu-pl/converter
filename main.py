@@ -9,6 +9,12 @@ from a4_done import done
 from a5_rsync import rsync, push, pull
 from a6_serve import serve
 from a7_finished import finished
+from a8_review import review
+from a9_checks import checks
+from a10_admin_map import admin_map
+from a13_dropbox_push import dropbox_push
+from a14_paper_links import paper_links
+from a15_release import convert_all, release_prepare, release_publish
 
 ALIASES = {
     "p": "prep",
@@ -19,6 +25,16 @@ ALIASES = {
     "r": "rsync",
     "s": "serve",
     "f": "finish",
+    "v": "review",
+    "k": "checks",
+    "am": "admin:map",
+    "dp": "dropbox:pull",
+    "dph": "dropbox:push",
+    "pl": "paper:links",
+    "ca": "convert:all",
+    "rp": "release:prepare",
+    "rpub": "release:publish",
+    "t": "test",
 }
 
 
@@ -57,6 +73,33 @@ def main():
         pull("js")
     elif command == "serve":
         serve()
+    elif command == "review":
+        review()
+    elif command == "checks":
+        checks()
+    elif command == "admin:map":
+        admin_map()
+    elif command == "dropbox:pull":
+        # import lokalny: a12 celowo nie zalezy od config.py (got/ jeszcze nie ma)
+        from a12_dropbox_pull import dropbox_pull
+        dropbox_pull(None)
+    elif command == "dropbox:push":
+        dropbox_push()
+    elif command == "paper:links":
+        paper_links(show_doc=True)
+    elif command == "test":
+        import unittest
+        loader = unittest.TestLoader().discover("tests")
+        result = unittest.TextTestRunner(verbosity=2).run(loader)
+        sys.exit(0 if result.wasSuccessful() else 1)
+    elif command == "convert:all":
+        convert_all()
+    elif command == "release:prepare":
+        release_prepare()
+    elif command == "release:publish":
+        # faza publikacji dotyka produkcji - przez main.py tylko dry-run,
+        # zapisy wymagaja a15_release.py publish --apply --issue <id>
+        release_publish(None, apply=False)
     elif command == "finish":
         finished()
     else:

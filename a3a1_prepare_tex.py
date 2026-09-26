@@ -3,6 +3,23 @@ from config import TEXTWIDTH
 from helper import log_section
 
 
+MATH_RE = re.compile(
+    r"(?<!\\)\$\$.*?(?<!\\)\$\$|(?<!\\)\$.*?(?<!\\)\$|\\\[.*?\\\]|\\\(.*?\\\)"
+    r"|\\begin\{(equation|align|gather|multline|eqnarray)(\*?)\}.*?\\end\{\1\2\}",
+    re.DOTALL,
+)
+
+
+def _outside_math(content: str, fn) -> str:
+    parts, last = [], 0
+    for m in MATH_RE.finditer(content):
+        parts.append(fn(content[last : m.start()]))
+        parts.append(m.group(0))
+        last = m.end()
+    parts.append(fn(content[last:]))
+    return "".join(parts)
+
+
 def _collapse_nested_myquote(content: str) -> str:
     """
     \\myquote{\\myquote{X}EXTRA} -> \\myquote{X EXTRA}. Balansuje klamerki -
@@ -94,6 +111,8 @@ def prepare_tex(content: str) -> str:
         "\\providecommand{\\ctg}{\\operatorname{ctg}}\n"
         "\\providecommand{\\arctg}{\\operatorname{arc\\,tg}}\n"
         "\\providecommand{\\arcctg}{\\operatorname{arc\\,ctg}}\n"
+        "\\providecommand{\\mup}{\\mathrm{\\mu}}\n"
+        "\\providecommand{\\nicefrac}[2]{{}^{#1}\\!/_{#2}}\n"
     )
     content = re.sub(
         r"\\begin\{document\}",
@@ -301,7 +320,7 @@ def prepare_tex(content: str) -> str:
             match[0], "\\begin{center}" + match[1] + "\\end{center}"
         )
 
-    content = re.sub(r"\\marg\s*\{", "\\\\myquote{", content)
+    content = re.sub(r"\\marg(?:\s|%[^\n]*\n)*\{", "\\\\myquote{", content)
     content = re.sub(r"\\marg\[[^\]]*\]\s*\{", "\\\\myquote{", content)
     content = re.sub(r"\\marginpar\{", "\\\\myquote{", content)
 
@@ -419,6 +438,7 @@ def prepare_tex(content: str) -> str:
                     )
     # END affil weird
 
+    content = re.sub(r"\\rightline\{(?=\s*\\includegraphics)", "\\\\centerline{", content)
     content = re.sub(r"\\rightline\{", "\\\\myquote{", content)
 
     # collapse zagniezdzonych \myquote{\myquote{X}} -> \myquote{X}; pandoc nie
@@ -448,8 +468,8 @@ def prepare_tex(content: str) -> str:
     content = re.sub(r"\\xleft\b", r"\\left", content)
 
     # naprawa cudzysłowów - na polskie
-    content = re.sub(r"(^|[\s\(\[\{—–])\s*,,(?=\S)", r"\1„", content)
-    content = re.sub(r"''", "”", content)
+    content = re.sub(r"(^|[\s\(\[\{—–~])\s*,,(?=\S)", r"\1„", content)
+    content = _outside_math(content, lambda text: text.replace("''", "”"))
 
     # zamiana \ref na \eqref i usunięcie okalających nawiasów
     content = re.sub(r"\(\s*\\ref\{([^}]+)\}\s*\)", r"\\eqref{\1}", content)

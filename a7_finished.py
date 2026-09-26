@@ -13,8 +13,12 @@ def finished():
     else:
         print(f"# Folder {PATH.FINISHED} already exists")
 
+    # DONE i OUTPUT: `done` przenosil artykuly do <numer>-done, teraz do
+    # <numer>-output. Archiwizujemy oba, zeby numer w starym ukladzie tez
+    # dal sie domknac.
     items = [
         PATH.DONE,
+        PATH.OUTPUT,
         PATH.FIGURES,
         PATH.SOURCE,
         PATH.ROOT / "got.zip",

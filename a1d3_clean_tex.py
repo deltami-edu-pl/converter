@@ -70,3 +70,23 @@ def clean_tex(content: str) -> str:
     content = re.sub(r"\n\n\n+", r"\n\n", content)
 
     return content
+
+
+LABELED_IMAGE_RE = re.compile(
+    r"\\includegraphics(?:\[[^\]]*\])?\{[^{}]+\}%?\s*"
+    r"(?:\\raise-?[\d.]+pt\\llap\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}%?[ \t]*\n?[ \t]*)+"
+)
+
+
+def wrap_labeled_images(content: str) -> str:
+    r"""
+    \includegraphics{X}\raise..\llap{$A$\kern..} - etykiety nakladane na obrazek.
+    Pandoc gubi pozycjonowanie i litery wypadaja pod obrazkiem, wiec calosc
+    owijamy w tikzpicture: a2 renderuje ja do PNG razem z etykietami.
+    """
+
+    def wrap(m: re.Match) -> str:
+        body = m.group(0).rstrip().rstrip("%")
+        return r"\begin{tikzpicture}\node[inner sep=0pt]{\hbox{" + body + r"}};\end{tikzpicture}" + "\n"
+
+    return LABELED_IMAGE_RE.sub(wrap, content)

@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(static/article.css)",
+      "Write(static/article.css)",
+      "Edit(static/article.js)",
+      "Write(static/article.js)",
+      "Edit(got/**)",
+      "Write(got/**)",
+      "Read(.env)",
+      "Read(.dropbox-write-token)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/verify-style-checksums.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

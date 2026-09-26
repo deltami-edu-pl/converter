@@ -1,5 +1,5 @@
 import re
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from config import COLOR, NEWPAGE
 from helper import log_section
 
@@ -148,6 +148,158 @@ def add_links_to_delta(soup):
     return soup
 
 
+ROW_GAP_PX = 12
+SAPER_MAX_WIDTH_PX = 200
+CAPTION_LABEL_RE = re.compile(r"^\s*Rys\.?\s*\d+\b")
+
+
+def _top_child(node, container):
+    while node.parent is not container:
+        node = node.parent
+    return node
+
+
+def _is_blank(node) -> bool:
+    if getattr(node, "name", None) is None:
+        return not str(node).strip()
+    return node.name != "img" and node.find("img") is None and not node.get_text(strip=True)
+
+
+def _add_style(tag, style: str):
+    current = tag.get("style", "").strip().rstrip(";")
+    tag["style"] = f"{current};{style}" if current else style
+
+
+def limit_saper_images(soup):
+    for img in soup.find_all("img", src=re.compile(r"/saper-")):
+        _add_style(img, f"max-width:{SAPER_MAX_WIDTH_PX}px")
+
+
+def move_captions_below_images(soup):
+    """<p>Rys. N<img/></p> -> <p><img/>Rys. N</p>; w marginesie z <br/> przed podpisem."""
+    for p in soup.find_all("p"):
+        imgs = p.find_all("img")
+        if not imgs:
+            continue
+        first = _top_child(imgs[0], p)
+        before = list(first.previous_siblings)[::-1]
+        if any(getattr(n, "name", None) and (n.name == "img" or n.find("img")) for n in before):
+            continue
+        label = "".join(n.get_text() if getattr(n, "name", None) else str(n) for n in before)
+        if not CAPTION_LABEL_RE.match(label):
+            continue
+        last = _top_child(imgs[-1], p)
+        nodes = [n.extract() for n in before]
+        if isinstance(nodes[0], NavigableString):
+            nodes[0] = NavigableString(str(nodes[0]).lstrip())
+        target = last
+        if p.find_parent("blockquote") is not None:
+            br = soup.new_tag("br")
+            target.insert_after(br)
+            target = br
+        for node in nodes:
+            target.insert_after(node)
+            target = node
+
+
+def make_image_rows(soup):
+    """Kilka obrazkow w jednym akapicie tresci -> obok siebie (CSS ma img display:block)."""
+    for p in list(soup.find_all("p")):
+        if p.find_parent("blockquote") is not None:
+            continue
+        imgs = p.find_all("img")
+        if len(imgs) < 2:
+            continue
+        row = soup.new_tag("span")
+        row["class"] = "image-row"
+        row["style"] = (
+            "display:flex;flex-wrap:wrap;justify-content:center;"
+            f"align-items:center;gap:{ROW_GAP_PX}px"
+        )
+        tops = []
+        for img in imgs:
+            top = _top_child(img, p)
+            if top not in tops:
+                tops.append(top)
+        tops[0].insert_before(row)
+        for img in imgs:
+            share = f"calc({100 / len(imgs):.0f}% - {ROW_GAP_PX}px)"
+            limit = re.search(r"max-width:\s*([^;]+)", img.get("style", ""))
+            if limit:
+                img["style"] = img["style"].replace(limit.group(0), f"max-width:min({limit.group(1).strip()}, {share})")
+                _add_style(img, "margin:0")
+            else:
+                _add_style(img, f"margin:0;max-width:{share}")
+            row.append(img.extract())
+        for top in tops:
+            if top.parent is not None and top is not row:
+                for br in top.find_all("br"):
+                    br.extract()
+                if _is_blank(top):
+                    top.extract()
+        for sib in list(row.next_siblings):
+            if getattr(sib, "name", None) == "br":
+                sib.extract()
+            elif getattr(sib, "name", None) is None and not str(sib).strip():
+                continue
+            else:
+                break
+
+
+def _leading_strong(p, pattern: str):
+    first = next((c for c in p.children if getattr(c, "name", None) or str(c).strip()), None)
+    if getattr(first, "name", None) == "strong" and re.match(pattern, first.get_text(strip=True)):
+        return first
+    return None
+
+
+def wrap_inline_exercises(soup):
+    """
+    <p><strong>Zadanie.</strong>...</p>...<p><strong>Rozwiązanie.</strong>...</p><p><img/></p>
+    w zwyklym artykule -> div.exercise ze zwijanym rozwiazaniem (article.js).
+    """
+    for sol_p in list(soup.find_all("p")):
+        if sol_p.find_parent("div", "exercise") is not None:
+            continue
+        sol_label = _leading_strong(sol_p, r"^Rozwiązani[ea](\s+zada[nń]\w*)?\.?$")
+        if sol_label is None:
+            continue
+        task_p = sol_p.find_previous_sibling("p")
+        while task_p is not None and _leading_strong(task_p, r"^Zadanie\b") is None:
+            task_p = task_p.find_previous_sibling("p")
+        if task_p is None:
+            continue
+        task_nodes, node = [], task_p
+        while node is not sol_p:
+            task_nodes.append(node)
+            node = node.next_sibling
+        sol_nodes = [sol_p]
+        node = sol_p.next_sibling
+        while node is not None and (
+            (getattr(node, "name", None) is None and not str(node).strip())
+            or (getattr(node, "name", None) == "p" and node.find("img") is not None and not node.get_text(strip=True))
+        ):
+            sol_nodes.append(node)
+            node = node.next_sibling
+        task_label = _leading_strong(task_p, r"^Zadanie\b")
+        header_text = task_label.get_text(strip=True).rstrip(".")
+        task_label.extract()
+        sol_label.extract()
+        wrapper = BeautifulSoup(
+            f'<div class="exercise"><!-- EXERCISE BEGIN -->\n<header class="exercise">{header_text}</header>'
+            '<!-- EXERCISE MIDDLE--> <header class="answer"><a href="javascript:void(0)">Rozwiązanie</a></header>'
+            '<div class="answer-content"></div></div>',
+            "html.parser",
+        ).div
+        task_p.insert_before(wrapper)
+        middle = wrapper.find("header", "answer")
+        for n in task_nodes:
+            middle.insert_before(n.extract())
+        content = wrapper.find("div", "answer-content")
+        for n in sol_nodes:
+            content.append(n.extract())
+
+
 def correct_html(html_content) -> str:
     # pandoc zamiast \qed tworzy 0[], a nie []
     html_content = html_content.replace("0" + "\u25fb", "\u25fb")
@@ -249,10 +401,16 @@ def correct_html(html_content) -> str:
     for header_tag in soup.find_all("header", {"id": "title-block-header"}):
         header_tag.extract()
 
+    real_notes = {}
     for footnotes in soup.find_all("section", {"id": "footnotes"}):
         for li_tag in footnotes.find_all("li"):
             if li_tag.has_attr("id"):
                 match = re.match(r"^fn([0-9]+)$", li_tag["id"])
+                if match and li_tag.find("blockquote") is None:
+                    if li_tag.find("a", "footnote-back") is not None:
+                        li_tag.find("a", "footnote-back").extract()
+                    real_notes[match.group(1)] = li_tag.extract()
+                    continue
                 if match:
                     for blockquote in li_tag.find_all("blockquote"):
                         blockquote["id"] = "blockquote-" + match.group(1)
@@ -275,6 +433,21 @@ def correct_html(html_content) -> str:
         block_id = "blockquote-"
         if footnote_ref.has_attr("id"):
             match = re.match(r"^fnref([0-9]+)$", footnote_ref["id"])
+            if match and match.group(1) in real_notes:
+                marker = "*" * (list(real_notes).index(match.group(1)) + 1)
+                sup = soup.new_tag("sup")
+                sup.string = marker
+                footnote_ref.replace_with(sup)
+                note = soup.new_tag("p", style="font-size:0.85em")
+                note.append(marker + " ")
+                for child in list(real_notes[match.group(1)].children):
+                    if getattr(child, "name", None) == "p":
+                        child.replace_with_children()
+                for child in list(real_notes[match.group(1)].children):
+                    note.append(child.extract())
+                body = soup.find("body")
+                (body if body is not None else soup).append(note)
+                continue
             if match:
                 block_id = block_id + match.group(1)
 
@@ -317,6 +490,11 @@ def correct_html(html_content) -> str:
             and span_tag.find("strong")
         ):
             span_tag.replaceWithChildren()
+
+    limit_saper_images(soup)
+    move_captions_below_images(soup)
+    make_image_rows(soup)
+    wrap_inline_exercises(soup)
 
     # <p><img/>...caption...</p>  ->  <p><img/><span class="image-caption">caption</span></p>
     # (zdejmuje wiodace <br/> po obrazku, owija reszte jesli jest tam jakikolwiek tekst)

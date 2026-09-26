@@ -16,6 +16,7 @@ class PATH_CLASS:
     FIGURES: Path
     DELTA: Path
     DONE: Path
+    OUTPUT: Path    # ROOT/<VERSION>-output, gotowe artykuly do przegladu i publikacji
     FINISHED: Path  # ROOT/<VERSION>-finished, tworzone w a7_finished
     ARCHIVE: Path   # ROOT/../!DONE, tworzone w a7_finished
 
@@ -67,6 +68,8 @@ def init_paths() -> tuple[PATH_CLASS, str]:
         print(f"# Creating folder {PATH_DONE}")
         PATH_DONE.mkdir(parents=True)
 
+    PATH_OUTPUT = PATH_ROOT / f"{VERSION}-output"
+
     PATH_FINISHED = PATH_ROOT / f"{VERSION}-finished"
     PATH_ARCHIVE = PATH_ROOT / ".." / "!DONE"
 
@@ -78,6 +81,7 @@ def init_paths() -> tuple[PATH_CLASS, str]:
     print(f"# PATH_FIGURES: {PATH_FIGURES}")
     print(f"# PATH_DELTA_TEX: {PATH_DELTA_TEX}")
     print(f"# PATH_DONE: {PATH_DONE}")
+    print(f"# PATH_OUTPUT: {PATH_OUTPUT}")
     print(f"# PATH_FINISHED: {PATH_FINISHED}")
     print(f"# PATH_ARCHIVE: {PATH_ARCHIVE}")
     print()
@@ -89,6 +93,7 @@ def init_paths() -> tuple[PATH_CLASS, str]:
             FIGURES=PATH_FIGURES,
             DELTA=PATH_DELTA_TEX,
             DONE=PATH_DONE,
+            OUTPUT=PATH_OUTPUT,
             FINISHED=PATH_FINISHED,
             ARCHIVE=PATH_ARCHIVE,
         ),
@@ -99,9 +104,28 @@ def init_paths() -> tuple[PATH_CLASS, str]:
 PATH, VERSION = init_paths()
 
 
+# Artykul, na ktorym ma pracowac pipeline. Bez tego FILE() bierze pierwszy
+# alfabetycznie plik z ROOT, co wymusza przenoszenie gotowych artykulow do
+# innego katalogu, zeby dojsc do nastepnego. convert:all ustawia to zamiast
+# przekladac pliki.
+_target_stem: str | None = None
+
+
+def set_target(stem: str | None) -> None:
+    global _target_stem
+    _target_stem = stem
+
+
 def FILE() -> FILE_CLASS:
     ARTICLE = "article"
     IMAGES = "images"
+
+    if _target_stem:
+        return FILE_CLASS(
+            article=Ext(PATH.ROOT / f"{_target_stem}-{ARTICLE}"),
+            images=Ext(PATH.ROOT / f"{_target_stem}-{IMAGES}"),
+            source=Ext(PATH.ROOT / _target_stem),
+        )
 
     first = min(
         (
@@ -128,6 +152,7 @@ def FILE() -> FILE_CLASS:
 
 __all__ = [
     "PATH",
+    "set_target",
     "VERSION",
     "FILE",
     "COLOR",

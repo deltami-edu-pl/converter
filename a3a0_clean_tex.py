@@ -85,6 +85,20 @@ def clean_tex(content: str) -> str | None:
             1,
         )
 
+    # afiliacja na koncu jako jeden \rightline z gwiazdka (Prosto z nieba):
+    #   {\scriptsize \rightline{*Zaklad X, Centrum Y}}  -> gorny margines
+    aff_match = re.search(
+        r"\{\\scriptsize\s*\\rightline\{\s*\*([^}]*)\}\s*\}", content, flags=re.DOTALL
+    )
+    if aff_match:
+        aff_text = re.sub(r"\s+", " ", aff_match.group(1).replace("%", "")).strip()
+        content = content[: aff_match.start()] + content[aff_match.end() :]
+        content = content.replace(
+            r"\begin{document}",
+            r"\begin{document}" + r"\marg{Afiliacja: " + aff_text + "}",
+            1,
+        )
+
     content = re.sub(r"\\hangindent[0-9]+" + pt, "", content)
     content = re.sub(r"\\hangindent[0-9]+", "", content)
     content = re.sub(r"\\hangafter[0-9]+", "", content)
