@@ -1,5 +1,33 @@
 #### INSTRUKCJA OBSŁUGI #########
 
+## PORTAL PRZEGLĄDU I WYDANIA ##
+
+Aktualny sposób pracy z numerem. Pełna procedura i komendy CLI: `RUNBOOK.md`.
+
+Start: `./main.py release:prepare` (pobranie, konwersja, checki), potem `./main.py review` → http://127.0.0.1:5000/
+
+Lista artykułów:
+- klik w tytuł otwiera artykuł w nowej karcie, tak jak będzie wyglądał na stronie
+- „vs PDF” otwiera HTML obok strony z PDF-a numeru
+- kolumna „checki” to automatyczne asercje layoutu, kolumna „uwagi” to liczba otwartych uwag
+
+Uwagi do artykułu (w widoku artykułu):
+- zaznacz fragment tekstu → „Dodaj uwagę” → wpisz, co poprawić (Ctrl+Enter zapisuje)
+- uwaga do obrazka: Alt+klik na obrazek
+- przycisk „Uwagi (n)” w prawym dolnym rogu: lista uwag, klik w cytat przewija do miejsca; „edytuj”, „zrobione”, „usuń”
+- wszystkie uwagi numeru: http://127.0.0.1:5000/uwagi (na dole gotowy tekst do wklejenia)
+- zapisują się w `<numer>-output/review-comments.json`; Claude może je wczytać sam („nanieś uwagi z przeglądu”)
+
+Wydanie (sekcja „Wydanie” pod listą):
+- ID numeru w panelu admina wypełnia się samo (numer z datą 01.MM.RRRR); „wykryj” szuka ponownie
+- „Podgląd publikacji (dry-run)”: pokazuje, co by poszło; niczego nie wysyła
+- „Publikuj”: przeniesienie plików do `<numer>-output/`, `html.zip` na Dropbox, HTML w miejsce „x” w zaślepkach artykułów w panelu (tylko treść, `published` bez zmian), linki do Paper doca, rsync figur
+- po publikacji pod przyciskami pojawiają się linki do Paper doca z przyciskiem „Kopiuj”; wklej je nad najnowszą sekcją
+- ręcznie w panelu: włącz `published` na artykułach
+- „Zakończ numer”: archiwizacja całego numeru (razem z uwagami) do `../!DONE/`; po tym portal jest pusty
+
+Zaślepki artykułów (treść „x”) zakłada wcześniej admin. Publikacja niczego nie tworzy; artykuł bez zaślepki tylko zgłasza w logu.
+
 ## POCZĄTEK ##
 
 STEP 0: ŹRÓDŁA 

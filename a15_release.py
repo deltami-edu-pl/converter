@@ -101,12 +101,13 @@ def release_publish(issue_id: int | None = None, apply: bool = False) -> None:
             print(f"# (dry-run) przeniosloby {len(article_stems())} artykulow do {PATH.OUTPUT}")
 
     dropbox_push(apply)
-    paper_links(show_doc=True)
 
+    # upload przepisuje do mapy slugi z panelu - linki dopiero po nim
     if issue_id:
         admin_upload(issue_id, apply)
     else:
         print("# Pomijam panel admina - podaj --issue <id numeru w serwisie>")
+    paper_links(show_doc=True)
 
     if apply:
         from a5_rsync import rsync

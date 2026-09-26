@@ -2,20 +2,26 @@
 """
 Wrzucanie artykulow do panelu admina deltami.edu.pl przez HTTPS.
 
+Admin zaklada w numerze zaslepki artykulow (tresc "x"). Skrypt tylko wstawia
+HTML w miejsce "x".
+
 ZASADY BEZPIECZENSTWA (serwis nie ma stagingu - kazdy zapis idzie na produkcje):
   * domyslnie DRY-RUN: bez --apply nic nie jest wysylane,
-  * TYLKO tworzenie: POST wylacznie na /add/, nigdy na /<id>/change/,
-  * artykul o istniejacym slugu w tym numerze jest POMIJANY, nie nadpisywany,
-  * published pozostaje wylaczone - publikacje wlacza czlowiek w panelu,
-  * formularz jest ODCZYTYWANY i odsylany z wlasnymi nadpisaniami, zeby nie
-    gubic pol ukrytych i management formow inline'ow.
+  * zapis TYLKO gdy obecna tresc to zaslepka ("x") - wypelniony artykul nie
+    jest nadpisywany,
+  * zmieniane jest wylacznie pole text; formularz jest ODCZYTYWANY i odsylany
+    w calosci, zeby nie gubic pol ukrytych i management formow inline'ow,
+  * published pozostaje takie, jakie ustawil admin - publikuje czlowiek,
+  * niczego nie tworzymy: artykul bez zaslepki jest tylko zglaszany.
 """
 
 import argparse
 import json
 import re
 import sys
+from pathlib import Path
 import requests
+from bs4 import BeautifulSoup
 from a10_admin_map import MAP_FILE, slugify
 from config import PATH
 from dropbox_client import ENV_FILE, _load_env
@@ -26,6 +32,32 @@ BASE = "https://deltami.edu.pl"
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/140.0 Safari/537.36")
 TEXT_MAX = 50000  # Article.text = CharField(max_length=50000)
+PLACEHOLDER = "x"
+
+
+def parse_article_form(page: str) -> dict[str, str | list[str]] | None:
+    """Pola formularza tak, jak wyslalaby je przegladarka bez zadnej edycji."""
+    form = BeautifulSoup(page, "html.parser").find("form", id="article_form")
+    if form is None:
+        return None
+    fields: dict[str, str | list[str]] = {}
+    for tag in form.find_all(["input", "textarea", "select"]):
+        name = tag.get("name")
+        if not name:
+            continue
+        if tag.name == "textarea":
+            value = tag.get_text()
+            # parser HTML przegladarki zjada jeden \n zaraz po <textarea>
+            fields[name] = value[1:] if value.startswith("\n") else value
+        elif tag.name == "select":
+            chosen = [o.get("value", "") for o in tag.find_all("option") if o.has_attr("selected")]
+            fields[name] = chosen if tag.has_attr("multiple") else (chosen[0] if chosen else "")
+        elif tag.get("type") in ("checkbox", "radio"):
+            if tag.has_attr("checked"):
+                fields[name] = tag.get("value", "on")
+        elif tag.get("type") not in ("submit", "button", "file", "image"):
+            fields[name] = tag.get("value", "")
+    return fields
 
 
 class Admin:
@@ -68,35 +100,22 @@ class Admin:
             out[slugify(title.strip())] = int(art_id)
         return out
 
-    def max_order(self) -> int:
-        """order jest globalnie narastajacy - nowy numer startuje od max+1."""
-        r = self.s.get(f"{BASE}/admin/journal/article/?o=-2&all=", timeout=60)
-        orders = [int(x) for x in re.findall(r'<td class="field-order">(\d+)</td>', r.text)]
-        return max(orders) if orders else 0
-
-    def add_form(self) -> dict:
-        r = self.s.get(f"{BASE}/admin/journal/article/add/", timeout=60)
+    def change_form(self, article_id: int) -> dict[str, str | list[str]]:
+        r = self.s.get(f"{BASE}/admin/journal/article/{article_id}/change/", timeout=60)
         r.raise_for_status()
-        fields: dict[str, str] = {}
-        for name, value in re.findall(
-                r'<input[^>]*name="([^"]+)"[^>]*value="([^"]*)"', r.text):
-            fields[name] = value
-        for name in re.findall(r'name="([a-zA-Z0-9_\-]+)"', r.text):
-            fields.setdefault(name, "")
-        fields["csrfmiddlewaretoken"] = self.s.cookies.get("csrftoken") or ""
-        for key in list(fields):
-            if key.endswith(("TOTAL_FORMS", "INITIAL_FORMS", "MIN_NUM_FORMS", "MAX_NUM_FORMS")):
-                continue
+        fields = parse_article_form(r.text)
+        if fields is None:
+            sys.exit(f"# ERROR: brak formularza artykulu {article_id}")
         return fields
 
-    def create(self, payload: dict) -> bool:
-        r = self.s.post(f"{BASE}/admin/journal/article/add/", data=payload,
-                        headers={"Referer": f"{BASE}/admin/journal/article/add/"},
+    def update(self, article_id: int, payload: dict) -> bool:
+        url = f"{BASE}/admin/journal/article/{article_id}/change/"
+        r = self.s.post(url, data=payload, headers={"Referer": url},
                         allow_redirects=False, timeout=120)
         if r.status_code == 302:
             return True
         errors = re.findall(r'<ul class="errorlist"[^>]*>(.*?)</ul>', r.text, re.S)[:4]
-        print(f"#   ! nie utworzono ({r.status_code}): "
+        print(f"#   ! nie zapisano ({r.status_code}): "
               + " | ".join(re.sub(r"<[^>]+>", " ", e).strip()[:90] for e in errors))
         return False
 
@@ -108,6 +127,36 @@ def load_map() -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))["articles"]
 
 
+def save_map(rows: list[dict]) -> None:
+    path = PATH.OUTPUT / MAP_FILE
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["articles"] = rows
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def find_issue_id(version: str) -> int | None:
+    """journal_issue.id numeru YYYY-MM - rekord z data 01.MM.YYYY."""
+    year, _, month = version.partition("-")
+    admin = Admin()
+    admin.login()
+    r = admin.s.get(f"{BASE}/admin/journal/issue/?o=-1", timeout=60)
+    r.raise_for_status()
+    ids = list(dict.fromkeys(re.findall(r'/admin/journal/issue/(\d+)/change/', r.text)))
+    for issue_id in ids[:6]:
+        page = admin.s.get(f"{BASE}/admin/journal/issue/{issue_id}/change/", timeout=60).text
+        if re.search(rf'name="date"[^>]*value="01\.{month}\.{year}"', page):
+            return int(issue_id)
+    return None
+
+
+def match_article(slug: str, existing: dict[str, int]) -> int | None:
+    """Slug z mapy albo slug zaslepki bedacy jego koncowka (admin skraca tytul)."""
+    if slug in existing:
+        return existing[slug]
+    hits = [i for s, i in existing.items() if slug.endswith(s) or s.endswith(slug)]
+    return hits[0] if len(hits) == 1 else None
+
+
 @log_section
 def admin_upload(issue_id: int, apply: bool = False) -> None:
     rows = load_map()
@@ -115,41 +164,60 @@ def admin_upload(issue_id: int, apply: bool = False) -> None:
     admin.login()
 
     existing = admin.issue_articles(issue_id)
-    next_order = admin.max_order() + 1
-    print(f"# Numer {issue_id}: {len(existing)} artykulow w panelu, nowy order od {next_order}")
+    print(f"# Numer {issue_id}: {len(existing)} zaslepek/artykulow w panelu")
     if not apply:
         print("# DRY-RUN - nic nie zostanie wyslane (--apply zeby wykonac)")
 
+    used: set[int] = set()
+    slugs_by_id = {i: s for s, i in existing.items()}
     for row in rows:
         title = row["title"]
-        if row["slug"] in existing:
-            print(f"# = pomijam (juz jest): {title[:60]}")
+        article_id = match_article(row["slug"], existing)
+        if article_id is None:
+            print(f"# ! brak zaslepki w panelu: {title[:60]}")
             continue
+        used.add(article_id)
+        if row["slug"] != slugs_by_id[article_id]:
+            print(f"# ~ slug z panelu: {row['slug']} -> {slugs_by_id[article_id]}")
+            row["slug"] = slugs_by_id[article_id]
         html_path = row.get("html")
         if not html_path:
             print(f"# ! brak HTML: {title[:60]}")
             continue
-        text = open(html_path, encoding="utf-8").read()
+        path = Path(html_path)
+        if not path.is_file():
+            path = PATH.OUTPUT / path.name
+        text = path.read_text(encoding="utf-8")
         if len(text) > TEXT_MAX:
             print(f"# ! HTML za dlugi ({len(text)} > {TEXT_MAX}): {title[:50]}")
             continue
 
-        print(f"# + utworzenie: order={next_order} {title[:52]} "
-              f"[kol={row['column'] or '-'}, dz={row['division'] or '-'}, {len(text)}B]")
+        form = admin.change_form(article_id)
+        current = str(form.get("text", "")).strip()
+        if current != PLACEHOLDER:
+            print(f"# = pomijam (tresc to nie zaslepka, {len(current)}B): [{article_id}] {title[:50]}")
+            continue
+
+        print(f"# + wstawiam HTML: [{article_id}] {title[:52]} ({len(text)}B)")
         if apply:
-            form = admin.add_form()
-            form.update({
-                "issue": str(issue_id),
-                "order": str(next_order),
-                "title": title,
-                "slug": row["slug"],
-                "text": text,
-                "published": "",  # publikuje czlowiek
-                "_save": "Zapisz",
-            })
-            if not admin.create(form):
-                continue
-        next_order += 1
+            before = dict(form)
+            payload = {**form, "text": text, "_save": "Zapisz"}
+            if admin.update(article_id, payload):
+                after = admin.change_form(article_id)
+                if str(after.get("text", "")).strip() != text.strip():
+                    print(f"#   ! po zapisie tresc sie rozni ({len(str(after.get('text', '')))}B)")
+                changed = sorted(
+                    k for k in set(before) | set(after)
+                    if k not in ("text", "csrfmiddlewaretoken") and before.get(k) != after.get(k)
+                )
+                if changed:
+                    print(f"#   ! zmienily sie inne pola niz text: {', '.join(changed)}")
+
+    save_map(rows)
+
+    for slug, article_id in existing.items():
+        if article_id not in used:
+            print(f"# ? zaslepka bez artykulu w mapie: [{article_id}] {slug}")
 
 
 if __name__ == "__main__":

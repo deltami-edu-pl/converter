@@ -3,7 +3,7 @@ from config import PATH
 from helper import log_section
 from a1d1_wrap_with_main import wrap_with_main
 from a1d2_rename_images import rename_images
-from a1d3_clean_tex import clean_tex, strip_false_blocks
+from a1d3_clean_tex import clean_tex, strip_false_blocks, wrap_labeled_images
 from a1d4_inline_inputs import inline_inputs, strip_comments
 
 
@@ -28,6 +28,7 @@ def generate_tex():
         content = strip_false_blocks(content)
         content = rename_images(content)
         content = clean_tex(content)
+        content = wrap_labeled_images(content)
 
         output_path = PATH.ROOT / source_path.name
         output_path.write_text(content, encoding="utf-8")
