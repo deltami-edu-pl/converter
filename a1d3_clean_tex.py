@@ -58,6 +58,8 @@ def clean_tex(content: str) -> str:
     content = re.sub(r"(?<=[^\\])%.*", "%", content)
     content = re.sub(r"\n([ \t]*%\n)*", "\n", content)
     content = re.sub(r"(?<=\~)\%\n", "", content, flags=re.DOTALL)
+    # TeX: % zjada koniec linii i wciecie nastepnej (pusta linia zostaje akapitem)
+    content = re.sub(r"(?<!\\)%[ \t]*\n(?![ \t]*\n)[ \t]*", "", content)
 
     content = re.sub(r"\\allowbreak", "", content, flags=re.DOTALL)
 
@@ -73,8 +75,8 @@ def clean_tex(content: str) -> str:
 
 
 LABELED_IMAGE_RE = re.compile(
-    r"\\includegraphics(?:\[[^\]]*\])?\{[^{}]+\}%?\s*"
-    r"(?:\\raise-?[\d.]+pt\\llap\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}%?[ \t]*\n?[ \t]*)+"
+    r"(\{)?\\includegraphics(?:\[[^\]]*\])?\{[^{}]+\}(?(1)\})%?\s*"
+    r"(?:(?:\\raise-?[\d.]+pt)?\\llap\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\}%?[ \t]*\n?[ \t]*)+"
 )
 
 
@@ -87,6 +89,6 @@ def wrap_labeled_images(content: str) -> str:
 
     def wrap(m: re.Match) -> str:
         body = m.group(0).rstrip().rstrip("%")
-        return r"\begin{tikzpicture}\node[inner sep=0pt]{\hbox{" + body + r"}};\end{tikzpicture}" + "\n"
+        return r"\begin{tikzpicture}\node[inner sep=6pt]{\hbox{" + body + r"}};\end{tikzpicture}" + "\n"
 
     return LABELED_IMAGE_RE.sub(wrap, content)

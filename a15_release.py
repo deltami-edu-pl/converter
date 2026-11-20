@@ -48,7 +48,7 @@ def convert_all() -> None:
         try:
             convert_images()
             convert_pandoc()
-        except Exception as exc:
+        except (Exception, SystemExit) as exc:
             print(f"# ERROR {stem}: {type(exc).__name__}: {exc}")
             failed.append(stem)
     set_target(None)

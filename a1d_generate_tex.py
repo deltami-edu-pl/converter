@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from pathlib import Path
 from config import PATH
 from helper import log_section
 from a1d1_wrap_with_main import wrap_with_main
@@ -9,11 +10,17 @@ from a1d4_inline_inputs import inline_inputs, strip_comments
 
 @log_section
 def generate_tex():
-    source_paths = sorted(
-        file
-        for file in PATH.SOURCE.glob("**/[0-9][0-9]-*.tex")
-        if file.name != "00-spis.tex"
-    )
+    # got/stale/ trzyma artykuly z poprzednich numerow o tych samych nazwach
+    # (2026-11: stary 09-iko.tex nadpisal wlasciwy) - przy duplikatach wygrywa
+    # plik najplycej w drzewie
+    by_name: dict[str, Path] = {}
+    for file in PATH.SOURCE.glob("**/[0-9][0-9]-*.tex"):
+        rel = file.relative_to(PATH.SOURCE)
+        if file.name == "00-spis.tex" or "stale" in rel.parts[:-1]:
+            continue
+        if file.name not in by_name or len(rel.parts) < len(by_name[file.name].relative_to(PATH.SOURCE).parts):
+            by_name[file.name] = file
+    source_paths = sorted(by_name.values(), key=lambda f: f.name)
 
     for source_path in source_paths:
         print(f"# Prepare article {source_path.name}")

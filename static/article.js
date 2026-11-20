@@ -35,6 +35,29 @@ $( document ).ready(function() {
 					blockquote.show();
 				    bottom = where + blockquote.outerHeight(true) + 10;
 				})
+
+				// marginesy nie wychodza ponizej konca tekstu glownego: notki
+				// podciagamy od dolu w gore (kolejnosc i odstepy zostaja); gdy
+				// wszystkie razem sa wyzsze niz tekst - najwyzsza zostaje na gorze
+				var notes = $('.article-input-margin > blockquote:visible');
+				if (notes.length) {
+					var main = $('.article-input-main-text');
+					var limit = main.offset().top + main.outerHeight() - notes.eq(0).offsetParent().offset().top;
+					if (bottom - 10 > limit) {
+						var tops = [];
+						for (var k = notes.length - 1; k >= 0; k--) {
+							tops[k] = Math.min($(notes[k]).position().top, limit - $(notes[k]).outerHeight(true));
+							limit = tops[k] - 10;
+						}
+						var floor = 0;
+						for (var k = 0; k < notes.length; k++) {
+							var top = Math.max(tops[k], floor);
+							$(notes[k]).css({top: top});
+							floor = top + $(notes[k]).outerHeight(true) + 10;
+						}
+						bottom = floor;
+					}
+				}
 	  		    $('.article-input-margin').show('slow');
 	  		    
 				if ($('.article-input-div').position().top + $('.article-input-div').outerHeight() < bottom+200)
@@ -70,6 +93,21 @@ $( document ).ready(function() {
 			console.log("KLIK!");
 			$(this).parents('div.exercise').find('div.answer-content').toggle('fast');});
 	});
+
+	// linki zewnetrzne we wzorach (MathJax \href, np. numery OEIS) w nowej
+	// karcie - MathJax sklada wzory asynchronicznie, wiec sprawdzamy kilka razy
+	function externalMathLinks() {
+		var links = document.querySelectorAll('mjx-container a[href^="http"]');
+		for (var i = 0; i < links.length; i++) {
+			if (links[i].href.indexOf('deltami.edu.pl') === -1) {
+				links[i].target = '_blank';
+				links[i].rel = 'noopener';
+			}
+		}
+	}
+	setTimeout(externalMathLinks, 1000);
+	setTimeout(externalMathLinks, 3000);
+	setTimeout(externalMathLinks, 8000);
 
 	// fullscreen lightbox dla wszystkich obrazkow w artykule (desktop only)
 	// wykluczamy img.math-inline (drobne rownania).

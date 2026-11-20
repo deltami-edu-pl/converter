@@ -16,6 +16,7 @@ ZASADY BEZPIECZENSTWA (serwis nie ma stagingu - kazdy zapis idzie na produkcje):
 """
 
 import argparse
+import difflib
 import json
 import re
 import sys
@@ -154,7 +155,13 @@ def match_article(slug: str, existing: dict[str, int]) -> int | None:
     if slug in existing:
         return existing[slug]
     hits = [i for s, i in existing.items() if slug.endswith(s) or s.endswith(slug)]
-    return hits[0] if len(hits) == 1 else None
+    if len(hits) == 1:
+        return hits[0]
+    # panel bywa niespojny w transliteracji (2026-12: "sawayamythbaulta")
+    close = difflib.get_close_matches(slug, list(existing), n=2, cutoff=0.9)
+    if len(close) == 1:
+        return existing[close[0]]
+    return None
 
 
 @log_section

@@ -181,25 +181,25 @@ def move_captions_below_images(soup):
         imgs = p.find_all("img")
         if not imgs:
             continue
-        first = _top_child(imgs[0], p)
-        before = list(first.previous_siblings)[::-1]
-        if any(getattr(n, "name", None) and (n.name == "img" or n.find("img")) for n in before):
-            continue
-        label = "".join(n.get_text() if getattr(n, "name", None) else str(n) for n in before)
-        if not CAPTION_LABEL_RE.match(label):
+        before = []
+        for node in p.descendants:
+            if node is imgs[0]:
+                break
+            if isinstance(node, NavigableString):
+                before.append(node)
+        label = "".join(str(n) for n in before)
+        if not CAPTION_LABEL_RE.match(label) or not label.strip():
             continue
         last = _top_child(imgs[-1], p)
-        nodes = [n.extract() for n in before]
-        if isinstance(nodes[0], NavigableString):
-            nodes[0] = NavigableString(str(nodes[0]).lstrip())
+        for node in before:
+            node.extract()
         target = last
         if p.find_parent("blockquote") is not None:
             br = soup.new_tag("br")
             target.insert_after(br)
             target = br
-        for node in nodes:
-            target.insert_after(node)
-            target = node
+        caption = NavigableString(" ".join(label.split()))
+        target.insert_after(caption)
 
 
 def make_image_rows(soup):
@@ -300,10 +300,163 @@ def wrap_inline_exercises(soup):
             content.append(n.extract())
 
 
+def wrap_long_urls(soup):
+    """Dlugi adres jako tekst linku nie lamie sie i rozpycha strone w poziomie."""
+    for a in soup.find_all("a"):
+        text = a.get_text(strip=True)
+        if len(text) > 30 and " " not in text and "/" in text:
+            _add_style(a, "overflow-wrap:anywhere;word-break:break-all")
+
+
+ANSWER_HEADER = '<header class="answer"><a href="javascript:void(0)">Rozwiązanie</a></header>'
+
+
+def attach_solutions(soup):
+    """
+    \\begin{zadanie}..\\end{zadanie}\\begin{rozwiazanie}..\\end{rozwiazanie} ->
+    div.zadanie + div.rozwiazanie -> div.exercise ze zwijanym rozwiazaniem.
+    """
+    for sol in list(soup.find_all("div", "rozwiazanie")):
+        task = sol.find_previous_sibling()
+        if task is None or task.name != "div" or "zadanie" not in task.get("class", []):
+            continue
+        label = task.find("strong")
+        title = label.get_text(strip=True).rstrip(".") if label else "Zadanie"
+        if label is not None:
+            nxt = label.next_sibling
+            if isinstance(nxt, NavigableString) and nxt.strip().startswith("."):
+                nxt.replace_with(NavigableString(nxt.strip()[1:].lstrip()))
+            label.extract()
+        task["class"] = "exercise"
+        header = BeautifulSoup(f'<header class="exercise">{title}</header>', "html.parser").header
+        task.insert(0, header)
+        task.append(BeautifulSoup(ANSWER_HEADER, "html.parser").header)
+        sol_label = sol.find("strong")
+        if sol_label is not None and sol_label.get_text(strip=True).startswith("Rozwiązanie"):
+            nxt = sol_label.next_sibling
+            if isinstance(nxt, NavigableString) and nxt.strip().startswith("."):
+                nxt.replace_with(NavigableString(nxt.strip()[1:].lstrip()))
+            sol_label.extract()
+        # styl twierdzenia (kursywa calej tresci) - rozwiazanie w druku jest proste
+        for em in sol.find_all("em"):
+            if len(em.get_text(strip=True)) > 60:
+                em.replace_with_children()
+        sol.name = "div"
+        sol["class"] = "answer-content"
+        task.append(sol.extract())
+
+
+def resolve_numbered_refs(soup):
+    """[z:etykieta] -> numer z <strong>Zadanie N</strong> (pandoc nie numeruje refow do twierdzen)."""
+    for a in soup.find_all("a", attrs={"data-reference": True}):
+        target = soup.find(id=a["data-reference"])
+        holder = target.find_parent("div") if target is not None else None
+        label = holder.find("strong") if holder is not None else None
+        m = re.search(r"(\d+)\s*$", label.get_text(strip=True).rstrip(".")) if label else None
+        if m and a.get_text(strip=True) == f"[{a['data-reference']}]":
+            a.string = m.group(1)
+
+
+def drop_blank_paragraphs(soup):
+    """<p>&nbsp;&nbsp;</p> z resztek ukladu (~~~, \\bigskip) robi w HTML pusta przerwe."""
+    for p in soup.find_all("p"):
+        if p.find(True) is None and not p.get_text().replace("\xa0", " ").strip():
+            p.decompose()
+
+
+def caption_image_groups(soup):
+    """
+    {\\includegraphics{..}\\\\ Rys. N. ...} -> <span><img/><br/>Rys. N...</span>;
+    kilka takich grup w jednym <p> - podpis kazdej idzie do jej wlasnego
+    span.image-caption (2026-12: Platek, rys. 5-8).
+    """
+    for span in soup.find_all("span"):
+        imgs = span.find_all("img", recursive=False)
+        if len(imgs) != 1 or span.find("span", "image-caption"):
+            continue
+        nodes = list(imgs[0].next_siblings)
+        while nodes and (getattr(nodes[0], "name", None) == "br" or not str(nodes[0]).strip()):
+            nodes.pop(0)
+        if not nodes or any(getattr(n, "name", None) in ("img", "p", "div") for n in nodes):
+            continue
+        text = "".join(n.get_text() if getattr(n, "name", None) else str(n) for n in nodes)
+        if not re.match(r"\s*Rys\.?\s*\d", text):
+            continue
+        for n in list(imgs[0].next_siblings):
+            if getattr(n, "name", None) == "br" or n in nodes:
+                n.extract()
+        caption = soup.new_tag("span", attrs={"class": "image-caption"})
+        for n in nodes:
+            caption.append(n)
+        imgs[0].insert_after(caption)
+
+
+def open_external_links_in_new_tab(soup):
+    """Linki poza serwis Delty otwieraja sie w nowej karcie (uwaga z 2026-12)."""
+    for a in soup.find_all("a", href=True):
+        href = a["href"].strip()
+        if re.match(r"https?://", href) and "deltami.edu.pl" not in href:
+            a["target"] = "_blank"
+            a["rel"] = "noopener"
+
+
+def unlink_empty_hrefs(soup):
+    for a in soup.find_all("a", href=True):
+        if not a["href"].strip():
+            a.replace_with_children()
+
+
+def _take_group(text: str, start: int) -> int:
+    depth, j = 0, start
+    while j < len(text):
+        if text[j] == "\\":
+            j += 2
+            continue
+        depth += {"{": 1, "}": -1}.get(text[j], 0)
+        j += 1
+        if depth == 0:
+            return j
+    return -1
+
+
+def move_tags_out_of_aligned(html: str) -> str:
+    """align* -> \\begin{aligned} w pandocu; MathJax nie dopuszcza tam \\tag."""
+    def fix(m: re.Match) -> str:
+        math = m.group(0)
+        if "\\begin{aligned}" not in math:
+            return math
+        tags = []
+        while (i := math.find("\\tag", math.find("\\begin{aligned}"))) != -1 and i < math.find("\\end{aligned}"):
+            k = i + 4 + (1 if math[i + 4 : i + 5] == "*" else 0)
+            end = _take_group(math, k)
+            if end == -1:
+                break
+            tags.append(math[i:end])
+            math = math[:i] + math[end:]
+        if not tags:
+            return math
+        close = math.rindex("\\]")
+        return math[:close] + tags[0] + math[close:]
+    return re.sub(r"\\\[.*?\\\]", fix, html, flags=re.DOTALL)
+
+
+def drop_empty_margins(soup):
+    for bq in soup.find_all("blockquote", "blockquote-margin"):
+        if not bq.get_text(strip=True) and bq.find("img") is None:
+            if bq.has_attr("id"):
+                anchor = soup.find("span", {"id": "span-" + bq["id"]})
+                if anchor is not None:
+                    anchor.extract()
+            bq.extract()
+
+
 def correct_html(html_content) -> str:
     # pandoc zamiast \qed tworzy 0[], a nie []
     html_content = html_content.replace("0" + "\u25fb", "\u25fb")
     html_content = html_content.replace("deltaColor", "var(--primary-color)")
+    html_content = html_content.replace("<em>Proof.</em>", "<em>Dowód.</em>")
+    html_content = re.sub(r"Kontakt:(?=<)", "Kontakt: ", html_content)
+    html_content = move_tags_out_of_aligned(html_content)
     html_content = html_content.replace("#" + COLOR, "var(--primary-color)")
 
     # pandoc dla \textcolor[HTML]{HEX}{X} emituje style="color: HEX" bez
@@ -492,9 +645,17 @@ def correct_html(html_content) -> str:
             span_tag.replaceWithChildren()
 
     limit_saper_images(soup)
+    drop_empty_margins(soup)
+    wrap_long_urls(soup)
+    unlink_empty_hrefs(soup)
+    open_external_links_in_new_tab(soup)
+    drop_blank_paragraphs(soup)
     move_captions_below_images(soup)
     make_image_rows(soup)
     wrap_inline_exercises(soup)
+    resolve_numbered_refs(soup)
+    attach_solutions(soup)
+    caption_image_groups(soup)
 
     # <p><img/>...caption...</p>  ->  <p><img/><span class="image-caption">caption</span></p>
     # (zdejmuje wiodace <br/> po obrazku, owija reszte jesli jest tam jakikolwiek tekst)
@@ -513,6 +674,8 @@ def correct_html(html_content) -> str:
         # nie owijaj obrazkow w marginesach (blockquote-margin) - tam image-caption
         # nie ma sensu i CSS dla marginesow ma swoje rzadzace style
         if p.find_parent("blockquote") is not None:
+            continue
+        if p.find("span", "image-caption") is not None:
             continue
         # img moze byc opakowany w <span> - znajdz najwyzszego przodka ktory jest
         # bezposrednim dzieckiem <p>, zeby patrzec na rodzenstwa w <p>, nie w <span>
@@ -547,6 +710,12 @@ def correct_html(html_content) -> str:
             continue
         for br in leading_brs:
             br.extract()
+        caption_text = "".join(n.get_text() if getattr(n, "name", None) else str(n) for n in siblings)
+        if not re.sub(r"[\s.,;:]", "", caption_text):
+            # sama kropka konczaca zdanie obok rysunku (\raise10pt\hbox{.})
+            for n in siblings:
+                n.extract()
+            continue
         caption_nodes = [n.extract() for n in siblings]
         span = soup.new_tag("span")
         span["class"] = "image-caption"

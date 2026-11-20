@@ -25,6 +25,9 @@ def convert_pdf_to_png(pdf_file: Path, dest_path: Path) -> bool:
                 )
                 return True
             img.format = "png"
+            # bez jednostki pdflatex czyta PNG jako 72 dpi - rysunek z etykietami
+            # (tikz) wychodzil 8x za duzy (2026-12: Platek, 25in)
+            img.units = "pixelsperinch"
             img.alpha_channel = "remove"
             img.background_color = "white"
             img.compression_quality = 100

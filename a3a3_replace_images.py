@@ -4,6 +4,9 @@ import subprocess
 from config import PATH, FILE
 from helper import contain_tikz
 
+LABELED_IMAGE_PREFIX = r"\begin{tikzpicture}\node[inner sep="
+WIDTH_SCALE = 1.5
+
 
 # zamienia tikzpicture na \includegraphics{imagepath_noext.png}, gdzie obrazek jest przekonwertowany z xxx.pdf
 def replace_images(content: str) -> str:
@@ -62,7 +65,15 @@ def replace_tikz(content, match, imagepath_noext):
             for width_all in re.findall(
                 r"\\pgfexternalwidth\ \{([0-9]+)pt\.", metadata
             ):
-                widthtext = "[width=" + width_all[0] + "pt]"
+                widthtext = "[width=" + width_all + "pt]"
+
+    if LABELED_IMAGE_PREFIX in match and os.path.isfile(image_file):
+        # obrazek z etykietami wypalonymi przez a1d3.wrap_labeled_images: bez
+        # szerokosci rosl do limitu CSS; PNG ma 600 dpi, skala jak w a3a1
+        px = int(subprocess.run(["magick", "identify", "-format", "%w", image_file],
+                                capture_output=True, text=True).stdout or 0)
+        if px:
+            widthtext = f"[width={int(px / 600 * 72 * WIDTH_SCALE)}pt]"
 
     if not os.path.isfile(image_file):
         print(

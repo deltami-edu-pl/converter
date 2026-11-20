@@ -20,6 +20,28 @@ def _outside_math(content: str, fn) -> str:
     return "".join(parts)
 
 
+SIGNATURE_RE = re.compile(
+    r"\\rightline\{\s*(?:\\(?:large|em|it|sl)\s*)*"
+    r"(?:[A-ZĄĆĘŁŃÓŚŹŻ][a-ząćęłńóśźż.]+~?\s+)+[A-ZĄĆĘŁŃÓŚŹŻ\-]{2,}\s*\}"
+    r"\s*\\rightline\{\s*(?:\\(?:small|footnotesize|em|it)\s*)*([a-ząćęłńóśźż][^{}]*)\}"
+)
+
+
+def move_closing_signature(content: str) -> str:
+    r"""
+    Podpis na koncu tekstu: \rightline{Imie NAZWISKO} + \rightline{funkcja}.
+    Autor i tak jest w naglowku strony, wiec podpis wypada, a funkcja
+    (np. "przewodniczacy Jury Konkursu") idzie na gore jako afiliacja.
+    (2026-12: Komisarski)
+    """
+    m = SIGNATURE_RE.search(content)
+    if not m or "\\begin{document}" not in content:
+        return content
+    role = m.group(1).strip()
+    content = content[: m.start()] + content[m.end() :]
+    return content.replace("\\begin{document}", "\\begin{document}\\myquote{" + role + "}", 1)
+
+
 def _collapse_nested_myquote(content: str) -> str:
     """
     \\myquote{\\myquote{X}EXTRA} -> \\myquote{X EXTRA}. Balansuje klamerki -
@@ -237,7 +259,11 @@ def prepare_tex(content: str) -> str:
     content = re.sub(r"(\\color\{[a-zA-Z0-9]+\})([^{]*?)(?=})", r"\1{\2}", content)
     content = re.sub(r"\\color\{magenta\}", "\\\\textcolor{deltaColor}", content)
     content = re.sub(r"\\textcolor\{magenta\}", "\\\\textcolor{deltaColor}", content)
-    content = re.sub(r"\\Magenta\s?\{", "\\\\textcolor{deltaColor}{ ", content)
+    # bez spacji na poczatku grupy: w trybie tekstowym MathJax (\tag*) i po
+    # nawiasie byla widoczna - "( A000012)" (2026-12: Bielinski)
+    content = re.sub(r"\\Magenta\s?\{", "\\\\textcolor{deltaColor}{", content)
+    # adres jako \texttt nie jest linkiem (2026-12: IKO)
+    content = re.sub(r"\\texttt\{\s*(https?://[^{}\s]+?)\s*\}", r"\\url{\1}", content)
     content = re.sub(r"\\quad", "\\\\ \\\\ \\\\ ", content)
     content = re.sub(r"\\qquad", "\\\\ \\\\ \\\\ ", content)
 
@@ -438,6 +464,8 @@ def prepare_tex(content: str) -> str:
                     )
     # END affil weird
 
+    content = move_closing_signature(content)
+
     content = re.sub(r"\\rightline\{(?=\s*\\includegraphics)", "\\\\centerline{", content)
     content = re.sub(r"\\rightline\{", "\\\\myquote{", content)
 
@@ -474,6 +502,7 @@ def prepare_tex(content: str) -> str:
     # zamiana \ref na \eqref i usunięcie okalających nawiasów
     content = re.sub(r"\(\s*\\ref\{([^}]+)\}\s*\)", r"\\eqref{\1}", content)
 
+    content = re.sub(r"\\eqno\s*(?=\{)", r"\\tag*", content)
     # zamiana \leqno(1) na \tag{1}
     content = re.sub(
         r"\\leqno\s*\(\s*([^)]+?)\s*\)", r"\\tag{\1}", content, flags=re.DOTALL

@@ -1,4 +1,5 @@
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 from config import PATH
@@ -10,6 +11,13 @@ ARTICLE_MACROS = {
 }
 ZADANIA_MACRO = "zadania"
 ROZWIAZANIA_STEM = "rozwiazania"
+# dzialy bez autora w .toc - plik rozpoznajemy po nazwie
+MACRO_STEM_HINTS = {
+    "tjzwspisie": "tjz", "ko": "kat-o", "akts": "aktualnosci", "liga": "ligi",
+    "pzn": "pzn", "niebow": "niebo",
+}
+TITLE_STEM_HINTS = {"Informatyczny kącik olimpijski": "iko"}
+TEX_ACCENTS = {"`": "\u0300", "'": "\u0301", "^": "\u0302", '"': "\u0308", "~": "\u0303", "H": "\u030b"}
 
 
 @dataclass
@@ -53,6 +61,12 @@ def _detex(raw: str) -> str:
     out = re.sub(r",,\s*", "\u201e", out)
     out = re.sub(r"''", "\u201d", out)
     out = re.sub(r"\\dots\b", "\u2026", out)
+    out = re.sub(
+        r"\\([`'^\"~H])\s*\{?([A-Za-z])\}?",
+        lambda m: unicodedata.normalize("NFC", m.group(2) + TEX_ACCENTS[m.group(1)]),
+        out,
+    )
+    out = out.replace("---", "\u2014").replace("--", "\u2013")
     out = re.sub(r"\\(hfill|break|relax|nobreakspace)\b", " ", out)
     out = re.sub(r"\\[a-zA-Z]+\s*", "", out)
     out = out.replace("{", "").replace("}", "").replace("~", " ")
@@ -163,7 +177,8 @@ def issue_order() -> list[Article]:
         else:
             if not queue:
                 continue
-            stem = queue.pop(0)
+            stem = _match_stem(queue, macro, title, author)
+            queue.remove(stem)
         out.append(Article(
             stem=stem,
             position=len(out) + 1,
@@ -177,7 +192,10 @@ def issue_order() -> list[Article]:
     # Artykuly dostarczone PO kompilacji PDF-a nie maja wpisu w .toc
     # (2026-09: 16-polecajka doszla osobno). Dopisujemy je na koniec, zeby
     # przeglad i publikacja ich nie pominely - strona 0 znaczy "brak w .toc".
+    # Pusta zaslepka bez tresci (2026-12: 11-aktualnosci) to nie artykul.
     for stem in queue:
+        if not _has_content(stem):
+            continue
         out.append(Article(
             stem=stem,
             position=len(out) + 1,
@@ -186,6 +204,41 @@ def issue_order() -> list[Article]:
             author="",
         ))
     return out
+
+
+def _ascii(text: str) -> str:
+    text = text.replace("ł", "l").replace("Ł", "L")
+    return unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
+
+
+def _match_stem(queue: list[str], macro: str, title: str, author: str) -> str:
+    r"""
+    Plik dla wpisu z .toc. Numeracja plikow NIE musi zgadzac sie z kolejnoscia
+    druku (2026-12: 02-tjz jest w druku 10., 10-iko 3.), wiec dopasowujemy po
+    tresci: dzial z makra, nazwisko autora w nazwie pliku, IKO po tytule.
+    Dopiero gdy nic nie pasuje - pierwszy wolny plik, jak dawniej.
+    """
+    hints = []
+    if macro in MACRO_STEM_HINTS:
+        hints.append(MACRO_STEM_HINTS[macro])
+    hints += [hint for prefix, hint in TITLE_STEM_HINTS.items() if title.startswith(prefix)]
+    if author:
+        hints.append(_ascii(author.split()[-1]))
+    for hint in hints:
+        for stem in queue:
+            if re.search(rf"(^|-){re.escape(hint)}(-|$)", stem.split("-", 1)[-1]):
+                return stem
+    return queue[0]
+
+
+def _has_content(stem: str) -> bool:
+    source = _find(f"{stem}.tex")
+    if source is None:
+        return True
+    text = source.read_text(encoding="utf-8")
+    m = re.search(r"\\begin\{document\}(.*)\\end\{document\}", text, re.S)
+    body = re.sub(r"\\[a-zA-Z]+\*?|[{}\[\]%\s]", "", m.group(1) if m else text)
+    return len(body) > 40
 
 
 def _source_title(stem: str) -> str:

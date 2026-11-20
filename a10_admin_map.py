@@ -3,6 +3,7 @@
 
 import json
 import re
+import unicodedata
 from admin_rules import (COLUMN_BY_MACRO, COLUMN_BY_TITLE_PREFIX, FIXED_TITLE,
                          PL, TITLE_PREFIX)
 from articles import ARTICLE_MACROS, issue_order, toc_entries
@@ -14,7 +15,8 @@ MAP_FILE = "admin-map.json"
 
 def slugify(title: str) -> str:
     """Jak django.utils.text.slugify, ale z transliteracja polskich znakow."""
-    s = title.translate(PL).lower()
+    s = title.translate(PL)
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
     s = s.replace("„", "").replace("”", "").replace("’", "")
     s = re.sub(r"[^a-z0-9\s-]", "", s)
     s = re.sub(r"[\s-]+", "-", s).strip("-")

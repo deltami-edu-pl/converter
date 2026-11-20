@@ -7,6 +7,32 @@ def clean_tex(content: str) -> str | None:
     # owin \centerline{...\includegraphics+\llap...} w tikzpicture - inaczej pandoc
     # zgubi naklady tekstowe (raise/llap/kern). Idempotentne.
     content = wrap_overlay_centerlines(content)
+    content = expand_counters(content)
+    # pandoc gubi \framebox/\fbox RAZEM z obrazkiem w srodku (2026-12: skan u Gornickiego)
+    content = re.sub(r"\\f(?:rame)?box\{\s*(\\includegraphics(?:\[[^\]]*\])?\{[^{}]*\})\s*\}", r"\1", content)
+    # wymiar z przecinkiem dziesietnym (\hsize5,5cm) - TeX przyjmuje, regexy nizej nie
+    content = re.sub(
+        r"(\\(?:[hv]size|kern|[hv]skip|raise|lower|parindent|hangindent)\s*-?\d+),(\d+\s*(?:pt|cm|mm|em|ex|in))",
+        r"\1.\2",
+        content,
+    )
+    content = re.sub(r"(\\[hv]space\*?\{\s*-?\d+),(\d+)", r"\1.\2", content)
+    content = re.sub(r"\\marg(\[[^\]]*\])?\{\s*\}", "", content)
+    # \cai{N} w tytule - etykieta serii bez kotwicy w tekscie trafia na koniec marginesu
+    content = re.sub(r"(\\wtyt\{[^{}]*?)\\(?:cai|ai)\{\d+\}", r"\1", content)
+    content = strip_klub44_logo_margins(content)
+    content = re.sub(r"\\textdegree\b\s*", "°", content)
+    # symbol z podpisem nakladanym \ooalign (MathJax nie zna) -> \underset
+    content = re.sub(
+        r"\\ooalign\{\\hfil\s*(.+?)\\hfil\\cr\\hfil\\raisebox\{[^}]*\}\{\$\\scriptstyle\s*(.+?)\$\}\\hfil\\cr\}",
+        r"\\underset{\2}{\1}",
+        content,
+    )
+    content = re.sub(
+        r"\\begin\{enumerate\}\[\s*start\s*=\s*(\d+)\s*\]",
+        lambda m: r"\begin{enumerate}\setcounter{enumi}{" + str(int(m.group(1)) - 1) + "}",
+        content,
+    )
 
     # Zlamana linia w opcjonalnym argumencie \includegraphics: pandoc przerywa
     # parsowanie w srodku [...] i myli sie o kilkanascie linii dalej (2026-10,
@@ -104,7 +130,7 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"\\hangafter[0-9]+", "", content)
     content = re.sub(r"\\lower[0-9\.]+" + pt, "", content)
     content = re.sub(r"\\phantom1", "", content)
-    content = re.sub(r"\\scalebox\{[^\}]*\}", "", content)
+    content = re.sub(r"\\scalebox\{[^\}]*\}(\[[^\]]*\])?", "", content)
 
     content = re.sub(r"\\hsize[0-9\.]+" + pt, "", content)
     content = re.sub(r"\\noindent", "", content)
@@ -127,6 +153,7 @@ def clean_tex(content: str) -> str | None:
     # prefiks "to<dimen>", zostawiajac samo \hbox/\vbox. \! - negatywna
     # cienka spacja, wycieka jako tekst.
     content = re.sub(r"\\([hv])box\s+to\s*[\-0-9.]+" + pt, r"\\\1box", content)
+    content = re.sub(r"\\([hv])box\s+to\s*\\[hv]size", r"\\\1box", content)
     content = re.sub(r"\\!", "", content)
 
     # \hbox{00.\enskip}, \hbox{00.--00.\enskip} - pomocnicze boxy mierzace
@@ -139,7 +166,7 @@ def clean_tex(content: str) -> str | None:
     # nazwy makr po tym wzorcu, wycinamy definicje i sciagamy prefiks z wywolan
     # zeby przezyl tekst miedzy nimi.
     delim_macros = set(re.findall(
-        r"\\def\\([a-zA-Z]+)#1[^{a-zA-Z]", content
+        r"\\def\\([a-zA-Z]+)#1[^{a-zA-Z#]", content
     ))
     for macro in delim_macros:
         # parsujemy definicje \def\NAME#1<delim>{<body>}, wyciagajac delim i
@@ -212,10 +239,12 @@ def clean_tex(content: str) -> str | None:
         content = re.sub(rf"\\{macro}\b\s*", "", content)
 
     content = re.sub(r"\\img\[[^\]]*\]\{klub44-[^\}]*\}", "", content)
+    content = inline_section_bodies(content, ("matematyka", "fizyka"))
     content = re.sub(r"\\long\\def\\matematyka", "", content)
     content = re.sub(r"\\long\\def\\fizyka", "", content)
     # pandoc nie obsluguje \long\def - traci wtedy CALA tresc wywolan tej komendy.
     # zamiana na \def sprawia, ze pandoc rozwija makro normalnie.
+    content = stack_layout_macros(content)
     content = re.sub(r"\\long\\def", r"\\def", content)
     content = re.sub(r"\\matematyka", "", content)
     content = re.sub(r"\\fizyka", "", content)
@@ -319,7 +348,7 @@ def clean_tex(content: str) -> str | None:
         + pt
         + r"\s+width\s?[\.0-9]+"
         + pt
-        + r"(\s+depth\s?[\.0-9]+"
+        + r"(\s+depth\s?-?[\.0-9]+"
         + pt
         + r")?",
         "",
@@ -328,7 +357,7 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(
         r"\\vrule\s+height\s?[\.0-9]+"
         + pt
-        + r"\s+depth\s?[\.0-9]+"
+        + r"\s+depth\s?-?[\.0-9]+"
         + pt
         + r"(\s+width\s?[\.0-9]+"
         + pt
@@ -339,7 +368,7 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(
         r"\\vrule\s+width\s?[\.0-9]+"
         + pt
-        + r"\s+depth\s?[\.0-9]+"
+        + r"\s+depth\s?-?[\.0-9]+"
         + pt
         + r"(\s+height\s?[\.0-9]+"
         + pt
@@ -352,14 +381,14 @@ def clean_tex(content: str) -> str | None:
         + pt
         + r"\s+height\s?[\.0-9]+"
         + pt
-        + r"(\s+depth\s?[\.0-9]+"
+        + r"(\s+depth\s?-?[\.0-9]+"
         + pt
         + r")?",
         "",
         content,
     )
     content = re.sub(
-        r"\\vrule\s+depth\s?[\.0-9]+"
+        r"\\vrule\s+depth\s?-?[\.0-9]+"
         + pt
         + r"\s+width\s?[\.0-9]+"
         + pt
@@ -370,7 +399,7 @@ def clean_tex(content: str) -> str | None:
         content,
     )
     content = re.sub(
-        r"\\vrule\s+depth\s?[\.0-9]+"
+        r"\\vrule\s+depth\s?-?[\.0-9]+"
         + pt
         + r"\s+height\s?[\.0-9]+"
         + pt
@@ -433,6 +462,7 @@ def clean_tex(content: str) -> str | None:
     content = re.sub(r"##(\d)", r"#\1", content)
     content = re.sub(r"\\begin\{szeroko\}", "", content)
     content = re.sub(r"\\end\{szeroko\}", "", content)
+    content = re.sub(r"\\redaguje\s*\{", r"\\marg{", content)
     content = re.sub(r"\\redaguje", "", content)
     # content = re.sub(r'\\Zadania', '', content)
 
@@ -450,7 +480,10 @@ def clean_tex(content: str) -> str | None:
     # rozwijajaca sie do \includegraphics) trafil dalej do pandoca; pandoc i tak
     # \hbox{} ignoruje
     content = re.sub(r"\\hbox\{(\\\w+(?:\{\})*)\}", r"\1", content)
+    content = re.sub(r"\\global\s*\\setbox", r"\\setbox", content)
     content = re.sub(r"\\setbox\d+=", "", content)
+    content = re.sub(r"\\marg\{Afiliacja:\s*\*\s*", r"\\marg{Afiliacja: ", content)
+    content = re.sub(r"\\box\d+(?![0-9])", "", content)
     content = re.sub(
         r"\\includegraphics(\[width=[0-9\.]+cm])?\{[^/]*/kmo_logo_krzywe-eps-converted-to.png\}",
         "",
@@ -459,4 +492,113 @@ def clean_tex(content: str) -> str | None:
 
     content = re.sub(r"\\textcolor\{black\}\{\s*\}", "", content)
 
+    return content
+
+
+LAYOUT_DEF_RE = re.compile(r"(?:\\long)?\\def\\([a-zA-Z]+)((?:#\d)+)\{")
+
+
+def stack_layout_macros(content: str) -> str:
+    r"""
+    \def\dwa#1#2{\hbox to\hsize{\parbox{..}{#1}\hfill\parbox{..}{#2}}} - kolumny
+    obok siebie w druku. Pandoc nie przetworzy boxow z blokami (itemize) w srodku,
+    wiec na webie argumenty ida jeden pod drugim.
+    """
+    out, pos = [], 0
+    for m in LAYOUT_DEF_RE.finditer(content):
+        if m.start() < pos:
+            continue
+        depth, j = 1, m.end()
+        while j < len(content) and depth:
+            if content[j] == "\\":
+                j += 2
+                continue
+            depth += {"{": 1, "}": -1}.get(content[j], 0)
+            j += 1
+        body = content[m.end() : j - 1]
+        if "\\parbox" not in body:
+            continue
+        args = "\n\n".join(re.findall(r"#\d", m.group(2)))
+        out.append(content[pos : m.start()])
+        out.append(f"\\def\\{m.group(1)}{m.group(2)}{{{args}}}")
+        pos = j
+    out.append(content[pos:])
+    return "".join(out)
+
+
+COUNTER_TOKEN_RE = re.compile(
+    r"\\setcounter\{(\w+)\}\s*\{?\s*(-?\d+)\s*\}?|\\(?:ref)?stepcounter\{(\w+)\}|\\the([a-zA-Z]+)"
+)
+
+
+def expand_counters(content: str) -> str:
+    r"""
+    Wlasne liczniki autora (\newcounter{rys}, \setcounter{rys}1, Rys. \therys
+    \stepcounter{rys}) - pandoc ich nie liczy: podpisy wychodzily jako "Rys."
+    bez numeru, a \setcounter{rys}1 wyciekal jako "1". Liczymy sekwencyjnie.
+    """
+    names = set(re.findall(r"\\newcounter\{(\w+)\}", content))
+    if not names:
+        return content
+    values = {name: 0 for name in names}
+
+    def step(m: re.Match) -> str:
+        if m.group(1) in names:
+            values[m.group(1)] = int(m.group(2))
+            return ""
+        if m.group(3) in names:
+            values[m.group(3)] += 1
+            return ""
+        if m.group(4) in names:
+            return str(values[m.group(4)])
+        return m.group(0)
+
+    content = re.sub(r"\\newcounter\{(" + "|".join(map(re.escape, names)) + r")\}", "", content)
+    return COUNTER_TOKEN_RE.sub(step, content)
+
+
+def strip_klub44_logo_margins(content: str) -> str:
+    """\\marg{..Klub 44 M.. \\includegraphics{..klub44-m..}} - naglowek z logo ligi, na webie zbedny."""
+    out, pos = [], 0
+    for m in re.finditer(r"\\marg(?:\[[^\]]*\])?\{", content):
+        if m.start() < pos:
+            continue
+        end = m.end()
+        depth = 1
+        while end < len(content) and depth:
+            if content[end] == "\\":
+                end += 2
+                continue
+            depth += {"{": 1, "}": -1}.get(content[end], 0)
+            end += 1
+        if "klub44-" in content[m.end() : end]:
+            out.append(content[pos : m.start()])
+            pos = end
+    out.append(content[pos:])
+    return "".join(out)
+
+
+def inline_section_bodies(content: str, names: tuple[str, ...]) -> str:
+    r"""
+    \long\def\matematyka{...} ... {\fizyka} {\matematyka} - Liga definiuje bloki
+    na gorze pliku, a wywoluje w kolejnosci druku. Bez tego tresc zostawala w
+    miejscu definicji i kolejnosc dzialow byla odwrocona.
+    """
+    for name in names:
+        m = re.search(rf"\\long\\def\\{name}\s*\{{", content)
+        if not m:
+            continue
+        depth, j = 1, m.end()
+        while j < len(content) and depth:
+            if content[j] == "\\":
+                j += 2
+                continue
+            depth += {"{": 1, "}": -1}.get(content[j], 0)
+            j += 1
+        body = content[m.end() : j - 1]
+        rest = content[: m.start()] + content[j:]
+        call = re.search(rf"\{{\s*\\{name}\s*\}}|\\{name}(?![a-zA-Z])", rest)
+        if call is None:
+            continue
+        content = rest[: call.start()] + body + rest[call.end() :]
     return content
